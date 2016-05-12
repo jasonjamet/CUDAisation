@@ -1,0 +1,10 @@
+rapport/*.gz
+rapport/*.aux
+rapport/*.glo
+rapport/*.ist
+rapport/*.log
+rapport/*.pdf
+*.y.*
+*.lex.*
+parser
+parser.h
