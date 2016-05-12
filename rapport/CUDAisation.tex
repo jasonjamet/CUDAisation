@@ -73,6 +73,40 @@
       {]}{{{\color{delim}{]}}}}{1},
 }
 
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{dred}{rgb}{0.545,0,0}
+\definecolor{dblue}{rgb}{0,0,0.545}
+\definecolor{lgrey}{rgb}{0.9,0.9,0.9}
+\definecolor{gray}{rgb}{0.4,0.4,0.4}
+\definecolor{darkblue}{rgb}{0.0,0.0,0.6}
+\lstdefinelanguage{cpp}{
+      backgroundcolor=\color{lgrey},  
+      basicstyle=\footnotesize \ttfamily \color{black} \bfseries,   
+      breakatwhitespace=false,       
+      breaklines=true,               
+      captionpos=b,                   
+      commentstyle=\color{dkgreen},   
+      deletekeywords={...},          
+      escapeinside={\%*}{*)},                  
+      frame=single,                  
+      language=C++,                
+      keywordstyle=\color{purple},  
+      morekeywords={BRIEFDescriptorConfig,string,TiXmlNode,DetectorDescriptorConfigContainer,istringstream,cerr,exit}, 
+      identifierstyle=\color{black},
+      stringstyle=\color{blue},      
+      numbers=right,                 
+      numbersep=5pt,                  
+      numberstyle=\tiny\color{black}, 
+      rulecolor=\color{black},        
+      showspaces=false,               
+      showstringspaces=false,        
+      showtabs=false,                
+      stepnumber=1,                   
+      tabsize=5,                     
+      title=\lstname,                 
+    }
+
+
 \begin{document}
 
 	\begin{titlepage}
@@ -123,9 +157,77 @@
 	\section{Objectifs}
 	
 	\section{Analyse de la traductibilité}
+
 	
-	\subsection{Les variables}
+	\paragraph{Problèmes exclus}
+	\begin{itemize}
+  		\item Boucle while
+  		\item Fonction void
+  		\item Plusieurs boucles for séquentiels
+  		\item 
 	
+	\end{itemize}
+	\paragraph{Problèmes potentiel}
+		\begin{itemize}
+  		\item Conditions if else
+  		\item Passage de variables vers CUDA et inverse
+  		\item Création de la grille/blocs/threads (tailles)
+  		\item Incrémentation dans la boucle for
+  		\item Taille de la boucle plus grande que la grille
+  		\item Boucles imbriquées
+  		\item Variables globales
+	
+	\end{itemize}
+	\paragraph{Fonction non void}
+	Une fonction CUDA ne peut pas retourner de valeurs, nous avons donc trouvé judicieux de ne pas traiter les fonction ayant un retour, la contrainte est de plus extremement minime pour l'utilisateur.
+	\paragraph{}
+	
+	\section{Transformation}
+	
+	\begin{lstlisting}[
+    language=cpp,
+]
+void sum(float *x, float *y, float *z, int size) {
+	for (int i=0; i<size; ++i) {
+		z[i] = x[i] + y[i]
+	}
+}
+
+_____________________________________
+
+
+__global__
+void sum(float *x, float *y, float *z, int size) {
+  int gtid = threadIdx.x ;
+  if (gtid < size) {
+    z[gtid] = x[gtid] + y[gtid];
+  }
+}
+	
+	\end{lstlisting}
+
+	\begin{lstlisting}[
+    language=cpp,
+]
+void sum(float *x, float *y, float *z, int size) {
+	for (int i=0; i<size; i*2) {
+		z[i] = x[i] + y[i]
+	}
+}
+
+_____________________________________
+
+
+__global__
+void sum(float *x, float *y, float *z, int size) {
+  int gtid = threadIdx.x ;
+  if (gtid < size) {
+    z[gtid] = x[gtid] + y[gtid];
+  }
+}
+	
+	\end{lstlisting}
+
 
 
 \end{document}
