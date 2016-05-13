@@ -11,23 +11,25 @@ number					[0-9]+
 
 {blanks}        { /* ignore */ }
 
-"void"		return(RETURNFUNCTION);
-"("				return(BEGINPARENTHESE);
-")"				return(ENDPARENTHESE);
-"{"				return(BEGINBLOCK);
-"}"				return(ENDBLOCK);
-","				return(PARAMETERSEPARATOR);
-"for"			return(FOR);
-";"				return(POINTVIRGULE);
-"="       return(EQUAL);
-"<"       return(LS);
-"<="      return(LSEQ);
-">"       return(GT);
-">="      return(GTEQ);
-"<>"      return(NOTEQ);
-"+"				return(PLUS);
-"-"				return(MINUS);
-"*"				return(MULT);
+"thread_loop"		return(THREADLOOP);
+"#pragma cuda"	return(PRAGMACUDA);
+"void"					return(RETURNFUNCTION);
+"("							return(BEGINPARENTHESE);
+")"							return(ENDPARENTHESE);
+"{"							return(BEGINBLOCK);
+"}"							return(ENDBLOCK);
+","							return(PARAMETERSEPARATOR);
+"for"						return(FOR);
+";"							return(POINTVIRGULE);
+"="   	 			  return(EQUAL);
+"<"    	   			return(LS);
+"<="   		   		return(LSEQ);
+">"    	   			return(GT);
+">="   	   			return(GTEQ);
+"<>"    	  		return(NOTEQ);
+"+"							return(PLUS);
+"-"							return(MINUS);
+"*"							return(MULT);
 
 
 {identifier}	{

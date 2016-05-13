@@ -1,5 +1,8 @@
 %{
 #include <stdio.h>
+#include <string.h>
+
+char gtidName[100];
 %}
 
 // Symbols.
@@ -27,23 +30,40 @@
 %token LSEQ
 %token LS
 %token EQUAL
+%token PRAGMACUDA
+%token THREADLOOP
 
 
 
-%start Function
+%start CudaPragma
 %%
 
 
 //{ printf("\tPart : %s\n", $1); }
+CudaPragma:
+	PRAGMACUDA THREADLOOP BEGINPARENTHESE IDENTIFIER ENDPARENTHESE {strcpy(gtidName, $4);}
+	Function
+	;
+
+
 Function:
 
 		FunctionTopStructure
 	    FunctionBody
 		FunctionBottomStructure
+		;
+
 
 FunctionTopStructure:
-	RETURNFUNCTION IDENTIFIER BEGINPARENTHESE ParametersFunction ENDPARENTHESE
-  BEGINBLOCK
+	FunctionTopStructureBegin ParametersFunction  FunctionTopStructureEnd
+	;
+
+FunctionTopStructureBegin:
+	RETURNFUNCTION IDENTIFIER BEGINPARENTHESE { printf("__global__ void %s (", $2); }
+	;
+
+FunctionTopStructureEnd:
+	ENDPARENTHESE BEGINBLOCK { printf(") {\n\t int %s=((((BlocIdx.x * GridDim.y + BlocIdx.y) * GridDim.z + BlocIdx.z) * BlocDim.x + ThreadIdx.x) * BlocDim.y + ThreadIdx.y) * BlocDim.z + ThreadIdx.z; \n", gtidName); }
 	;
 
 FunctionBody:
@@ -54,7 +74,7 @@ FunctionBody:
 	;
 
 FunctionBottomStructure:
-	ENDBLOCK
+	ENDBLOCK	{ printf("\n}"); }
 	;
 
 ForLoop:
@@ -76,7 +96,8 @@ ForLoopTopEnd:
 	;
 
 ForLoopTopFirstElement:
-	IDENTIFIER IDENTIFIER
+	IDENTIFIER IDENTIFIER EQUAL IDENTIFIER
+	| IDENTIFIER
 	;
 
 ForTopSecondElement:
@@ -98,6 +119,7 @@ ForTopThirdElement:
 	;
 
 ForLoopBody:
+	%empty
 	//TODO
 	;
 
@@ -105,11 +127,16 @@ ForLoopBottom:
 	ENDBLOCK
 	;
 
-ParametersFunction:
+FunctionTopElement:
   %empty
   | IDENTIFIER Pointer IDENTIFIER PARAMETERSEPARATOR ParametersFunction
   | IDENTIFIER Pointer IDENTIFIER
   ;
+
+FunctionTopVarWithPointer:
+	IDENTIFIER
+	|IDENTIFIER Pointer
+
 
 Pointer:
   %empty
