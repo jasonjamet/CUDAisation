@@ -34,18 +34,52 @@
 %%
 
 
-
+//{ printf("\tPart : %s\n", $1); }
 Function:
-  RETURNFUNCTION IDENTIFIER BEGINPARENTHESE ParametersFunction ENDPARENTHESE
+
+		FunctionTopStructure
+	    FunctionBody
+		FunctionBottomStructure
+
+FunctionTopStructure:
+	RETURNFUNCTION IDENTIFIER BEGINPARENTHESE ParametersFunction ENDPARENTHESE
   BEGINBLOCK
-    FOR BEGINPARENTHESE IDENTIFIER IDENTIFIER POINTVIRGULE ForCondition POINTVIRGULE ForInc ENDPARENTHESE
-    BEGINBLOCK
+	;
 
-    ENDBLOCK
-  ENDBLOCK
-  ;
+FunctionBody:
+	ForLoop
+	//|IfElseCondition FunctionBody
+	//|VariableDefinition FunctionBody
+	//|VariableManipulation FunctionBody
+	;
 
-ForCondition:
+FunctionBottomStructure:
+	ENDBLOCK
+	;
+
+ForLoop:
+	ForLoopTop
+		ForLoopBody
+	ForLoopBottom
+
+ForLoopTop:
+	ForLoopTopBegin ForLoopTopFirstElement POINTVIRGULE ForTopSecondElement POINTVIRGULE ForTopThirdElement ForLoopTopEnd
+	;
+
+ForLoopTopBegin:
+	FOR BEGINPARENTHESE
+	;
+
+ForLoopTopEnd:
+	ENDPARENTHESE
+	BEGINBLOCK
+	;
+
+ForLoopTopFirstElement:
+	IDENTIFIER IDENTIFIER
+	;
+
+ForTopSecondElement:
   IDENTIFIER EQUAL IDENTIFIER
   |IDENTIFIER LS IDENTIFIER
   |IDENTIFIER LSEQ IDENTIFIER
@@ -54,13 +88,22 @@ ForCondition:
   |IDENTIFIER NOTEQ IDENTIFIER
   ;
 
-ForInc:
+ForTopThirdElement:
   IDENTIFIER PLUS PLUS
   |PLUS PLUS IDENTIFIER
   |IDENTIFIER MINUS
   |MINUS MINUS IDENTIFIER
   |IDENTIFIER PLUS NUMBER
   |IDENTIFIER MINUS NUMBER
+	;
+
+ForLoopBody:
+	//TODO
+	;
+
+ForLoopBottom:
+	ENDBLOCK
+	;
 
 ParametersFunction:
   %empty
@@ -72,23 +115,6 @@ Pointer:
   %empty
   |MULT
 
-/*Parts:
-	| Parts Part
-	;
-
-Part:
-	IDENTIFIER BEGINBLOCK { printf("\tPart : %s\n", $1); }
-		Keywords
-	ENDBLOCK
-	;
-
-Keywords:
-	| Keywords Keyword
-	;
-
-Keyword:
-	IDENTIFIER { printf("\t\tKeyword : %s\n", $1); }
-	;*/
 %%
 
 int yyerror(char *s) {
