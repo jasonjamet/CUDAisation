@@ -110,26 +110,26 @@ FunctionTopElement:
   ;
 
 FunctionTopElementFull:
-	FunctionTopElementTypeAndPointer FunctionTopElementVarNameAndArray { fncParsed.params.push_back(tmpParamParsed); }
+	FunctionTopElementTypeAndPointer FunctionTopElementVarNameAndArray { fncParsed.params.push_back(tmpParamParsed); tmpParamParsed.name=""; tmpParamParsed.type="";}
 	;
 
 FunctionTopElementTypeAndPointer:
 	IDENTIFIER	{tmpParamParsed.type = $1;}
-	|IDENTIFIER Pointer {tmpParamParsed.type = $1;}
+	|IDENTIFIER Pointer {tmpParamParsed.type = $1 + tmpParamParsed.type;}
 	;
 
 Pointer:
-  MULT {tmpParamParsed.type += " *"; }
+  MULT {tmpParamParsed.type = " *"; }
 ;
 
 FunctionTopElementVarNameAndArray:
 IDENTIFIER {tmpParamParsed.name = $1;}
-|IDENTIFIER FunctionTopElementVarArray {tmpParamParsed.name = $1;}
+|IDENTIFIER FunctionTopElementVarArray {tmpParamParsed.name = $1 + tmpParamParsed.name;}
 ;
 
 FunctionTopElementVarArray:
 %empty
-|ARRAY FunctionTopElementVarArray {tmpParamParsed.name += "[" + (string) $1 + "]";}
+|ARRAY FunctionTopElementVarArray {tmpParamParsed.name =tmpParamParsed.name + $1;}
 ;
 
 FunctionBody:
