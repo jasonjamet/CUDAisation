@@ -6,12 +6,11 @@
 
 
 %}
-
 blanks          [ \t\n]+
-identifier			[_a-zA-Z0-9]+
-string					[a-zA-Z]+
+identifier			[a-zA-Z_][a-zA-Z0-9_]*
+allcharacters		[^; \t\n];
 number					[0-9]+
-array						\[number\]
+array						\[[0-9]+\]
 
 %%
 
@@ -48,4 +47,10 @@ array						\[number\]
 				yylval.sval = (char*)malloc(strlen(yytext));
 				strncpy(yylval.sval, yytext, strlen(yytext));
 				return(ARRAY);
+}
+
+{allcharacters}	{
+				yylval.sval = (char*)malloc(strlen(yytext));
+				strncpy(yylval.sval, yytext, strlen(yytext));
+				return(ALLCHARACTERS);
 }

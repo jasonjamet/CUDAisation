@@ -13,16 +13,16 @@ typedef struct ParameterNode {
 	string name;
 } ParameterNode;
 
-
-typedef struct ConditionNode {
-	ParameterNode leftValue;
-	string comp;
-	ParameterNode rightValue;
-} ConditionNode;
+typedef struct ThirdElementNode {
+	string name;
+	string inc;
+} ThirdElementNode;
 
 typedef struct ForNode {
-	ParameterNode firstElement;
-	ConditionNode condition;
+	string firstElement;
+	string secondElement;
+	ThirdElementNode thirdElement;
+	string body;
 } ForNode;
 
 typedef struct FunctionNode {
@@ -36,9 +36,10 @@ typedef struct PragmaCUDANode {
 	vector<ParameterNode> params;
 } PragmaCUDANode;
 
-ParameterNode tmpParam;
-PragmaCUDANode pragmaCUDA;
-FunctionNode fnc;
+ParameterNode tmpParamParsed;
+PragmaCUDANode pragmaCUDAParsed;
+FunctionNode fncParsed;
+ForNode forParsed;
 
 %}
 
@@ -48,8 +49,8 @@ FunctionNode fnc;
 	char	*sval;
 };
 %token <sval> IDENTIFIER
+%token <sval> ALLCHARACTERS
 %token <sval> NUMBER
-%token <sval> STRING
 %token <sval> ARRAY
 %token MULT
 %token RETURNFUNCTION
@@ -78,17 +79,16 @@ FunctionNode fnc;
 
 
 CudaPragma:
-	PRAGMACUDA THREADLOOP BEGINPARENTHESE IDENTIFIER ENDPARENTHESE {pragmaCUDA.thread_loop = $4;}
+	PRAGMACUDA THREADLOOP BEGINPARENTHESE IDENTIFIER ENDPARENTHESE {pragmaCUDAParsed.thread_loop = $4;}
 	Function
 	;
 
 
 Function:
-
-		FunctionTopStructure
-	    FunctionBody
-		FunctionBottomStructure
-		;
+	FunctionTopStructure
+    FunctionBody
+	FunctionBottomStructure
+	;
 
 
 FunctionTopStructure:
@@ -96,12 +96,41 @@ FunctionTopStructure:
 	;
 
 FunctionTopStructureBegin:
-	RETURNFUNCTION IDENTIFIER BEGINPARENTHESE { fnc.returnParameter = "__global__ void"; fnc.name = $2; }
+	RETURNFUNCTION IDENTIFIER BEGINPARENTHESE { fncParsed.returnParameter = "__global__ void"; fncParsed.name = $2; }
 	;
 
 FunctionTopStructureEnd:
 	ENDPARENTHESE BEGINBLOCK
 	;
+
+FunctionTopElement:
+  %empty
+  | FunctionTopElementFull PARAMETERSEPARATOR FunctionTopElement
+  | FunctionTopElementFull
+  ;
+
+FunctionTopElementFull:
+	FunctionTopElementTypeAndPointer FunctionTopElementVarNameAndArray { fncParsed.params.push_back(tmpParamParsed); }
+	;
+
+FunctionTopElementTypeAndPointer:
+	IDENTIFIER	{tmpParamParsed.type = $1;}
+	|IDENTIFIER Pointer {tmpParamParsed.type = $1;}
+	;
+
+Pointer:
+  MULT {tmpParamParsed.type += " *"; }
+;
+
+FunctionTopElementVarNameAndArray:
+IDENTIFIER {tmpParamParsed.name = $1;}
+|IDENTIFIER FunctionTopElementVarArray {tmpParamParsed.name = $1;}
+;
+
+FunctionTopElementVarArray:
+%empty
+|ARRAY FunctionTopElementVarArray {tmpParamParsed.name += "[" + (string) $1 + "]";}
+;
 
 FunctionBody:
 	ForLoop
@@ -120,7 +149,7 @@ ForLoop:
 	ForLoopBottom
 
 ForLoopTop:
-	ForLoopTopBegin ForLoopTopFirstElement POINTVIRGULE ForTopSecondElement POINTVIRGULE ForTopThirdElement ForLoopTopEnd
+	ForLoopTopBegin ALLCHARACTERS POINTVIRGULE ALLCHARACTERS POINTVIRGULE ForTopThirdElement ForLoopTopEnd {forParsed.firstElement = $2; forParsed.secondElement = $4;}
 	;
 
 ForLoopTopBegin:
@@ -132,66 +161,21 @@ ForLoopTopEnd:
 	BEGINBLOCK
 	;
 
-ForLoopTopFirstElement:
-	IDENTIFIER IDENTIFIER EQUAL IDENTIFIER
-	| IDENTIFIER
-	;
-
-ForTopSecondElement:
-  IDENTIFIER EQUAL IDENTIFIER
-  |IDENTIFIER LS IDENTIFIER
-  |IDENTIFIER LSEQ IDENTIFIER
-  |IDENTIFIER GT IDENTIFIER
-  |IDENTIFIER GTEQ IDENTIFIER
-  |IDENTIFIER NOTEQ IDENTIFIER
-  ;
-
 ForTopThirdElement:
-  IDENTIFIER PLUS PLUS
-  |PLUS PLUS IDENTIFIER
-  |IDENTIFIER MINUS
-  |MINUS MINUS IDENTIFIER
-  |IDENTIFIER PLUS NUMBER
-  |IDENTIFIER MINUS NUMBER
+  IDENTIFIER PLUS PLUS {forParsed.thirdElement.name = $1; forParsed.thirdElement.inc = "++";}
+  |PLUS PLUS IDENTIFIER {forParsed.thirdElement.name = $3; forParsed.thirdElement.inc = "++";}
 	;
 
 ForLoopBody:
 	%empty
-	//TODO
+	|ALLCHARACTERS ForLoopBody {forParsed.body+= $1; }
 	;
 
 ForLoopBottom:
 	ENDBLOCK
 	;
 
-FunctionTopElement:
-  %empty
-  | FunctionTopElementFull PARAMETERSEPARATOR FunctionTopElement
-  | FunctionTopElementFull
-  ;
 
-FunctionTopElementFull:
-	FunctionTopElementTypeAndPointer FunctionTopElementVarNameAndArray { fnc.params.push_back(tmpParam); }
-	;
-
-FunctionTopElementTypeAndPointer:
-	IDENTIFIER	{tmpParam.type = $1;}
-	|IDENTIFIER Pointer {tmpParam.type = $1;}
-	;
-
-Pointer:
-  MULT {tmpParam.type += " *"; }
-;
-
-FunctionTopElementVarNameAndArray:
-IDENTIFIER {tmpParam.name = $1;}
-|IDENTIFIER FunctionTopElementVarArray {tmpParam.name = $1;}
-;
-
-FunctionTopElementVarArray:
-%empty
-|ARRAY FunctionTopElementVarArray {tmpParam.name += "[" + (string) $1 + "]";}
-;
 %%
 
 int yyerror(char const*s) {
@@ -200,9 +184,9 @@ int yyerror(char const*s) {
 
 string getFormatedFunction() {
 	string str;
-	for(int i=0; i< fnc.params.size(); ++i) {
-		str += fnc.params[i].type + " " + fnc.params[i].name;
-		if(i != fnc.params.size()-1) {
+	for(int i=0; i< fncParsed.params.size(); ++i) {
+		str += fncParsed.params[i].type + " " + fncParsed.params[i].name;
+		if(i != fncParsed.params.size()-1) {
 			str += ", ";
 		}
 	}
@@ -212,6 +196,10 @@ string getFormatedFunction() {
 
 int main(void) {
   yyparse();
-	cout << fnc.returnParameter << " " << fnc.name << "(" << getFormatedFunction() << ")";
-	cout << "{\n\t int " << pragmaCUDA.thread_loop << "=((((BlocIdx.x * GridDim.y + BlocIdx.y) * GridDim.z + BlocIdx.z) * BlocDim.x + ThreadIdx.x) * BlocDim.y + ThreadIdx.y) * BlocDim.z + ThreadIdx.z;" << endl << "}" << endl;
+	cout << fncParsed.returnParameter << " " << fncParsed.name << "(" << getFormatedFunction() << ") {" << endl;
+	cout << "\t int " << pragmaCUDAParsed.thread_loop << "= ((((BlocIdx.x * GridDim.y + BlocIdx.y) * GridDim.z + BlocIdx.z) * BlocDim.x + ThreadIdx.x) * BlocDim.y + ThreadIdx.y) * BlocDim.z + ThreadIdx.z;" << endl ;
+	cout << "\t if(" << forParsed.secondElement << ") {";
+	cout << "\t\t " << forParsed.body << endl;
+	cout << "\t }" << endl;
+	cout << "}" << endl;
 }
