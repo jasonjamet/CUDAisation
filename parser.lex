@@ -1,11 +1,17 @@
 %{
+
 #include "parser.h"
+
+
+
+
 %}
 
 blanks          [ \t\n]+
 identifier			[_a-zA-Z0-9]+
 string					[a-zA-Z]+
 number					[0-9]+
+array						\[number\]
 
 %%
 
@@ -33,7 +39,13 @@ number					[0-9]+
 
 
 {identifier}	{
-				yylval.sval = malloc(strlen(yytext));
+				yylval.sval = (char*)malloc(strlen(yytext));
 				strncpy(yylval.sval, yytext, strlen(yytext));
 				return(IDENTIFIER);
+}
+
+{array}	{
+				yylval.sval = (char*)malloc(strlen(yytext));
+				strncpy(yylval.sval, yytext, strlen(yytext));
+				return(ARRAY);
 }

@@ -1,8 +1,45 @@
 %{
-#include <stdio.h>
-#include <string.h>
+#include <iostream>
+#include <string>
+#include <vector>
+using namespace std;
 
-char gtidName[100];
+int yylex(void);
+int yyerror(char const*);
+
+
+typedef struct ParameterNode {
+	string type;
+	string name;
+} ParameterNode;
+
+
+typedef struct ConditionNode {
+	ParameterNode leftValue;
+	string comp;
+	ParameterNode rightValue;
+} ConditionNode;
+
+typedef struct ForNode {
+	ParameterNode firstElement;
+	ConditionNode condition;
+} ForNode;
+
+typedef struct FunctionNode {
+	string returnParameter;
+	string name;
+	vector<ParameterNode> params;
+} FunctionNode;
+
+typedef struct PragmaCUDANode {
+	string thread_loop;
+	vector<ParameterNode> params;
+} PragmaCUDANode;
+
+ParameterNode tmpParam;
+PragmaCUDANode pragmaCUDA;
+FunctionNode fnc;
+
 %}
 
 // Symbols.
@@ -13,6 +50,7 @@ char gtidName[100];
 %token <sval> IDENTIFIER
 %token <sval> NUMBER
 %token <sval> STRING
+%token <sval> ARRAY
 %token MULT
 %token RETURNFUNCTION
 %token BEGINBLOCK
@@ -39,9 +77,8 @@ char gtidName[100];
 %%
 
 
-//{ printf("\tPart : %s\n", $1); }
 CudaPragma:
-	PRAGMACUDA THREADLOOP BEGINPARENTHESE IDENTIFIER ENDPARENTHESE {strcpy(gtidName, $4);}
+	PRAGMACUDA THREADLOOP BEGINPARENTHESE IDENTIFIER ENDPARENTHESE {pragmaCUDA.thread_loop = $4;}
 	Function
 	;
 
@@ -55,15 +92,15 @@ Function:
 
 
 FunctionTopStructure:
-	FunctionTopStructureBegin ParametersFunction  FunctionTopStructureEnd
+	FunctionTopStructureBegin FunctionTopElement  FunctionTopStructureEnd
 	;
 
 FunctionTopStructureBegin:
-	RETURNFUNCTION IDENTIFIER BEGINPARENTHESE { printf("__global__ void %s (", $2); }
+	RETURNFUNCTION IDENTIFIER BEGINPARENTHESE { fnc.returnParameter = "__global__ void"; fnc.name = $2; }
 	;
 
 FunctionTopStructureEnd:
-	ENDPARENTHESE BEGINBLOCK { printf(") {\n\t int %s=((((BlocIdx.x * GridDim.y + BlocIdx.y) * GridDim.z + BlocIdx.z) * BlocDim.x + ThreadIdx.x) * BlocDim.y + ThreadIdx.y) * BlocDim.z + ThreadIdx.z; \n", gtidName); }
+	ENDPARENTHESE BEGINBLOCK
 	;
 
 FunctionBody:
@@ -74,7 +111,7 @@ FunctionBody:
 	;
 
 FunctionBottomStructure:
-	ENDBLOCK	{ printf("\n}"); }
+	ENDBLOCK	{ cout << endl; }
 	;
 
 ForLoop:
@@ -129,25 +166,52 @@ ForLoopBottom:
 
 FunctionTopElement:
   %empty
-  | IDENTIFIER Pointer IDENTIFIER PARAMETERSEPARATOR ParametersFunction
-  | IDENTIFIER Pointer IDENTIFIER
+  | FunctionTopElementFull PARAMETERSEPARATOR FunctionTopElement
+  | FunctionTopElementFull
   ;
 
-FunctionTopVarWithPointer:
-	IDENTIFIER
-	|IDENTIFIER Pointer
+FunctionTopElementFull:
+	FunctionTopElementTypeAndPointer FunctionTopElementVarNameAndArray { fnc.params.push_back(tmpParam); }
+	;
 
+FunctionTopElementTypeAndPointer:
+	IDENTIFIER	{tmpParam.type = $1;}
+	|IDENTIFIER Pointer {tmpParam.type = $1;}
+	;
 
 Pointer:
-  %empty
-  |MULT
+  MULT {tmpParam.type += " *"; }
+;
 
+FunctionTopElementVarNameAndArray:
+IDENTIFIER {tmpParam.name = $1;}
+|IDENTIFIER FunctionTopElementVarArray {tmpParam.name = $1;}
+;
+
+FunctionTopElementVarArray:
+%empty
+|ARRAY FunctionTopElementVarArray {tmpParam.name += "[" + (string) $1 + "]";}
+;
 %%
 
-int yyerror(char *s) {
-  printf("yyerror : %s\n",s);
+int yyerror(char const*s) {
+  cout << "yyerror : " << s << endl;
 }
+
+string getFormatedFunction() {
+	string str;
+	for(int i=0; i< fnc.params.size(); ++i) {
+		str += fnc.params[i].type + " " + fnc.params[i].name;
+		if(i != fnc.params.size()-1) {
+			str += ", ";
+		}
+	}
+	return str;
+}
+
 
 int main(void) {
   yyparse();
+	cout << fnc.returnParameter << " " << fnc.name << "(" << getFormatedFunction() << ")";
+	cout << "{\n\t int " << pragmaCUDA.thread_loop << "=((((BlocIdx.x * GridDim.y + BlocIdx.y) * GridDim.z + BlocIdx.z) * BlocDim.x + ThreadIdx.x) * BlocDim.y + ThreadIdx.y) * BlocDim.z + ThreadIdx.z;" << endl << "}" << endl;
 }
