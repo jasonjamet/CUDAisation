@@ -124,7 +124,7 @@ Pointer:
 
 FunctionTopElementVarNameAndArray:
 IDENTIFIER {tmpParamParsed.name = $1;}
-|IDENTIFIER FunctionTopElementVarArray {tmpParamParsed.name = $1 + tmpParamParsed.name;}
+|IDENTIFIER FunctionTopElementVarArray {tmpParamParsed.name = $1 + tmpParamParsed.name;} // probleme sur l'ordre des tableau, est ce vraiment utile?
 ;
 
 FunctionTopElementVarArray:

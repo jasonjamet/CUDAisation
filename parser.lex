@@ -8,7 +8,7 @@
 %}
 blanks          [ \t\n]+
 identifier			[a-zA-Z_][a-zA-Z0-9_]*
-allcharacters		[^; \t\n];
+allcharacters		[a-zA-Z0-9]*
 number					[0-9]+
 array						\[[0-9]+\]
 
