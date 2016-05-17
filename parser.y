@@ -197,7 +197,7 @@ string getFormatedFunction() {
 int main(void) {
   yyparse();
 	cout << fncParsed.returnParameter << " " << fncParsed.name << "(" << getFormatedFunction() << ") {" << endl;
-	cout << "\t int " << pragmaCUDAParsed.thread_loop << "= ((((BlocIdx.x * GridDim.y + BlocIdx.y) * GridDim.z + BlocIdx.z) * BlocDim.x + ThreadIdx.x) * BlocDim.y + ThreadIdx.y) * BlocDim.z + ThreadIdx.z;" << endl ;
+	cout << "\t int " << pragmaCUDAParsed.thread_loop << "= ((((blockIdx.x * gridDim.y + blockIdx.y) * gridDim.z + blockIdx.z) * blockDim.x + threadIdx.x) * blockDim.y + threadIdx.y) * blockDim.z + threadIdx.z;" << endl ;
 	cout << "\t if(" << forParsed.secondElement << ") {";
 	cout << "\t\t " << forParsed.body << endl;
 	cout << "\t }" << endl;
