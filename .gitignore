@@ -6,6 +6,7 @@ rapport/*.log
 rapport/*.pdf
 *.y.*
 *.lex.*
+*.o
 parser
 parser.h
 *.ouput
