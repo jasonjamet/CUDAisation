@@ -8,3 +8,4 @@ rapport/*.pdf
 *.lex.*
 parser
 parser.h
+*.ouput
