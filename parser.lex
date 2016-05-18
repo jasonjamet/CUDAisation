@@ -2,16 +2,12 @@
 
 #include "parser.h"
 
-
-
-
 %}
 blanks          [ \t\n]+
-identifier			[a-zA-Z_][a-zA-Z0-9_]*
-allcharacters		[a-zA-Z0-9]*
 number					[0-9]+
-array						\[[0-9]+\]
-
+array						\[{number}\]
+identifier			[a-zA-Z_][a-zA-Z0-9_]*
+allcharacters		.*
 %%
 
 {blanks}        { /* ignore */ }
@@ -36,17 +32,16 @@ array						\[[0-9]+\]
 "-"							return(MINUS);
 "*"							return(MULT);
 
+{array}	{
+				yylval.sval = (char*)malloc(strlen(yytext));
+				strncpy(yylval.sval, yytext, strlen(yytext));
+				return(ARRAY);
+}
 
 {identifier}	{
 				yylval.sval = (char*)malloc(strlen(yytext));
 				strncpy(yylval.sval, yytext, strlen(yytext));
 				return(IDENTIFIER);
-}
-
-{array}	{
-				yylval.sval = (char*)malloc(strlen(yytext));
-				strncpy(yylval.sval, yytext, strlen(yytext));
-				return(ARRAY);
 }
 
 {allcharacters}	{

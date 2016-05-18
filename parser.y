@@ -48,8 +48,8 @@ ForNode forParsed;
 {
 	char	*sval;
 };
+
 %token <sval> IDENTIFIER
-%token <sval> ALLCHARACTERS
 %token <sval> NUMBER
 %token <sval> ARRAY
 %token MULT
@@ -71,6 +71,7 @@ ForNode forParsed;
 %token EQUAL
 %token PRAGMACUDA
 %token THREADLOOP
+%token <sval> ALLCHARACTERS
 
 
 
@@ -123,8 +124,7 @@ Pointer:
 ;
 
 FunctionTopElementVarNameAndArray:
-IDENTIFIER {tmpParamParsed.name = $1;}
-|IDENTIFIER FunctionTopElementVarArray {tmpParamParsed.name = $1 + tmpParamParsed.name;} // probleme sur l'ordre des tableau, est ce vraiment utile?
+IDENTIFIER FunctionTopElementVarArray {tmpParamParsed.name = $1 + tmpParamParsed.name;} // probleme sur l'ordre des tableau, est ce vraiment utile?
 ;
 
 FunctionTopElementVarArray:
@@ -198,7 +198,7 @@ int main(void) {
   yyparse();
 	cout << fncParsed.returnParameter << " " << fncParsed.name << "(" << getFormatedFunction() << ") {" << endl;
 	cout << "\t int " << pragmaCUDAParsed.thread_loop << "= ((((blockIdx.x * gridDim.y + blockIdx.y) * gridDim.z + blockIdx.z) * blockDim.x + threadIdx.x) * blockDim.y + threadIdx.y) * blockDim.z + threadIdx.z;" << endl ;
-	cout << "\t if(" << forParsed.secondElement << ") {";
+	cout << "\t if(" << forParsed.secondElement << ") {" << endl;
 	cout << "\t\t " << forParsed.body << endl;
 	cout << "\t }" << endl;
 	cout << "}" << endl;
