@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "Tree/treeStructure.h"
 using namespace std;
 
 int yylex(void);
@@ -501,10 +502,10 @@ selection_statement
 iteration_statement
 	: WHILE '(' expression ')' statement
 	| DO statement WHILE '(' expression ')' ';'
-	| FOR '(' expression_statement expression_statement ')' statement { cout << "OK1" << endl;}
-	| FOR '(' expression_statement expression_statement expression ')' statement { cout << "OK2" << endl;}
-	| FOR '(' declaration expression_statement ')' statement { cout << "OK3" << endl;}
-	| FOR '(' declaration expression_statement expression ')' statement { cout << "OK4" << endl;}
+	| FOR '(' expression_statement expression_statement ')' statement
+	| FOR '(' expression_statement expression_statement expression ')' statement
+	| FOR '(' declaration expression_statement ')' statement
+	| FOR '(' declaration expression_statement expression ')' statement
 	;
 
 jump_statement
