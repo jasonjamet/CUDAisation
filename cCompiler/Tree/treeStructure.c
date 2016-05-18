@@ -216,7 +216,6 @@ typedef struct t_direct_declarator {
   t_identifier_list identifier_list;
 }
 
-
 typedef struct t_type_specifier {
   t_token VOID;
   t_token CHAR;
