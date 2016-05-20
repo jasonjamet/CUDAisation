@@ -590,76 +590,27 @@ class DoWhileIterationStatement : public IterationStatement {
 };
 
 
+typedef std::vector<std::string*> CudaParamArgsList;
 
-
-
-
-
-class ThreadLoop : public Node {
+class CudaParam : public Node {
 	public:
-		int token;
-		std::string identifier;
-
-		ThreadLoop(int token, std::string identifier) :token(token), identifier(identifier) {
-
-		}
-
-		std::string toStdString();
-		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
-};
-
-//TODO faire le block et le grid
-class BlockSize : public Node {
-	public:
-		int token;
-		std::string identifier;
-		BlockSize( ){}
-
-		std::string toStdString();
-		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
-};
-
-class GridSize : public Node {
-	public:
-		int token;
-		std::string identifier;
-		GridSize(){}
-
-		std::string toStdString();
-		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
-};
-
-class CudaParamsOpt : public Node {
-	public:
-		BlockSize *block_size;
-		GridSize *grid_size;
-		CudaParamsOpt(BlockSize *block_size = NULL, GridSize *grid_size = NULL) : block_size(block_size), grid_size(grid_size) {
+		int token; //Parameter name
+		CudaParamArgsList cuda_params_args; 
+		CudaParam(int token, CudaParamArgsList cuda_params_args) : token(token), cuda_params_args(cuda_params_args) {
 
 		}
 };
 
-class CudaParams : public Node {
-	public:
-		ThreadLoop *thread_loop;
-		CudaParamsOpt * cuda_params_opt;
-		CudaParams(ThreadLoop *thread_loop, CudaParamsOpt *cuda_params_opt) : thread_loop(thread_loop), cuda_params_opt(cuda_params_opt) {
-
-		}
-};
-
+typedef std::vector<CudaParam*> CudaParamList;
 
 
 class PragmaCuda : public Node {
 	public:
 	int token1;
 	int token2;
-	CudaParams *cuda_params;
-	IterationStatement *iteration_statement;
+	CudaParamList cuda_param_list;
 
-	PragmaCuda(int token1, int token2, CudaParams *cuda_params, IterationStatement *iteration_statement ) :token1(token1), token2(token2), cuda_params(cuda_params), iteration_statement(iteration_statement) {
+	PragmaCuda(int token1, int token2, CudaParamList cuda_param_list) :token1(token1), token2(token2), cuda_param_list(cuda_param_list) {
 
 	}
 
