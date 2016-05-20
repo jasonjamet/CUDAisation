@@ -39,10 +39,6 @@
 	InitDeclarator *init_declarator;
 	Initializer *initializer;
 
-	BlockSize *block_size;
-	GridSize *grid_size;
-	ThreadLoop *thread_loop;
-
 	Declarator *declarator;
 
 	DirectDeclarator *direct_declarator;
@@ -62,6 +58,11 @@
 	std::string *string;
 	IdentifierList *identifier_list;
 	int token;
+
+	PragmaCuda *pragma_cuda;
+	CudaParamList *cuda_param_list;
+	CudaParam *cuda_param;
+	CudaParamArgsList *cuda_param_args_list;
 }
 
 %token <string> IDENTIFIER CONSTANT STRING_LITERAL
@@ -76,7 +77,7 @@
 %token STRUCT UNION ENUM ELLIPSIS
 
 %token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
-%token PRAGMA CUDA
+%token PRAGMA CUDA THREAD_LOOP BLOCK_SIZE GRID_SIZE
 
 /* Define the type of node our nonterminal symbols represent.
    The types refer to the %union declaration above. Ex: when
@@ -119,10 +120,8 @@
 %type <op> assignment_operator unary_operator
 %type <initializer> initializer
 
-%type <block_size> block_size
-%type <grid_size> grid_size
-%type <thread_loop> thread_loop
-%type <node> pragma_cuda
+%type <node> pragma_cuda cuda_param cuda_param_args
+%type <cuda_param_list> cuda_param_list
 
 
 %start program
@@ -505,18 +504,25 @@ expression_statement
 	;
 
 pragma_cuda
-	: PRAGMA CUDA cuda_params iteration_statement { $$ = new PragmaCuda(PRAGMA, CUDA, $2, $3); }
+	: PRAGMA CUDA cuda_param_list { $$ = new PragmaCuda(PRAGMA, CUDA, $3); }
 	;
 
-cuda_params
-	: cuda_params_opt thread_loop
-	| thread_loop cuda_params_opt
+cuda_param_list
+	: cuda_param { $$ = new CudaParamList(); $$->push_back($1); }
+	| cuda_param_list cuda_param { $1->push_back($2); $$ = $1; }
 	;
 
-cuda_params_opt
-	: %empty
-	| grid_size cuda_params_opt
-	| block_size cuda_params_opt
+cuda_param
+	: THREAD_LOOP '(' IDENTIFIER ')' { $$ = new CudaParam(THREAD_LOOP, $3);}
+	| BLOCK_SIZE '(' cuda_param_args ')' { $$ = new CudaParam(BLOCK_SIZE, $3);}
+	| GRID_SIZE '(' cuda_param_args ')' { $$ = new CudaParam(GRID_SIZE, $3);}
+	;
+
+cuda_param_args
+	: IDENTIFIER { $$ = new CudaParamList(); $$->push_back($1);}
+	| IDENTIFIER ',' IDENTIFIER { $$ = new CudaParamList(); $$->push_back($1); $$->push_back($3);}
+	| IDENTIFIER ',' IDENTIFIER ',' IDENTIFIER{ $$ = new CudaParamList(); $$->push_back($1); $$->push_back($3); $$->push_back($5);}
+	;
 
 selection_statement
 	: IF '(' expression ')' statement 					{ $$ = new IfSelectionStatement(IF, *$3, $5 ); delete $3; }
