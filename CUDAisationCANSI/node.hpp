@@ -589,91 +589,6 @@ class DoWhileIterationStatement : public IterationStatement {
 		void toPrettyCode(CodeString*);
 };
 
-
-
-
-
-
-
-class ThreadLoop : public Node {
-	public:
-		int token;
-		std::string identifier;
-
-		ThreadLoop(int token, std::string identifier) :token(token), identifier(identifier) {
-
-		}
-
-		std::string toStdString();
-		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
-};
-
-//TODO faire le block et le grid
-class BlockSize : public Node {
-	public:
-		int token;
-		std::string identifier;
-		BlockSize( ){}
-
-		std::string toStdString();
-		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
-};
-
-class GridSize : public Node {
-	public:
-		int token;
-		std::string identifier;
-		GridSize(){}
-
-		std::string toStdString();
-		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
-};
-
-class CudaParamsOpt : public Node {
-	public:
-		BlockSize *block_size;
-		GridSize *grid_size;
-		CudaParamsOpt(BlockSize *block_size = NULL, GridSize *grid_size = NULL) : block_size(block_size), grid_size(grid_size) {
-
-		}
-};
-
-class CudaParams : public Node {
-	public:
-		ThreadLoop *thread_loop;
-		CudaParamsOpt * cuda_params_opt;
-		CudaParams(ThreadLoop *thread_loop, CudaParamsOpt *cuda_params_opt) : thread_loop(thread_loop), cuda_params_opt(cuda_params_opt) {
-
-		}
-};
-
-
-
-class PragmaCuda : public Node {
-	public:
-	int token1;
-	int token2;
-	CudaParams *cuda_params;
-	IterationStatement *iteration_statement;
-
-	PragmaCuda(int token1, int token2, CudaParams *cuda_params, IterationStatement *iteration_statement ) :token1(token1), token2(token2), cuda_params(cuda_params), iteration_statement(iteration_statement) {
-
-	}
-
-	std::string toStdString();
-	std::string generateCode(CodeContext*);
-	void toPrettyCode(CodeString*);
-};
-
-
-
-
-
-
-
 class ForSimpleIterationStatement : public IterationStatement {
 	public:
 		int token;
@@ -730,6 +645,8 @@ class JumpStatement : public Statement {
 		void toPrettyCode(CodeString*);
 };
 
+
+
 class FunctionDefinition : public Statement {
 	public:
 		DeclarationSpecifierList declaration_specifier_list;
@@ -751,6 +668,106 @@ class FunctionDefinition : public Statement {
 
 		FunctionDefinition(DeclarationSpecifierList declaration_specifier_list, Declarator *declarator, CompoundStatement *compound_statement) :
 			declaration_specifier_list(declaration_specifier_list), declarator(declarator), compound_statement(compound_statement) {}
+
+		std::string toStdString();
+		void toPrettyCode(CodeString*);
+		std::string generateCode(CodeContext*);
+};
+
+class CudaParam : public Node {
+	public:
+		virtual std::string toStdString();
+		virtual void toPrettyCode(CodeString*);
+		virtual std::string generateCode(CodeContext*);
+};
+
+class GridSize : public CudaParam {
+	public:
+		int x, y, z;
+		GridSize(int x) :
+			x(x),
+			y(1),
+			z(1) {}
+		GridSize(int x, int y) :
+			x(x),
+			y(y),
+			z(1) {}
+		GridSize(int x, int y, int z) :
+			x(x),
+			y(y),
+			z(z) {}
+		std::string toStdString();
+		void toPrettyCode(CodeString*);
+		std::string generateCode(CodeContext*);
+
+};
+
+class BlockSize : public CudaParam {
+	public:
+		int x, y, z;
+		BlockSize(int x) :
+			x(x),
+			y(1),
+			z(1) {}
+		BlockSize(int x, int y) :
+			x(x),
+			y(y),
+			z(1) {}
+		BlockSize(int x, int y, int z) :
+			x(x),
+			y(y),
+			z(z) {}
+
+		std::string toStdString();
+		void toPrettyCode(CodeString*);
+		std::string generateCode(CodeContext*);
+};
+
+class ThreadLoop : public CudaParam {
+	public:
+		std::string variable;
+		ThreadLoop(std::string name) :
+			variable(name) {}
+
+		std::string toStdString();
+		void toPrettyCode(CodeString*);
+		std::string generateCode(CodeContext*);
+};
+
+class CudaParamList : public Node {
+	public:
+		std::vector<const CudaParam *> params;
+
+		CudaParamList(CudaParam *cuda_param);
+		void addParam(CudaParam *cuda_param);
+		std::string toStdString();
+		void toPrettyCode(CodeString*);
+		std::string generateCode(CodeContext*);
+};
+
+class PragmaCuda : public Node {
+	public:
+	CudaParamList *cuda_param_list;
+
+	PragmaCuda(CudaParamList *cuda_param_list) :
+		cuda_param_list(cuda_param_list) {}
+
+	std::string toStdString();
+	std::string generateCode(CodeContext*);
+	void toPrettyCode(CodeString*);
+};
+
+class FunctionBlock : public Statement {
+	public:
+		PragmaCuda *pragma_cuda = NULL;
+		FunctionDefinition *function_definition = NULL;
+
+		FunctionBlock(PragmaCuda *pragma_cuda, FunctionDefinition *function_definition) :
+			pragma_cuda(pragma_cuda),
+			function_definition(function_definition) {}
+
+		FunctionBlock(FunctionDefinition *function_definition) :
+			function_definition(function_definition) {}
 
 		std::string toStdString();
 		void toPrettyCode(CodeString*);

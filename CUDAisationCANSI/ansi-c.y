@@ -39,9 +39,12 @@
 	InitDeclarator *init_declarator;
 	Initializer *initializer;
 
+	PragmaCuda *pragma_cuda;
 	BlockSize *block_size;
 	GridSize *grid_size;
 	ThreadLoop *thread_loop;
+	CudaParamList *cuda_param_list;
+	CudaParam *cuda_param;
 
 	Declarator *declarator;
 
@@ -49,12 +52,13 @@
 
 	Expression *expression;
 	ExpressionList *expression_list;
-    ExpressionStatement *expression_statement;
+  ExpressionStatement *expression_statement;
 
 	Operator *op;
 
 	Pointer *pointer;
 	FunctionDefinition *function_definition;
+	FunctionBlock *function_block;
 
 	CompoundStatement *compound_statement;
 	TypeQualifierList *type_qualifier_list;
@@ -76,7 +80,7 @@
 %token STRUCT UNION ENUM ELLIPSIS
 
 %token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
-%token PRAGMA CUDA
+%token PRAGMA CUDA BLOCK_SIZE GRID_SIZE THREAD_LOOP
 
 /* Define the type of node our nonterminal symbols represent.
    The types refer to the %union declaration above. Ex: when
@@ -103,6 +107,7 @@
 %type <direct_declarator> direct_declarator
 %type <pointer> pointer
 %type <function_definition> function_definition
+%type <function_block> function_block
 %type <compound_statement> compound_statement
 %type <declaration_list> declaration_list
 %type <statement_list> statement_list
@@ -118,11 +123,12 @@
 %type <expression> additive_expression multiplicative_expression cast_expression
 %type <op> assignment_operator unary_operator
 %type <initializer> initializer
-
 %type <block_size> block_size
 %type <grid_size> grid_size
 %type <thread_loop> thread_loop
-%type <node> pragma_cuda
+%type <pragma_cuda> pragma_cuda
+%type <cuda_param_list> cuda_param_list
+%type <cuda_param> cuda_param
 
 
 %start program
@@ -473,7 +479,6 @@ statement
 	| selection_statement	{ $$ = $1; }
 	| iteration_statement	{ $$ = $1; }
 	| jump_statement		{ $$ = $1; }
-	| pragma_cuda
 	;
 
 labeled_statement
@@ -505,18 +510,35 @@ expression_statement
 	;
 
 pragma_cuda
-	: PRAGMA CUDA cuda_params iteration_statement { $$ = new PragmaCuda(PRAGMA, CUDA, $2, $3); }
+	: PRAGMA CUDA cuda_param_list { $$ = new PragmaCuda($3); }
 	;
 
-cuda_params
-	: cuda_params_opt thread_loop
-	| thread_loop cuda_params_opt
+cuda_param_list
+	: cuda_param									{ $$ = new CudaParamList($1); }
+	| cuda_param cuda_param_list	{ $$ = $2; $$->addParam($1); }
 	;
 
-cuda_params_opt
-	: %empty
-	| grid_size cuda_params_opt
-	| block_size cuda_params_opt
+cuda_param
+	: grid_size		{ $$ = $1; }
+	| block_size	{ $$ = $1; }
+	| thread_loop	{ $$ = $1; }
+	;
+
+grid_size
+	: GRID_SIZE '(' CONSTANT ')'														{ $$ = new GridSize(atoi($3->c_str()), 1, 1); }
+	| GRID_SIZE '(' CONSTANT ',' CONSTANT ')'								{ $$ = new GridSize(atoi($3->c_str()), atoi($5->c_str()), 1); }
+	| GRID_SIZE '(' CONSTANT ',' CONSTANT ',' CONSTANT ')'	{ $$ = new GridSize(atoi($3->c_str()), atoi($5->c_str()), atoi($7->c_str())); }
+	;
+
+block_size
+	: BLOCK_SIZE '(' CONSTANT ')'														{ $$ = new BlockSize(atoi($3->c_str()), 1, 1); }
+	| BLOCK_SIZE '(' CONSTANT ',' CONSTANT ')'							{ $$ = new BlockSize(atoi($3->c_str()), atoi($5->c_str()), 1); }
+	| BLOCK_SIZE '(' CONSTANT ',' CONSTANT ',' CONSTANT ')'	{ $$ = new BlockSize(atoi($3->c_str()), atoi($5->c_str()), atoi($7->c_str())); }
+	;
+
+thread_loop
+	: THREAD_LOOP '(' IDENTIFIER ')'
+	;
 
 selection_statement
 	: IF '(' expression ')' statement 					{ $$ = new IfSelectionStatement(IF, *$3, $5 ); delete $3; }
@@ -548,7 +570,7 @@ translation_unit
 	;
 
 external_declaration
-	: function_definition 	{ $$ = $1; }
+	: function_block 	{ $$ = $1; }
 	| declaration			{ $$ = $1; }
 	;
 
@@ -557,6 +579,11 @@ function_definition
 	| declaration_specifiers declarator compound_statement 					{ $$ = new FunctionDefinition(*$1,$2,$3); }
 	| declarator declaration_list compound_statement 						{ $$ = new FunctionDefinition($1,*$2,$3); }
 	| declarator compound_statement 										{ $$ = new FunctionDefinition($1,$2); }
+	;
+
+function_block
+	: pragma_cuda function_definition { $$ = new FunctionBlock($1,$2); }
+	| function_definition
 	;
 
 %%
