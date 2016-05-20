@@ -564,7 +564,7 @@ external_declaration
 	;
 
 cuda_definition
-	: pragma_cuda function_definition { $$ = new CudaDefinition(*$1, *$2); }
+	: pragma_cuda function_definition { $$ = new CudaDefinition($1, $2); }
 	;
 
 

@@ -724,9 +724,9 @@ class FunctionDefinition : public Statement {
 
 class CudaDefinition : public Statement {
 	public:
-		PragmaCuda pragma_cuda;
-		FunctionDefinition functionDefinition;
-		CudaDefinition(PragmaCuda pragma_cuda, FunctionDefinition functionDefinition) : pragma_cuda(pragma_cuda), functionDefinition(functionDefinition) {
+		PragmaCuda *pragma_cuda;
+		FunctionDefinition *functionDefinition;
+		CudaDefinition(PragmaCuda *pragma_cuda, FunctionDefinition *functionDefinition) : pragma_cuda(pragma_cuda), functionDefinition(functionDefinition) {
 
 		}
 
