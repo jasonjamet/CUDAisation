@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <vector>
 using namespace std;
 
 struct t_token;
@@ -85,9 +86,12 @@ struct t_function_definition;
 struct t_declaration_list;
 
 
+typedef struct t_program {
+  vector<t_translation_unit> v_translation_unit;
+} t_program;
 
 typedef struct t_token {
-  std::string value;
+  string value;
 } t_token;
 
 typedef struct t_primary_expression {

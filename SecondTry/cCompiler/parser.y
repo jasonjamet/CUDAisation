@@ -8,8 +8,11 @@ using namespace std;
 int yylex(void);
 int yyerror(char const*);
 static int yyinput (void );
-%}
 
+
+t_program program;
+
+%}
 %token	IDENTIFIER I_CONSTANT F_CONSTANT STRING_LITERAL FUNC_NAME SIZEOF
 %token	PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
 %token	AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
@@ -27,11 +30,13 @@ static int yyinput (void );
 
 %token	ALIGNAS ALIGNOF ATOMIC GENERIC NORETURN STATIC_ASSERT THREAD_LOCAL
 
+
+
 %start translation_unit
 %%
 
 primary_expression
-	: IDENTIFIER
+	: IDENTIFIER 		{ $$ = IDENTIFIER; }
 	| constant
 	| string
 	| '(' expression ')'
@@ -39,18 +44,18 @@ primary_expression
 	;
 
 constant
-	: I_CONSTANT		/* includes character_constant */
-	| F_CONSTANT
-	| ENUMERATION_CONSTANT	/* after it has been defined as such */
+	: I_CONSTANT 		{ $$ = I_CONSTANT; } 		 /* includes character_constant */
+	| F_CONSTANT 		{ $$ = F_CONSTANT; }
+	| ENUMERATION_CONSTANT 		{ $$ = ENUMERATION_CONSTANT; } 		 /* after it has been defined as such */
 	;
 
 enumeration_constant		/* before it has been defined as such */
-	: IDENTIFIER
+	: IDENTIFIER 		{ $$ = IDENTIFIER; }
 	;
 
 string
-	: STRING_LITERAL
-	| FUNC_NAME
+	: STRING_LITERAL 		{ $$ = STRING_LITERAL; }
+	| FUNC_NAME 		{ $$ = FUNC_NAME; }
 	;
 
 generic_selection
@@ -179,16 +184,16 @@ assignment_expression
 
 assignment_operator
 	: '='
-	| MUL_ASSIGN
-	| DIV_ASSIGN
-	| MOD_ASSIGN
-	| ADD_ASSIGN
-	| SUB_ASSIGN
-	| LEFT_ASSIGN
-	| RIGHT_ASSIGN
-	| AND_ASSIGN
-	| XOR_ASSIGN
-	| OR_ASSIGN
+	| MUL_ASSIGN 		{ $$ = MUL_ASSIGN; }
+	| DIV_ASSIGN 		{ $$ = DIV_ASSIGN; }
+	| MOD_ASSIGN 		{ $$ = MOD_ASSIGN; }
+	| ADD_ASSIGN 		{ $$ = ADD_ASSIGN; }
+	| SUB_ASSIGN 		{ $$ = SUB_ASSIGN; }
+	| LEFT_ASSIGN 		{ $$ = LEFT_ASSIGN; }
+	| RIGHT_ASSIGN 		{ $$ = RIGHT_ASSIGN; }
+	| AND_ASSIGN 		{ $$ = AND_ASSIGN; }
+	| XOR_ASSIGN 		{ $$ = XOR_ASSIGN; }
+	| OR_ASSIGN 		{ $$ = OR_ASSIGN; }
 	;
 
 expression
@@ -197,7 +202,7 @@ expression
 	;
 
 constant_expression
-	: conditional_expression	/* with constraints */
+	: conditional_expression		 /* with constraints */
 	;
 
 declaration
@@ -209,8 +214,8 @@ declaration
 declaration_specifiers
 	: storage_class_specifier declaration_specifiers
 	| storage_class_specifier
-	| type_specifier declaration_specifiers
-	| type_specifier
+	| type_specifier declaration_specifiers {$$ = }
+	| type_specifier { $$ = $1}
 	| type_qualifier declaration_specifiers
 	| type_qualifier
 	| function_specifier declaration_specifiers
@@ -230,31 +235,31 @@ init_declarator
 	;
 
 storage_class_specifier
-	: TYPEDEF	/* identifiers must be flagged as TYPEDEF_NAME */
-	| EXTERN
-	| STATIC
-	| THREAD_LOCAL
-	| AUTO
-	| REGISTER
+	: TYPEDEF 		{ $$ = TYPEDEF; } 		 /* identifiers must be flagged as TYPEDEF_NAME */
+	| EXTERN 		{ $$ = EXTERN; }
+	| STATIC 		{ $$ = STATIC; }
+	| THREAD_LOCAL 		{ $$ = THREAD_LOCAL; }
+	| AUTO 		{ $$ = AUTO; }
+	| REGISTER 		{ $$ = REGISTER; }
 	;
 
 type_specifier
-	: VOID
-	| CHAR
-	| SHORT
-	| INT
-	| LONG
-	| FLOAT
-	| DOUBLE
-	| SIGNED
-	| UNSIGNED
-	| BOOL
-	| COMPLEX
-	| IMAGINARY	  	/* non-mandated extension */
+	: VOID 		{ $$ = VOID; }
+	| CHAR 		{ $$ = CHAR; }
+	| SHORT 		{ $$ = SHORT; }
+	| INT 		{ $$ = INT; }
+	| LONG 		{ $$ = LONG; }
+	| FLOAT 		{ $$ = FLOAT; }
+	| DOUBLE 		{ $$ = DOUBLE; }
+	| SIGNED 		{ $$ = SIGNED; }
+	| UNSIGNED 		{ $$ = UNSIGNED; }
+	| BOOL 		{ $$ = BOOL; }
+	| COMPLEX 		{ $$ = COMPLEX; }
+	| IMAGINARY 		{ $$ = IMAGINARY; } 		 /* non-mandated extension */
 	| atomic_type_specifier
 	| struct_or_union_specifier
 	| enum_specifier
-	| TYPEDEF_NAME		/* after it has been defined as such */
+	| TYPEDEF_NAME 		{ $$ = TYPEDEF_NAME; } 		 /* after it has been defined as such */
 	;
 
 struct_or_union_specifier
@@ -264,8 +269,8 @@ struct_or_union_specifier
 	;
 
 struct_or_union
-	: STRUCT
-	| UNION
+	: STRUCT 		{ $$ = STRUCT; }
+	| UNION 		{ $$ = UNION; }
 	;
 
 struct_declaration_list
@@ -320,15 +325,15 @@ atomic_type_specifier
 	;
 
 type_qualifier
-	: CONST
-	| RESTRICT
-	| VOLATILE
-	| ATOMIC
+	: CONST 		{ $$ = CONST; }
+	| RESTRICT 		{ $$ = RESTRICT; }
+	| VOLATILE 		{ $$ = VOLATILE; }
+	| ATOMIC 		{ $$ = ATOMIC; }
 	;
 
 function_specifier
-	: INLINE
-	| NORETURN
+	: INLINE 		{ $$ = INLINE; }
+	| NORETURN 		{ $$ = NORETURN; }
 	;
 
 alignment_specifier
@@ -342,7 +347,7 @@ declarator
 	;
 
 direct_declarator
-	: IDENTIFIER
+	: IDENTIFIER 		{ $$ = IDENTIFIER; }
 	| '(' declarator ')'
 	| direct_declarator '[' ']'
 	| direct_declarator '[' '*' ']'
@@ -388,7 +393,7 @@ parameter_declaration
 	;
 
 identifier_list
-	: IDENTIFIER
+	: IDENTIFIER 		{ $$ = IDENTIFIER; }
 	| identifier_list ',' IDENTIFIER
 	;
 
@@ -517,7 +522,7 @@ jump_statement
 	;
 
 translation_unit
-	: external_declaration
+	: external_declaration //{t_translation_unit translation_unit; program.v_translation_unit.push_back(translation_unit);}
 	| translation_unit external_declaration
 	;
 
@@ -539,10 +544,14 @@ declaration_list
 %%
 #include <stdio.h>
 
+
 int yyerror(char const*s) {
   cout << "yyerror : " << s << endl;
 }
 
 int main(void) {
   yyparse();
+	for(std::vector<t_translation_unit>::iterator it = program.v_translation_unit.begin(); it != program.v_translation_unit.end(); ++it) {
+    //cout << *it. << endl;
+	}
 }

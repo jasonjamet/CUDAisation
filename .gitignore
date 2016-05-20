@@ -10,3 +10,4 @@ rapport/*.pdf
 parser
 parser.h
 *.ouput
+*.gch

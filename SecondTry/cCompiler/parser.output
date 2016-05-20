@@ -1,3 +1,11 @@
+Nonterminals useless in grammar
+
+   doWhileLoop
+   forLoop
+   token
+   whileLoop
+
+
 State 27 conflicts: 1 shift/reduce
 State 455 conflicts: 1 shift/reduce
 
