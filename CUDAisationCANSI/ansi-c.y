@@ -60,9 +60,11 @@
 	int token;
 
 	PragmaCuda *pragma_cuda;
-	CudaParamList *cuda_param_list;
 	CudaParam *cuda_param;
+	CudaParamList *cuda_param_list;
+	CudaParamArgs *cuda_param_args;
 	CudaParamArgsList *cuda_param_args_list;
+	CudaDefinition *cuda_definition;
 }
 
 %token <string> IDENTIFIER CONSTANT STRING_LITERAL
@@ -120,9 +122,12 @@
 %type <op> assignment_operator unary_operator
 %type <initializer> initializer
 
-%type <node> pragma_cuda cuda_param cuda_param_args
+%type <pragma_cuda> pragma_cuda
+%type <cuda_param> cuda_param
 %type <cuda_param_list> cuda_param_list
-
+%type <cuda_param_args> cuda_param_args
+%type <cuda_param_args_list> cuda_param_args_list
+%type <cuda_definition> cuda_definition
 
 %start program
 %%
@@ -472,7 +477,6 @@ statement
 	| selection_statement	{ $$ = $1; }
 	| iteration_statement	{ $$ = $1; }
 	| jump_statement		{ $$ = $1; }
-	| pragma_cuda
 	;
 
 labeled_statement
@@ -504,7 +508,7 @@ expression_statement
 	;
 
 pragma_cuda
-	: PRAGMA CUDA cuda_param_list { $$ = new PragmaCuda(PRAGMA, CUDA, $3); }
+	: PRAGMA CUDA cuda_param_list { $$ = new PragmaCuda(PRAGMA, CUDA, *$3); }
 	;
 
 cuda_param_list
@@ -513,15 +517,15 @@ cuda_param_list
 	;
 
 cuda_param
-	: THREAD_LOOP '(' IDENTIFIER ')' { $$ = new CudaParam(THREAD_LOOP, $3);}
-	| BLOCK_SIZE '(' cuda_param_args ')' { $$ = new CudaParam(BLOCK_SIZE, $3);}
-	| GRID_SIZE '(' cuda_param_args ')' { $$ = new CudaParam(GRID_SIZE, $3);}
+	: THREAD_LOOP '(' IDENTIFIER ')' { $$ = new CudaParam(THREAD_LOOP, new CudaParamArgs($3));}
+	| BLOCK_SIZE '(' cuda_param_args_list ')' { $$ = new CudaParam(BLOCK_SIZE, *$3);}
+	| GRID_SIZE '(' cuda_param_args_list ')' { $$ = new CudaParam(GRID_SIZE, *$3);}
 	;
 
-cuda_param_args
-	: IDENTIFIER { $$ = new CudaParamList(); $$->push_back($1);}
-	| IDENTIFIER ',' IDENTIFIER { $$ = new CudaParamList(); $$->push_back($1); $$->push_back($3);}
-	| IDENTIFIER ',' IDENTIFIER ',' IDENTIFIER{ $$ = new CudaParamList(); $$->push_back($1); $$->push_back($3); $$->push_back($5);}
+cuda_param_args_list
+	: IDENTIFIER { $$ = new CudaParamArgsList(); $$->push_back(new CudaParamArgs($1));}
+	| IDENTIFIER ',' IDENTIFIER { $$ = new CudaParamArgsList(); $$->push_back(new CudaParamArgs($1)); $$->push_back(new CudaParamArgs($3));}
+	| IDENTIFIER ',' IDENTIFIER ',' IDENTIFIER{ $$ = new CudaParamArgsList(); $$->push_back(new CudaParamArgs($1)); $$->push_back(new CudaParamArgs($3)); $$->push_back(new CudaParamArgs($5));}
 	;
 
 selection_statement
@@ -555,8 +559,14 @@ translation_unit
 
 external_declaration
 	: function_definition 	{ $$ = $1; }
+	| cuda_definition { $$ = $1; }
 	| declaration			{ $$ = $1; }
 	;
+
+cuda_definition
+	: pragma_cuda function_definition { $$ = new CudaDefinition(*$1, *$2); }
+	;
+
 
 function_definition
 	: declaration_specifiers declarator declaration_list compound_statement { $$ = new FunctionDefinition(*$1,$2,*$3,$4); }

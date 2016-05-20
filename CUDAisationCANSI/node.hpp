@@ -590,15 +590,32 @@ class DoWhileIterationStatement : public IterationStatement {
 };
 
 
-typedef std::vector<std::string*> CudaParamArgsList;
+class CudaParamArgs : public Node {
+	public:
+		std::__cxx11::string* arg;
+		CudaParamArgs(std::__cxx11::string *arg) : arg(arg) {
+
+		}
+		std::string toStdString();
+		void toPrettyCode(CodeString*);
+		std::string generateCode(CodeContext*);
+};
+
+typedef std::vector<CudaParamArgs*> CudaParamArgsList;
 
 class CudaParam : public Node {
 	public:
 		int token; //Parameter name
-		CudaParamArgsList cuda_params_args; 
-		CudaParam(int token, CudaParamArgsList cuda_params_args) : token(token), cuda_params_args(cuda_params_args) {
+		CudaParamArgsList cuda_params_args_list;
+		CudaParam(int token, CudaParamArgsList cuda_params_args_list) : token(token), cuda_params_args_list(cuda_params_args_list) {
 
 		}
+		CudaParam(int token, CudaParamArgs *cuda_params_args) : token(token) {
+			cuda_params_args_list.push_back(cuda_params_args);
+		}
+		std::string toStdString();
+		void toPrettyCode(CodeString*);
+		std::string generateCode(CodeContext*);
 };
 
 typedef std::vector<CudaParam*> CudaParamList;
@@ -618,9 +635,6 @@ class PragmaCuda : public Node {
 	std::string generateCode(CodeContext*);
 	void toPrettyCode(CodeString*);
 };
-
-
-
 
 
 
@@ -707,5 +721,19 @@ class FunctionDefinition : public Statement {
 		void toPrettyCode(CodeString*);
 		std::string generateCode(CodeContext*);
 };
+
+class CudaDefinition : public Statement {
+	public:
+		PragmaCuda pragma_cuda;
+		FunctionDefinition functionDefinition;
+		CudaDefinition(PragmaCuda pragma_cuda, FunctionDefinition functionDefinition) : pragma_cuda(pragma_cuda), functionDefinition(functionDefinition) {
+
+		}
+
+		std::string toStdString();
+		void toPrettyCode(CodeString*);
+		std::string generateCode(CodeContext*);
+};
+
 
 #endif /* NODE_HPP */
