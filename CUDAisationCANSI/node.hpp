@@ -592,8 +592,8 @@ class DoWhileIterationStatement : public IterationStatement {
 
 class CudaParamArgs : public Node {
 	public:
-		std::__cxx11::string* arg;
-		CudaParamArgs(std::__cxx11::string *arg) : arg(arg) {
+		std::string* arg;
+		CudaParamArgs(std::string *arg) : arg(arg) {
 
 		}
 		std::string toStdString();

@@ -1772,11 +1772,8 @@ std::string FunctionDefinition::generateCode(CodeContext* context){
 }
 
 
-//////////////////////////////////////
-
-
 std::string PragmaCuda::toStdString(){
-	std::string result = "<PragmaCuda>" + std::to_string(	token1) + " " + std::to_string(token2);
+	std::string result = "<PragmaCuda>" + std::to_string(token1) + " " + std::to_string(token2);
 
 	if(cuda_param_list.size() != 0){
 		result += "<CudaParamsList>";
@@ -1825,12 +1822,7 @@ std::string CudaParamArgs::toStdString(){
 
 void CudaParamArgs::toPrettyCode(CodeString* context){
 	CodeLine *line = new CodeLine();
-
-
-
-
 	context->add(line);
-
 }
 
 std::string CudaParamArgs::generateCode(CodeContext* context){
@@ -1842,25 +1834,14 @@ std::string CudaParamArgs::generateCode(CodeContext* context){
 }
 
 
-
-
-
-
 std::string CudaParam::toStdString(){
 	std::string result = "";
-
-
 	return result;
 }
 
 void CudaParam::toPrettyCode(CodeString* context){
 	CodeLine *line = new CodeLine();
-
-
-
-
 	context->add(line);
-
 }
 
 std::string CudaParam::generateCode(CodeContext* context){
@@ -1872,14 +1853,8 @@ std::string CudaParam::generateCode(CodeContext* context){
 }
 
 
-
-
-
-
 std::string CudaDefinition::toStdString(){
 	std::string result = "";
-
-
 	return result;
 }
 
