@@ -11,3 +11,6 @@ parser
 parser.h
 *.ouput
 *.gch
+*.yy.*
+ansi-c.tab.cpp
+ansi-c.tab.hpp
