@@ -1770,3 +1770,75 @@ std::string FunctionDefinition::generateCode(CodeContext* context){
 	
 	return result;
 }
+
+
+//////////////////////////////////////
+
+
+std::string PragmaCuda::toStdString(){
+	std::string result = "<PragmaCuda>" + token1 + " " + token2;
+	
+	if(cuda_params.size() != 0){
+		result += "<CudaParamsList>";
+		for( auto &i : cuda_params ) {
+			result += i->toStdString();
+		}
+		result += "</CudaParamsList>";	
+	}
+	
+	if(iteration_statement.size() != 0){
+		result += "<IterationStatement>";
+		for( auto &i : iteration_statement ) {
+			result += i->toStdString();
+		}
+		result += "</IterationStatement>";	
+	}
+
+	result += "</PragmaCuda>";
+	return result;
+}
+
+void PragmaCuda::toPrettyCode(CodeString* context){
+	CodeLine *line = new CodeLine();
+	
+	if(cuda_params.size() != 0){
+		for( auto &i : cuda_params ) {
+			i->toPrettyCode(line);
+		}	
+	}
+
+	if(iteration_statement.size() != 0){
+		for( auto &i : iteration_statement ) {
+			i->toPrettyCode(line);
+		}	
+	}
+	
+	context->add(line);
+	
+}
+
+std::string PragmaCuda::generateCode(CodeContext* context){
+	std::string result = "";
+	
+	if(declarator != NULL){
+		result += declarator->generateCode(context);	
+	}
+	
+	context->buffer << result << ":" << "\n" << "BeginFunc\n";
+	
+	if(declaration_list.size() != 0){
+		for( auto &i : declaration_list ) {
+			i->generateCode(context);
+		}	
+	}
+
+	if(compound_statement != NULL){
+		compound_statement->generateCode(context);	
+	}
+	
+	context->buffer << "EndFunc\n\n";
+	
+	context->pop_block();
+	
+	return result;
+}
