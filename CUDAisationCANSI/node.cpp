@@ -1776,24 +1776,17 @@ std::string FunctionDefinition::generateCode(CodeContext* context){
 
 
 std::string PragmaCuda::toStdString(){
-	std::string result = "<PragmaCuda>" + token1 + " " + token2;
+	std::string result = "<PragmaCuda>" + std::to_string(	token1) + " " + std::to_string(token2);
 
-	if(cuda_params.size() != 0){
+	if(cuda_param_list.size() != 0){
 		result += "<CudaParamsList>";
-		for( auto &i : cuda_params ) {
+		for( auto &i : cuda_param_list ) {
+			result += "<CudaParam>";
 			result += i->toStdString();
+			result += "</CudaParam>";
 		}
 		result += "</CudaParamsList>";
 	}
-
-	if(iteration_statement.size() != 0){
-		result += "<IterationStatement>";
-		for( auto &i : iteration_statement ) {
-			result += i->toStdString();
-		}
-		result += "</IterationStatement>";
-	}
-
 	result += "</PragmaCuda>";
 	return result;
 }
@@ -1801,17 +1794,12 @@ std::string PragmaCuda::toStdString(){
 void PragmaCuda::toPrettyCode(CodeString* context){
 	CodeLine *line = new CodeLine();
 
-	if(cuda_params.size() != 0){
-		for( auto &i : cuda_params ) {
+	if(cuda_param_list.size() != 0){
+		for( auto &i : cuda_param_list ) {
 			i->toPrettyCode(line);
 		}
 	}
 
-	if(iteration_statement.size() != 0){
-		for( auto &i : iteration_statement ) {
-			i->toPrettyCode(line);
-		}
-	}
 
 	context->add(line);
 
@@ -1820,23 +1808,87 @@ void PragmaCuda::toPrettyCode(CodeString* context){
 std::string PragmaCuda::generateCode(CodeContext* context){
 	std::string result = "";
 
-	if(declarator != NULL){
-		result += declarator->generateCode(context);
-	}
+	context->pop_block();
 
-	context->buffer << result << ":" << "\n" << "BeginFunc\n";
+	return result;
+}
 
-	if(declaration_list.size() != 0){
-		for( auto &i : declaration_list ) {
-			i->generateCode(context);
-		}
-	}
 
-	if(compound_statement != NULL){
-		compound_statement->generateCode(context);
-	}
-	
-	context->buffer << "EndFunc\n\n";
+
+
+std::string CudaParamArgs::toStdString(){
+	std::string result = "";
+
+
+	return result;
+}
+
+void CudaParamArgs::toPrettyCode(CodeString* context){
+	CodeLine *line = new CodeLine();
+
+
+
+
+	context->add(line);
+
+}
+
+std::string CudaParamArgs::generateCode(CodeContext* context){
+	std::string result = "";
+
+	context->pop_block();
+
+	return result;
+}
+
+
+
+
+
+
+std::string CudaParam::toStdString(){
+	std::string result = "";
+
+
+	return result;
+}
+
+void CudaParam::toPrettyCode(CodeString* context){
+	CodeLine *line = new CodeLine();
+
+
+
+
+	context->add(line);
+
+}
+
+std::string CudaParam::generateCode(CodeContext* context){
+	std::string result = "";
+
+	context->pop_block();
+
+	return result;
+}
+
+
+
+
+
+
+std::string CudaDefinition::toStdString(){
+	std::string result = "";
+
+
+	return result;
+}
+
+void CudaDefinition::toPrettyCode(CodeString* context){
+
+}
+
+std::string CudaDefinition::generateCode(CodeContext* context){
+	std::string result = "";
 
 	context->pop_block();
 
