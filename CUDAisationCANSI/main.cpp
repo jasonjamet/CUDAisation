@@ -28,33 +28,33 @@ int main(int argc, char **argv)
 	char *GENERATE_CODE = getenv ("GENERATE_CODE");
 	char *PARSE_SYMBOLS = getenv ("PARSE_SYMBOLS");
 	char *PARSE_AST = getenv ("PARSE_AST");
-	
+
 	if(parse_result == 0){
   		if (PARSE_AST != NULL){
 			/** will print the ast in std string */
 			std::cout << root->toStdString() << std::endl;	
 		}
-		
+
 		if (PARSE_CODE != NULL){
 			/** will print pretty code */
 			CodeBlock *context = new CodeBlock();
-			root->toPrettyCode(context);	
+			root->toPrettyCode(context);
 			std::cout << context->toPrettyCode();
 		}
-		
+
 		if (GENERATE_CODE != NULL){
 			/** will generate code */
 			CodeContext *context = new CodeContext();
 			root->generateCode(context);
 			std::cout << context->buffer.str();
 		}
-		
+
 		if ( PARSE_SYMBOLS != NULL ){
 			CodeContext *context = new CodeContext();
 			root->generateCode(context);
 			std::cout << context->printSymbolTable();
 		}
 	}
-	
+
 	return parse_result;
 }

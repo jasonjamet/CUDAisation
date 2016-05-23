@@ -650,7 +650,7 @@ class ForSimpleIterationStatement : public IterationStatement {
 			expression_statement1(expression_statement1),
 			expression_statement2(expression_statement2),
 			statement(statement) {}
-
+		bool isCudaLoop;
 		std::string toStdString();
 		std::string generateCode(CodeContext*);
 		void toPrettyCode(CodeString*);
@@ -717,6 +717,8 @@ class FunctionDefinition : public Statement {
 		FunctionDefinition(DeclarationSpecifierList declaration_specifier_list, Declarator *declarator, CompoundStatement *compound_statement) :
 			declaration_specifier_list(declaration_specifier_list), declarator(declarator), compound_statement(compound_statement) {}
 
+
+
 		std::string toStdString();
 		void toPrettyCode(CodeString*);
 		std::string generateCode(CodeContext*);
@@ -727,8 +729,10 @@ class CudaDefinition : public Statement {
 		PragmaCuda *pragma_cuda;
 		FunctionDefinition *functionDefinition;
 		CudaDefinition(PragmaCuda *pragma_cuda, FunctionDefinition *functionDefinition) : pragma_cuda(pragma_cuda), functionDefinition(functionDefinition) {
-
+			isACudaFunction();
 		}
+
+		void isACudaFunction();
 
 		std::string toStdString();
 		void toPrettyCode(CodeString*);

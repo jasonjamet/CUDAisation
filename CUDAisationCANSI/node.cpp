@@ -1745,6 +1745,34 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 
 }
 
+void CudaDefinition::isACudaFunction(){
+	if(functionDefinition) {
+		if(functionDefinition->compound_statement && functionDefinition->compound_statement->statement_list.size() > 0){
+			for( auto &statement : functionDefinition->compound_statement->statement_list ) {
+				ForSimpleIterationStatement * for_simple = dynamic_cast<ForSimpleIterationStatement *>(statement);
+				ForCompoundIterationStatement * for_compound = dynamic_cast<ForCompoundIterationStatement *>(statement);
+				if(for_simple) {
+					if(for_simple->expression_statement2) {
+						for( auto &expression : for_simple->expression_statement2->expression_list) {
+							expression->toStdString();
+						}
+					}
+
+				}
+				if(for_compound) {
+					if(for_compound->expression_statement2) {
+						for( auto &expression : for_compound->expression_statement2->expression_list) {
+							expression->toStdString();
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+}
+
 std::string FunctionDefinition::generateCode(CodeContext* context){
 	std::string result = "";
 
