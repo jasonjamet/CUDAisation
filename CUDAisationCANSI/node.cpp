@@ -1773,16 +1773,22 @@ std::string FunctionDefinition::generateCode(CodeContext* context){
 
 
 std::string PragmaCuda::toStdString(){
-	std::string result = "<PragmaCuda>" + std::to_string(token1) + " " + std::to_string(token2);
+	std::string var_pragma, var_cuda;
 
+	if(token1 == PRAGMA){
+		var_pragma = "#pragma";
+	}
+	if(token2 == CUDA){
+		var_cuda = "cuda";
+	}	
+
+	std::string result = "<PragmaCuda> <Pragma>" + var_pragma + "</Pragma> <Cuda>" + var_cuda+ "</Cuda>\n" ;
 	if(cuda_param_list.size() != 0){
 		result += "<CudaParamsList>";
 		for( auto &i : cuda_param_list ) {
-			result += "<CudaParam>";
 			result += i->toStdString();
-			result += "</CudaParam>";
 		}
-		result += "</CudaParamsList>";
+		result += "</CudaParamsList>\n";
 	}
 	result += "</PragmaCuda>";
 	return result;
@@ -1796,10 +1802,7 @@ void PragmaCuda::toPrettyCode(CodeString* context){
 			i->toPrettyCode(line);
 		}
 	}
-
-
 	context->add(line);
-
 }
 
 std::string PragmaCuda::generateCode(CodeContext* context){
@@ -1814,7 +1817,7 @@ std::string PragmaCuda::generateCode(CodeContext* context){
 
 
 std::string CudaParamArgs::toStdString(){
-	std::string result = "";
+	std::string result = *arg;
 
 
 	return result;
@@ -1836,6 +1839,34 @@ std::string CudaParamArgs::generateCode(CodeContext* context){
 
 std::string CudaParam::toStdString(){
 	std::string result = "";
+	result += "\n<CudaParam>";
+			
+			
+	std::string var_token;
+
+	if(token == THREAD_LOOP){
+		var_token = "<ThreadLoop>thread_loop</ThreadLoop>";
+	}
+	else if (token == BLOCK_SIZE){
+		var_token = "<BlockSize>block_size</BlockSize>";
+	}
+	else {
+		var_token = "<GridSize>grid_size</GridSize>";
+	}
+
+	result += var_token;
+
+	if(cuda_params_args_list.size() != 0){
+		result += "<CudaParamArgsList>";
+		for( auto &i : cuda_params_args_list ) {
+			result += "<CudaParamArg>";
+			result += i->toStdString();
+			result += "</CudaParamArg>";
+		}
+		result += "</CudaParamArgsList>";
+	}
+	result += "</CudaParam>\n";
+			
 	return result;
 }
 
@@ -1854,7 +1885,14 @@ std::string CudaParam::generateCode(CodeContext* context){
 
 
 std::string CudaDefinition::toStdString(){
-	std::string result = "";
+	std::string result = "<CudaDefinition>";
+
+	if(pragma_cuda){
+			result += pragma_cuda->toStdString();
+	}
+	result += "</CudaDefinition>";
+	result += functionDefinition->toStdString();
+	
 	return result;
 }
 
