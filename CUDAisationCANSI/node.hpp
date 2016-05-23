@@ -736,7 +736,7 @@ class ThreadLoop : public CudaParam {
 
 class CudaParamList : public Node {
 	public:
-		std::vector<const CudaParam *> params;
+		std::vector<CudaParam*> params;
 
 		CudaParamList(CudaParam *cuda_param);
 		void addParam(CudaParam *cuda_param);

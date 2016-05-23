@@ -1774,8 +1774,10 @@ std::string FunctionDefinition::generateCode(CodeContext* context){
 
 std::string FunctionBlock::toStdString(){
 	std::stringstream ss;
+	ss << "<function_block>";
 	ss << pragma_cuda->toStdString() << std::endl;
 	ss << function_definition->toStdString() << std::endl;
+	ss << "</function_block>";
 	return ss.str();
 }
 
@@ -1844,8 +1846,8 @@ std::string PragmaCuda::generateCode(CodeContext* context){
 std::string CudaParamList::toStdString(){
 	std::stringstream ss;
 	ss << "<cuda_param_list>";
-	for(auto iter = params.begin(); iter != params.end(); ++iter) {
-		ss << iter->toStdString();
+	for(auto &i : params) {
+		ss << i->toStdString();
 	}
 	ss << "</cuda_param_list>";
 	return ss.str();
@@ -1856,5 +1858,33 @@ void CudaParamList::toPrettyCode(CodeString* context){
 }
 
 std::string CudaParamList::generateCode(CodeContext* context){
+	//TODO
+}
+
+std::string CudaParam::toStdString(){
+  //EMPTY
+}
+
+void CudaParam::toPrettyCode(CodeString* context){
+	//EMPTY
+}
+
+std::string CudaParam::generateCode(CodeContext* context){
+	//EMPTY
+}
+
+std::string ThreadLoop::toStdString(){
+	std::stringstream ss;
+	ss << "<thread_loop>";
+	ss << variable;
+	ss << "</thread_loop>";
+	return ss.str();
+}
+
+void ThreadLoop::toPrettyCode(CodeString* context){
+	//TODO
+}
+
+std::string ThreadLoop::generateCode(CodeContext* context){
 	//TODO
 }

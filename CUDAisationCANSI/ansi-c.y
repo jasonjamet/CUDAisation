@@ -537,7 +537,7 @@ block_size
 	;
 
 thread_loop
-	: THREAD_LOOP '(' IDENTIFIER ')'
+	: THREAD_LOOP '(' IDENTIFIER ')' { $$ = new ThreadLoop(*$3); }
 	;
 
 selection_statement
