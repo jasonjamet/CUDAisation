@@ -25,8 +25,6 @@ int main(int argc, char **argv)
 {
 	int parse_result = yyparse();
 	char *PARSE_CODE = getenv ("PARSE_CODE");
-	char *GENERATE_CODE = getenv ("GENERATE_CODE");
-	char *PARSE_SYMBOLS = getenv ("PARSE_SYMBOLS");
 	char *PARSE_AST = getenv ("PARSE_AST");
 	
 	if(parse_result == 0){
@@ -40,19 +38,6 @@ int main(int argc, char **argv)
 			CodeBlock *context = new CodeBlock();
 			root->toPrettyCode(context);	
 			std::cout << context->toPrettyCode();
-		}
-		
-		if (GENERATE_CODE != NULL){
-			/** will generate code */
-			CodeContext *context = new CodeContext();
-			root->generateCode(context);
-			std::cout << context->buffer.str();
-		}
-		
-		if ( PARSE_SYMBOLS != NULL ){
-			CodeContext *context = new CodeContext();
-			root->generateCode(context);
-			std::cout << context->printSymbolTable();
 		}
 	}
 	

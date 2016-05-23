@@ -13,7 +13,6 @@ class Node {
 		virtual ~Node() {}
 		virtual std::string toStdString() = 0;
 		virtual void toPrettyCode(CodeString*) = 0;
-		virtual std::string generateCode(CodeContext*) = 0;
 };
 
 class DeclarationSpecifier;
@@ -31,7 +30,6 @@ class Operator : public Expression {
 		Operator(std::string value) : value(value) {}
 		std::string toStdString();
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 class ConstantExpression : public Expression {};
@@ -43,7 +41,6 @@ class Identifier : public Expression {
 		Identifier(std::string value) : value(value){}
 		std::string toStdString();
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 typedef std::vector<Identifier*> IdentifierList;
@@ -55,7 +52,6 @@ class Constant : public Expression {
 		Constant(std::string value) : value(value){}
 		std::string toStdString();
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 class StringLiteral : public Expression {
@@ -66,7 +62,6 @@ class StringLiteral : public Expression {
 		std::string toStdString();
 
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 class PrimaryExpression : public Expression {
@@ -75,8 +70,6 @@ class PrimaryExpression : public Expression {
 		PrimaryExpression(ExpressionList expression_list) : expression_list(expression_list) {}
 
 		std::string toStdString();
-
-		std::string generateCode(CodeContext*);
 		void toPrettyCode(CodeString*);
 };
 
@@ -91,7 +84,6 @@ class PostfixOperation : public Expression {
 		std::string toStdString();
 
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 class ArrayAccess : public Expression {
@@ -105,8 +97,6 @@ class ArrayAccess : public Expression {
 
 		void toPrettyCode(CodeString*);
 		std::string toStdString();
-		std::string generateCode(CodeContext*);
-
 };
 
 class FunctionCall : public Expression {
@@ -122,7 +112,6 @@ class FunctionCall : public Expression {
     std::string toStdString();
 
 	void toPrettyCode(CodeString*);
-	std::string generateCode(CodeContext*);
 };
 
 class UnaryOperation : public Expression {
@@ -136,7 +125,6 @@ class UnaryOperation : public Expression {
 		std::string toStdString();
 
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 class BinaryOperation : public Expression {
@@ -152,7 +140,6 @@ class BinaryOperation : public Expression {
 
 		virtual std::string toStdString();
 		virtual void toPrettyCode(CodeString*);
-		virtual std::string generateCode(CodeContext*);
 };
 
 class LogicalOperation : public BinaryOperation {
@@ -160,7 +147,6 @@ class LogicalOperation : public BinaryOperation {
 		LogicalOperation(Expression *left_operand, Operator *binary_operator, Expression *right_operand) :
 			BinaryOperation(left_operand,binary_operator,right_operand) {}
 
-		std::string generateCode(CodeContext*);
 };
 
 class ConditionalExpression : public Expression {
@@ -179,7 +165,6 @@ class ConditionalExpression : public Expression {
 		std::string toStdString();
 
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 class AssignmentExpression : public Expression {
@@ -198,7 +183,6 @@ class AssignmentExpression : public Expression {
 		std::string toStdString();
 
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 class Statement : public Node {};
@@ -211,7 +195,6 @@ class TranslationUnit : public Expression {
 		std::string toStdString();
 
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 class DeclarationSpecifier : public Statement {};
@@ -227,7 +210,6 @@ class StorageClassSpecifier : public DeclarationSpecifier {
 		std::string toStdString();
 
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*){ return ""; }
 };
 
 class TypeSpecifier : public DeclarationSpecifier {
@@ -240,7 +222,6 @@ class TypeSpecifier : public DeclarationSpecifier {
 
 		std::string toStdString();
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*){ return ""; }
 };
 
 class TypeQualifier : public DeclarationSpecifier {
@@ -252,7 +233,6 @@ class TypeQualifier : public DeclarationSpecifier {
 			: token(token), value(value) {}
 		std::string toStdString();
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*){ return ""; }
 };
 
 typedef std::vector<TypeQualifier*> TypeQualifierList;
@@ -269,7 +249,6 @@ class IdentifierDeclarator : public DirectDeclarator {
 		std::string toStdString();
 
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 class ArrayDeclarator : public DirectDeclarator {
@@ -283,7 +262,6 @@ class ArrayDeclarator : public DirectDeclarator {
 
 		std::string toStdString();
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 class ParameterDeclaration : public Statement {
@@ -298,7 +276,6 @@ class ParameterDeclaration : public Statement {
 			declaration_specifiers(declaration_specifiers) {}
 
 		std::string toStdString();
-		std::string generateCode(CodeContext*);
 		void toPrettyCode(CodeString*);
 };
 
@@ -322,7 +299,6 @@ class FunctionDeclarator : public DirectDeclarator {
 		std::string toStdString();
 
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 class Pointer : public Statement {
@@ -340,7 +316,6 @@ class Pointer : public Statement {
 			child(child), type_qualifier_list(type_qualifier_list) {}
 
 		std::string toStdString();
-		std::string generateCode(CodeContext*);
 		void toPrettyCode(CodeString*);
 };
 
@@ -357,7 +332,6 @@ class PointerDeclarator : public DirectDeclarator {
 			pointer(pointer), direct_declarator(direct_declarator){}
 
 		std::string toStdString();
-		std::string generateCode(CodeContext*);
 		void toPrettyCode(CodeString*);
 };
 
@@ -369,7 +343,6 @@ class NestedDeclarator : public DirectDeclarator {
 
 		std::string toStdString();
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 class Initializer : public Statement {
@@ -381,7 +354,6 @@ class Initializer : public Statement {
 		std::string toStdString();
 
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 class InitDeclarator : public Statement {
@@ -397,7 +369,6 @@ class InitDeclarator : public Statement {
 		std::string toStdString();
 
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 typedef std::vector<InitDeclarator*> InitDeclaratorList;
@@ -416,7 +387,6 @@ class Declaration : public Statement {
 		std::string toStdString();
 
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 typedef std::vector<Declaration*> DeclarationList;
@@ -433,7 +403,6 @@ class CaseStatement : public LabeledStatement {
 			statement(statement) {}
 
 		std::string toStdString();
-		std::string generateCode(CodeContext*);
 		void toPrettyCode(CodeString*);
 };
 
@@ -445,7 +414,6 @@ class DefaultStatement : public LabeledStatement {
 			statement(statement) {}
 
 		std::string toStdString();
-		std::string generateCode(CodeContext*);
 		void toPrettyCode(CodeString*);
 };
 
@@ -459,7 +427,6 @@ class TaggedStatement : public LabeledStatement {
 			statement(statement) {}
 
 		std::string toStdString();
-		std::string generateCode(CodeContext*);
 		void toPrettyCode(CodeString*);
 };
 
@@ -480,7 +447,6 @@ class CompoundStatement : public Statement {
 		std::string toStdString();
 
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 class ExpressionStatement : public Statement {
@@ -495,7 +461,6 @@ class ExpressionStatement : public Statement {
 		std::string toStdString();
 
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 class SelectionStatement : public Statement {
@@ -516,7 +481,6 @@ class IfSelectionStatement : public SelectionStatement {
 
 
 		std::string toStdString();
-		std::string generateCode(CodeContext*);
 		void toPrettyCode(CodeString*);
 };
 
@@ -534,7 +498,6 @@ class IfElseSelectionStatement : public SelectionStatement {
 			statement_else(statement_else) {}
 
 		std::string toStdString();
-		std::string generateCode(CodeContext*);
 		void toPrettyCode(CodeString*);
 };
 
@@ -550,7 +513,6 @@ class SwitchSelectionStatement : public SelectionStatement {
 			statement(statement) {}
 
 		std::string toStdString();
-		std::string generateCode(CodeContext*);
 		void toPrettyCode(CodeString*);
 };
 
@@ -568,7 +530,6 @@ class WhileIterationStatement : public IterationStatement {
 			statement(statement) {}
 
 		std::string toStdString();
-		std::string generateCode(CodeContext*);
 		void toPrettyCode(CodeString*);
 };
 
@@ -585,7 +546,6 @@ class DoWhileIterationStatement : public IterationStatement {
 			expression(expression) {}
 
 		std::string toStdString();
-		std::string generateCode(CodeContext*);
 		void toPrettyCode(CodeString*);
 };
 
@@ -598,7 +558,6 @@ class CudaParamArgs : public Node {
 		}
 		std::string toStdString();
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 typedef std::vector<CudaParamArgs*> CudaParamArgsList;
@@ -615,7 +574,6 @@ class CudaParam : public Node {
 		}
 		std::string toStdString();
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 typedef std::vector<CudaParam*> CudaParamList;
@@ -632,7 +590,6 @@ class PragmaCuda : public Node {
 	}
 
 	std::string toStdString();
-	std::string generateCode(CodeContext*);
 	void toPrettyCode(CodeString*);
 };
 
@@ -652,7 +609,6 @@ class ForSimpleIterationStatement : public IterationStatement {
 			statement(statement) {}
 
 		std::string toStdString();
-		std::string generateCode(CodeContext*);
 		void toPrettyCode(CodeString*);
 };
 
@@ -672,7 +628,6 @@ class ForCompoundIterationStatement : public IterationStatement {
 			statement(statement) {}
 
 		std::string toStdString();
-		std::string generateCode(CodeContext*);
 		void toPrettyCode(CodeString*);
 };
 
@@ -691,7 +646,6 @@ class JumpStatement : public Statement {
 			expression_list(expression_list) {}
 
 		virtual std::string toStdString();
-		std::string generateCode(CodeContext*);
 		void toPrettyCode(CodeString*);
 };
 
@@ -719,7 +673,6 @@ class FunctionDefinition : public Statement {
 
 		std::string toStdString();
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 class CudaDefinition : public Statement {
@@ -732,7 +685,6 @@ class CudaDefinition : public Statement {
 
 		std::string toStdString();
 		void toPrettyCode(CodeString*);
-		std::string generateCode(CodeContext*);
 };
 
 
