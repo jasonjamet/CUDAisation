@@ -1,6 +1,10 @@
 #include "node.hpp"
 #include "ansi-c.tab.hpp"
 
+std::vector<CudaLoopRelation*> cuda_loop_relation_list;
+std::vector<IterationStatement*> loop_list_tmp;
+std::vector<std::string> cuda_variable_list_tmp;
+
 std::string TranslationUnit::toStdString(){
 	std::string result = "<TranslationUnit>";
 
@@ -1745,33 +1749,32 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 
 }
 
-void CudaDefinition::isACudaFunction(){
-	if(functionDefinition) {
-		if(functionDefinition->compound_statement && functionDefinition->compound_statement->statement_list.size() > 0){
-			for( auto &statement : functionDefinition->compound_statement->statement_list ) {
-				ForSimpleIterationStatement * for_simple = dynamic_cast<ForSimpleIterationStatement *>(statement);
-				ForCompoundIterationStatement * for_compound = dynamic_cast<ForCompoundIterationStatement *>(statement);
-				if(for_simple) {
-					if(for_simple->expression_statement2) {
-						for( auto &expression : for_simple->expression_statement2->expression_list) {
-							expression->toStdString();
-						}
-					}
-
-				}
-				if(for_compound) {
-					if(for_compound->expression_statement2) {
-						for( auto &expression : for_compound->expression_statement2->expression_list) {
-							expression->toStdString();
-						}
-					}
-				}
-			}
-		}
-	}
-
-
-}
+// void CudaDefinition::isACudaFunction(){
+// 	if(functionDefinition) {
+// 		if(functionDefinition->compound_statement && functionDefinition->compound_statement->statement_list.size() > 0){
+// 			for( auto &statement : functionDefinition->compound_statement->statement_list ) {
+// 				ForSimpleIterationStatement * for_simple = dynamic_cast<ForSimpleIterationStatement *>(statement);
+// 				ForCompoundIterationStatement * for_compound = dynamic_cast<ForCompoundIterationStatement *>(statement);
+// 				if(for_simple) {
+// 					if(for_simple->expression_statement2) {
+// 						for( auto &expression : for_simple->expression_statement2->expression_list) {
+// 							std::cout << expression->toStdString() << std::endl;
+// 						}
+// 					}
+//
+// 				}
+// 				if(for_compound) {
+// 					if(for_compound->expression_statement2) {
+// 						for( auto &expression : for_compound->expression_statement2->expression_list) {
+// std::cout << expression->toStdString() << std::endl;						}
+// 					}
+// 				}
+// 			}
+// 		}
+// 	}
+//
+//
+// }
 
 std::string FunctionDefinition::generateCode(CodeContext* context){
 	std::string result = "";
@@ -1812,7 +1815,7 @@ std::string PragmaCuda::toStdString(){
 	}
 	if(token2 == CUDA){
 		var_cuda = "cuda";
-	}	
+	}
 
 	std::string result = "<PragmaCuda> <Pragma>" + var_pragma + "</Pragma> <Cuda>" + var_cuda+ "</Cuda>\n" ;
 	if(cuda_param_list.size() != 0){
@@ -1880,8 +1883,8 @@ std::string CudaParamArgs::generateCode(CodeContext* context){
 std::string CudaParam::toStdString(){
 	std::string result = "";
 	result += "\n<CudaParam>";
-			
-			
+
+
 	std::string var_token;
 
 	if(token == THREAD_LOOP){
@@ -1906,7 +1909,7 @@ std::string CudaParam::toStdString(){
 		result += "</CudaParamArgsList>";
 	}
 	result += "</CudaParam>\n";
-			
+
 	return result;
 }
 
@@ -1938,7 +1941,7 @@ std::string CudaDefinition::toStdString(){
 	}
 	result += "</CudaDefinition>";
 	result += functionDefinition->toStdString();
-	
+
 	return result;
 }
 

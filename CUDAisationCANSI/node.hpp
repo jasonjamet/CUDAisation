@@ -8,6 +8,8 @@
 #include "CodeString.hpp"
 #include "CodeGen.hpp"
 
+
+
 class Node {
 	public:
 		virtual ~Node() {}
@@ -650,7 +652,6 @@ class ForSimpleIterationStatement : public IterationStatement {
 			expression_statement1(expression_statement1),
 			expression_statement2(expression_statement2),
 			statement(statement) {}
-		bool isCudaLoop;
 		std::string toStdString();
 		std::string generateCode(CodeContext*);
 		void toPrettyCode(CodeString*);
@@ -729,15 +730,33 @@ class CudaDefinition : public Statement {
 		PragmaCuda *pragma_cuda;
 		FunctionDefinition *functionDefinition;
 		CudaDefinition(PragmaCuda *pragma_cuda, FunctionDefinition *functionDefinition) : pragma_cuda(pragma_cuda), functionDefinition(functionDefinition) {
-			isACudaFunction();
 		}
-
-		void isACudaFunction();
 
 		std::string toStdString();
 		void toPrettyCode(CodeString*);
 		std::string generateCode(CodeContext*);
 };
 
+extern std::vector<IterationStatement*> loop_list_tmp;
+extern std::vector<std::string> cuda_variable_list_tmp;
+
+
+class CudaLoopRelation {
+public:
+	std::vector<IterationStatement*> loop_list;
+	PragmaCuda *pragma_cuda;
+	std::vector<std::string> cuda_variable_list;
+
+	CudaLoopRelation(PragmaCuda *pragma_cuda) : pragma_cuda(pragma_cuda){
+		loop_list = loop_list_tmp;
+		loop_list_tmp.clear();
+		cuda_variable_list_tmp.erase(cuda_variable_list_tmp.begin());
+		cuda_variable_list = cuda_variable_list_tmp;
+		cuda_variable_list_tmp.clear();
+	}
+};
+
+extern std::vector<CudaLoopRelation*> cuda_loop_relation_list;
+extern std::vector<IterationStatement*> loop_list_tmp;
 
 #endif /* NODE_HPP */

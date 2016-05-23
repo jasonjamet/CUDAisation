@@ -156,8 +156,8 @@ argument_expression_list
 	;
 
 unary_expression
-	: postfix_expression 				{ $$ = $1; }
-	| INC_OP unary_expression 			{ $$ = new UnaryOperation($2,new Operator("++")); }
+	: postfix_expression 				{ $$ = $1; std::cout << "HAHAHAHAHAHA1\n";}
+	| INC_OP unary_expression 			{ $$ = new UnaryOperation($2,new Operator("++")); std::cout << "HAHAHAHAHAHA2\n";}
 	| DEC_OP unary_expression 			{ $$ = new UnaryOperation($2,new Operator("--")); }
 	| unary_operator cast_expression 	{ $$ = new UnaryOperation($2,$1); } /* (?) */
 	| SIZEOF unary_expression 			{ $$ = new UnaryOperation($2,new Operator("sizeof")); }
@@ -274,7 +274,7 @@ declaration
 	| declaration_specifiers init_declarator_list ';' 	{ $$ = new Declaration(*$1,*$2); }
 	;
 
-declaration_specifiers
+	declaration_specifiers
 	: storage_class_specifier 							{ $$ = new DeclarationSpecifierList(); $$->insert($$->begin(),$1); }
 	| storage_class_specifier declaration_specifiers 	{ $2->insert($2->begin(),$1); $$ = $2; }
 	| type_specifier 									{ $$ = new DeclarationSpecifierList(); $$->insert($$->begin(),$1); }
@@ -390,7 +390,7 @@ declarator
 	;
 
 direct_declarator
-	: IDENTIFIER 									{ $$ = new IdentifierDeclarator(*$1); delete $1; }
+	: IDENTIFIER 									{ $$ = new IdentifierDeclarator(*$1); cuda_variable_list_tmp.push_back(*$1); delete $1; }
 	| '(' declarator ')' 							{ $$ = new NestedDeclarator($2); }
 	| direct_declarator '[' constant_expression ']' { $$ = new ArrayDeclarator($1,$3); }
 	| direct_declarator '[' ']' 					{ $$ = new ArrayDeclarator($1); }
@@ -430,7 +430,7 @@ parameter_declaration
 
 identifier_list
 	: IDENTIFIER 						{ $$ = new IdentifierList(); $$->push_back(new Identifier(*$1)); }
-	| identifier_list ',' IDENTIFIER 	{ $1->push_back(new Identifier(*$3)), $$ = $1; }
+	| identifier_list ',' IDENTIFIER 	{ $1->push_back(new Identifier(*$3)), $$ = $1;}
 	;
 
 /* not implemented */
@@ -475,7 +475,7 @@ statement
 	| compound_statement	{ $$ = $1; }
 	| expression_statement	{ $$ = $1; }
 	| selection_statement	{ $$ = $1; }
-	| iteration_statement	{ $$ = $1; }
+	| iteration_statement	{ $$ = $1; loop_list_tmp.push_back($1);}
 	| jump_statement		{ $$ = $1; }
 	;
 
@@ -558,13 +558,13 @@ translation_unit
 	;
 
 external_declaration
-	: function_definition 	{ $$ = $1; }
+	: function_definition 	{ $$ = $1; loop_list_tmp.clear(); cuda_variable_list_tmp.clear();}
 	| cuda_definition { $$ = $1; }
 	| declaration			{ $$ = $1; }
 	;
 
 cuda_definition
-	: pragma_cuda function_definition { $$ = new CudaDefinition($1, $2); }
+	: pragma_cuda function_definition { $$ = new CudaDefinition($1, $2); cuda_loop_relation_list.push_back(new CudaLoopRelation($1));}
 	;
 
 
