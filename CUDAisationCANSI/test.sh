@@ -129,4 +129,4 @@
 # echo "Ok"
 # exit 0
 
-PARSE_AST=TRUE ./parser < tests/simple.c  | grep "<.*>"  | xmllint --format -
+PARSE_CODE=TRUE ./parser < tests/simple.c
