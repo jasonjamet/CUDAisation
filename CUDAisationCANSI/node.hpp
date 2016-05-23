@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <algorithm>
+#include <set>
 
 #include "CodeString.hpp"
 #include "CodeGen.hpp"
@@ -554,7 +556,9 @@ class SwitchSelectionStatement : public SelectionStatement {
 		void toPrettyCode(CodeString*);
 };
 
-class IterationStatement : public Statement {};
+class IterationStatement : public Statement {
+	bool toRewrite = false;
+};
 
 class WhileIterationStatement : public IterationStatement {
 	public:
@@ -773,5 +777,9 @@ class FunctionBlock : public Statement {
 		void toPrettyCode(CodeString*);
 		std::string generateCode(CodeContext*);
 };
+
+extern std::vector<IterationStatement*> loops;
+extern std::vector<std::string> declaredVariables;
+extern std::vector<std::string> usedVariables;
 
 #endif /* NODE_HPP */

@@ -2,9 +2,12 @@
 #include "ansi-c.tab.hpp"
 #include <string>
 
+std::vector<IterationStatement*> loops;
+std::vector<std::string> declaredVariables;
+std::vector<std::string> usedVariables;
+
 std::string TranslationUnit::toStdString(){
 	std::string result = "<TranslationUnit>";
-
 	/** Get childs std strings */
 	if(statements.size() != 0){
 		result += "<StatementList>";
@@ -1887,4 +1890,21 @@ void ThreadLoop::toPrettyCode(CodeString* context){
 
 std::string ThreadLoop::generateCode(CodeContext* context){
 	//TODO
+}
+
+void tagLoop(){
+	std::cout << "TAGLOOP" << std::endl;
+}
+
+void checkVariables(){
+	std::set<std::string> declared(declaredVariables.begin(), declaredVariables.end());
+	std::set<std::string> used(usedVariables.begin(), usedVariables.end());
+	std::set<std::string> result;
+	std::set_difference(used.begin(), used.end(), declared.begin(), declared.end(),
+    std::inserter(result, result.end()));
+	if(result.size())
+		std::cout << "WARNING!!! THESE VARIABLES MAY NOT BE REACHABLE" << std::endl;
+	for(auto &i : result) {
+		std::cout << i << std::endl;
+	}
 }

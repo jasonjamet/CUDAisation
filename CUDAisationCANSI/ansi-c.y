@@ -6,6 +6,8 @@
 	extern char yytext[];
 	extern int column;
 	extern int yylex();
+	extern void tagLoop();
+	extern void checkVariables();
 
 	void yyerror(char *s)
 	{
@@ -135,7 +137,7 @@
 %%
 
 primary_expression
-	: IDENTIFIER 			{ $$ = new Identifier(*$1); delete $1; }
+	: IDENTIFIER 			{ $$ = new Identifier(*$1); usedVariables.push_back(*$1); delete $1; }
 	| CONSTANT				{ $$ = new Constant(*$1); delete $1; }
 	| STRING_LITERAL		{ $$ = new StringLiteral(*$1); delete $1; }
 	| '(' expression ')'	{ $$ = new PrimaryExpression(*$2); }
@@ -392,7 +394,7 @@ declarator
 	;
 
 direct_declarator
-	: IDENTIFIER 									{ $$ = new IdentifierDeclarator(*$1); delete $1; }
+	: IDENTIFIER 									{ $$ = new IdentifierDeclarator(*$1); declaredVariables.push_back(*$1); delete $1; }
 	| '(' declarator ')' 							{ $$ = new NestedDeclarator($2); }
 	| direct_declarator '[' constant_expression ']' { $$ = new ArrayDeclarator($1,$3); }
 	| direct_declarator '[' ']' 					{ $$ = new ArrayDeclarator($1); }
@@ -431,7 +433,7 @@ parameter_declaration
 	;
 
 identifier_list
-	: IDENTIFIER 						{ $$ = new IdentifierList(); $$->push_back(new Identifier(*$1)); }
+	: IDENTIFIER 						{ $$ = new IdentifierList(); usedVariables.push_back(*$1); $$->push_back(new Identifier(*$1)); }
 	| identifier_list ',' IDENTIFIER 	{ $1->push_back(new Identifier(*$3)), $$ = $1; }
 	;
 
@@ -482,7 +484,7 @@ statement
 	;
 
 labeled_statement
-	: IDENTIFIER ':' statement					{ $$ = new TaggedStatement(*$1,$3); }
+	: IDENTIFIER ':' statement					{ $$ = new TaggedStatement(*$1,$3); usedVariables.push_back(*$1); }
 	| CASE constant_expression ':' statement	{ $$ = new CaseStatement($2,$4); }
 	| DEFAULT ':' statement						{ $$ = new DefaultStatement($3); }
 	;
@@ -549,8 +551,8 @@ selection_statement
 iteration_statement
 	: WHILE '(' expression ')' statement 											{ $$ = new WhileIterationStatement(WHILE, *$3, $5);}
 	| DO statement WHILE '(' expression ')' ';'										{ $$ = new DoWhileIterationStatement(DO, $2, WHILE, *$5);}
-	| FOR '(' expression_statement expression_statement ')' statement 				{ $$ = new ForSimpleIterationStatement(FOR, $3, $4, $6);}
-	| FOR '(' expression_statement expression_statement expression ')' statement 	{ $$ = new ForCompoundIterationStatement(FOR,$3,$4,*$5,$7);}
+	| FOR '(' expression_statement expression_statement ')' statement 				{ $$ = new ForSimpleIterationStatement(FOR, $3, $4, $6); loops.push_back($$);}
+	| FOR '(' expression_statement expression_statement expression ')' statement 	{ $$ = new ForCompoundIterationStatement(FOR,$3,$4,*$5,$7); loops.push_back($$);}
 	;
 
 jump_statement
@@ -582,8 +584,8 @@ function_definition
 	;
 
 function_block
-	: pragma_cuda function_definition { $$ = new FunctionBlock($1,$2); }
-	| function_definition
+	: pragma_cuda function_definition { $$ = new FunctionBlock($1,$2); declaredVariables.erase(declaredVariables.begin()); tagLoop(); checkVariables(); loops.clear(); declaredVariables.clear(); usedVariables.clear(); }
+	| function_definition 						{ loops.clear(); declaredVariables.clear(); usedVariables.clear(); }
 	;
 
 %%
