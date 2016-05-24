@@ -102,7 +102,7 @@ std::string IdentifierDeclarator::toStdString(){
 
 void IdentifierDeclarator::toPrettyCode(CodeString* context){
 	context->add(identifier);
-	if (cuda_loop_relation_list.size() != 0) {
+	if (isGtid && cuda_loop_relation_list.size() != 0) {
 		for (CudaLoopRelation* &i : cuda_loop_relation_list)
 		{
 			if (i->thread_loop_identifier == identifier) {
