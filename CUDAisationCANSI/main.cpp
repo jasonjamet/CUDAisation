@@ -20,6 +20,7 @@ int main(int argc, char **argv) {
 	char *PARSE_AST = getenv ("PARSE_AST");
 
 	if(parse_result == 0){
+		integrityTest();
   		if (PARSE_AST != NULL){
 			/** will print the ast in std string */
 			std::cout << root->toStdString() << std::endl;
@@ -32,7 +33,6 @@ int main(int argc, char **argv) {
 			std::cout << context->toPrettyCode();
 		}
 
-		integrityTest();
 	}
 
 	return parse_result;

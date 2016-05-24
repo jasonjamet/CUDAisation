@@ -9,6 +9,8 @@ std::vector<IterationStatement*> loop_list_tmp;
 std::vector<std::string> cuda_variable_declared_list_tmp;
 std::vector<std::string> cuda_variable_used_list_tmp;
 
+bool point_virgule = true;
+
 std::string TranslationUnit::toStdString(){
 	std::string result = "<TranslationUnit>";
 
@@ -499,6 +501,7 @@ std::string FunctionDeclarator::toStdString(){
 void FunctionDeclarator::toPrettyCode(CodeString* context){
 
 	if(direct_declarator != NULL){
+		context->add("kernel_");
 		direct_declarator->toPrettyCode(context);
 	}
 
@@ -870,8 +873,9 @@ void ExpressionStatement::toPrettyCode(CodeString* context){
 			i->toPrettyCode(line);
 		}
 	}
-
-	line->add(";");
+	if(point_virgule) {
+		line->add(";");
+	}
 	context->add(line);
 }
 
@@ -1054,19 +1058,30 @@ std::string ForCompoundIterationStatement::toStdString() {
 }
 
 void ForCompoundIterationStatement::toPrettyCode(CodeString* context) {
-	CodeLine* line = new CodeLine("for ( ");
 
-	expression_statement1->toPrettyCode(line);
-	line->add(" ");
-	expression_statement2->toPrettyCode(line);
-	line->add(" ");
-	for(auto &i : expression){
-		i->toPrettyCode(line);
+	if (isInACudaFunction) {
+		point_virgule = false;
+		CodeLine* line = new CodeLine("if (");
+		expression_statement2->toPrettyCode(line);
+		line->add(")");
+		point_virgule = true;
+		context->add(line);
+		statement->toPrettyCode(context);		
 	}
-	line->add(" )");
-	context->add(line);
-	statement->toPrettyCode(context);
+	else {
+		CodeLine* line = new CodeLine("for ( ");
 
+		expression_statement1->toPrettyCode(line);
+		line->add(" ");
+		expression_statement2->toPrettyCode(line);
+		line->add(" ");
+		for(auto &i : expression){
+			i->toPrettyCode(line);
+		}
+		line->add(" )");
+		context->add(line);
+		statement->toPrettyCode(context);
+	}
 }
 
 std::string JumpStatement::toStdString(){
