@@ -616,6 +616,7 @@ class ForSimpleIterationStatement : public IterationStatement {
 class ForCompoundIterationStatement : public IterationStatement {
 	public:
 		int token;
+		bool isACudaFunction;
 		ExpressionStatement *expression_statement1, *expression_statement2;
 		ExpressionList expression;
 		Statement *statement = NULL;
@@ -626,7 +627,7 @@ class ForCompoundIterationStatement : public IterationStatement {
 			expression_statement1(expression_statement1),
 			expression_statement2(expression_statement2),
 			expression(expression),
-			statement(statement) {}
+			statement(statement), isACudaFunction(false) {}
 
 		std::string toStdString();
 		void toPrettyCode(CodeString*);
