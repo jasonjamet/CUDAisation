@@ -1337,7 +1337,7 @@ void integrityTest() {
 		std::string thread_loop_identifier;
 		std::string for_loop_inc_identifier;
 
-		for(auto cudaParam : i->pragma_cuda->cuda_param_list) {
+		for(auto cudaParam : i->cuda_definition->pragma_cuda->cuda_param_list) {
 			if(cudaParam->token == 318) {
 				thread_loop_identifier = *(cudaParam->cuda_params_args_list.front()->arg);
 			}
@@ -1368,7 +1368,8 @@ void integrityTest() {
 						}
 						if(inc_operator != "++") {
 							std::cout << "Loop found but ignored, inc operator incorrect" << std::endl;
-							for_compound->isACudaFunction = true;
+							for_compound->isInACudaFunction = true;
+							i->cuda_definition->functionDefinition->isACudaFunction=true;
 						}
 					}
 				}
@@ -1376,7 +1377,8 @@ void integrityTest() {
 			if(thread_loop_identifier == for_loop_inc_identifier) {
 				checkVariables(i->cuda_variable_used_list, i->cuda_variable_declared_list);
 				std::cout << "Loop found" << std::endl;
-				for_compound->isACudaFunction = true;
+				for_compound->isInACudaFunction = true;
+				i->cuda_definition->functionDefinition->isACudaFunction=true;
 
 			} else {
 				std::cout << "Loop found but ignored, loop on " << for_loop_inc_identifier << " instead of " << thread_loop_identifier << std::endl;

@@ -616,7 +616,7 @@ class ForSimpleIterationStatement : public IterationStatement {
 class ForCompoundIterationStatement : public IterationStatement {
 	public:
 		int token;
-		bool isACudaFunction;
+		bool isInACudaFunction;
 		ExpressionStatement *expression_statement1, *expression_statement2;
 		ExpressionList expression;
 		Statement *statement = NULL;
@@ -627,7 +627,7 @@ class ForCompoundIterationStatement : public IterationStatement {
 			expression_statement1(expression_statement1),
 			expression_statement2(expression_statement2),
 			expression(expression),
-			statement(statement), isACudaFunction(false) {}
+			statement(statement), isInACudaFunction(false) {}
 
 		std::string toStdString();
 		void toPrettyCode(CodeString*);
@@ -653,6 +653,7 @@ class JumpStatement : public Statement {
 
 class FunctionDefinition : public Statement {
 	public:
+		bool isACudaFunction;
 		DeclarationSpecifierList declaration_specifier_list;
 		Declarator *declarator = NULL;
 		DeclarationList declaration_list;
@@ -662,7 +663,7 @@ class FunctionDefinition : public Statement {
 			declaration_specifier_list(declaration_specifier_list),
 			declarator(declarator),
 			declaration_list(declaration_list),
-			compound_statement(compound_statement) {}
+			compound_statement(compound_statement), isACudaFunction(false) {}
 
 		FunctionDefinition(Declarator *declarator, CompoundStatement *compound_statement) :
 			declarator(declarator), compound_statement(compound_statement) {}
@@ -698,11 +699,11 @@ extern std::vector<std::string> cuda_variable_used_list_tmp;
 class CudaLoopRelation {
 public:
 	std::vector<IterationStatement*> loop_list;
-	PragmaCuda *pragma_cuda;
+	CudaDefinition *cuda_definition;
 	std::vector<std::string> cuda_variable_declared_list;
 	std::vector<std::string> cuda_variable_used_list;
 
-	CudaLoopRelation(PragmaCuda *pragma_cuda) : pragma_cuda(pragma_cuda){
+	CudaLoopRelation(CudaDefinition *cuda_definition) : cuda_definition(cuda_definition){
 		loop_list = loop_list_tmp;
 		loop_list_tmp.clear();
 
