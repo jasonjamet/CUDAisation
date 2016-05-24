@@ -559,12 +559,12 @@ translation_unit
 
 external_declaration
 	: function_definition 	{ $$ = $1; loop_list_tmp.clear(); cuda_variable_declared_list_tmp.clear(); cuda_variable_used_list_tmp.clear();}
-	| cuda_definition { $$ = $1; }
+	| cuda_definition { $$ = $1; cuda_loop_relation_list.push_back(new CudaLoopRelation($1));}
 	| declaration			{ $$ = $1; }
 	;
 
 cuda_definition
-	: pragma_cuda function_definition { $$ = new CudaDefinition($1, $2); cuda_loop_relation_list.push_back(new CudaLoopRelation($1));}
+	: pragma_cuda function_definition { $$ = new CudaDefinition($1, $2);}
 	;
 
 
