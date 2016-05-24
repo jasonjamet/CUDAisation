@@ -5,5 +5,6 @@ void sum(float *x, float *y, float *z, int size) {
     z[i] = x[i] + y[i];
   }
   for(j=0; j<size; j++) {
+    
   }
 }

@@ -559,6 +559,7 @@ std::string Pointer::toStdString(){
 		}
 		result += "</TypeQualifierList>";
 	}
+	result += "*";
 
 	result += "</Pointer>";
 
@@ -1203,6 +1204,7 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 
 //////////////////////////////////////
 
+
 std::string CudaDefinition::toStdString(){
 
 	std::string result = "<CudaDefinition>";
@@ -1259,7 +1261,8 @@ void PragmaCuda::toPrettyCode(CodeString* context){
 
 std::string CudaParam::toStdString(){
 	std::string result = "";
-	result += "\n<CudaParam>";
+
+	result += "<CudaParam>";
 
 
 	std::string var_token;
@@ -1279,9 +1282,7 @@ std::string CudaParam::toStdString(){
 	if(cuda_params_args_list.size() != 0){
 		result += "<CudaParamArgsList>";
 		for( auto &i : cuda_params_args_list ) {
-			result += "<CudaParamArg>";
 			result += i->toStdString();
-			result += "</CudaParamArg>";
 		}
 		result += "</CudaParamArgsList>";
 	}
@@ -1291,15 +1292,18 @@ std::string CudaParam::toStdString(){
 }
 
 void CudaParam::toPrettyCode(CodeString* context){
+
 	CodeLine *line = new CodeLine();
 	context->add(line);
-
 }
 
 
 std::string CudaParamArgs::toStdString(){
-	std::string result = *arg;
+	std::string result = "<CudaParamArg>";
 
+	result += *arg;
+
+	result += "</CudaParamArg>";
 
 	return result;
 }
