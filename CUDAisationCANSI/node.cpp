@@ -6,7 +6,7 @@
 
 std::vector<CudaLoopRelation*> cuda_loop_relation_list;
 std::vector<IterationStatement*> loop_list_tmp;
-std::vector<std::string> cuda_variable_declared_list_tmp;
+std::vector<IdentifierDeclarator*> cuda_variable_declared_list_tmp;
 std::vector<std::string> cuda_variable_used_list_tmp;
 
 std::string TranslationUnit::toStdString(){
@@ -1306,69 +1306,76 @@ void CudaParamArgs::toPrettyCode(CodeString* context){
 
 
 
-void checkVariables(std::vector<std::string> variable_used_list, std::vector<std::string> variable_declared_list){
+void checkVariables(std::vector<std::string> variable_used_list, std::vector<IdentifierDeclarator*> variable_declared_identifier_list){
+
+	std::vector<std::string> variable_declared_list;
+	for(IdentifierDeclarator* identifier_declarator : variable_declared_identifier_list) {
+		variable_declared_list.push_back(identifier_declarator->identifier);
+	}
 	std::set<std::string> declared(variable_declared_list.begin(), variable_declared_list.end());
 	std::set<std::string> used(variable_used_list.begin(), variable_used_list.end());
 	std::set<std::string> result;
 	std::set_difference(used.begin(), used.end(), declared.begin(), declared.end(),
     std::inserter(result, result.end()));
-	if(result.size())
-		std::cout << "[WARNING] THESE VARIABLES MAY NOT BE REACHABLE" << std::endl;
-	for(auto &i : result) {
-		std::cout << i << std::endl;
+	if(result.size()) {
+		std::string variable_not_declared_concat;
+		for(auto &i : result) {
+			variable_not_declared_concat += "\"" + i +"\", ";
+		}
+		variable_not_declared_concat.pop_back();
+		variable_not_declared_concat.pop_back();
+
+		std::cout << "[WARNING] Variables " << variable_not_declared_concat << " may not be reachable" << std::endl;
+	}
+}
+
+void threadLoopIdentifierSave(CudaLoopRelation* &cuda_loop_relation){
+	for(auto cudaParam : cuda_loop_relation->cuda_definition->pragma_cuda->cuda_param_list) {
+		if(cudaParam->token == THREAD_LOOP) {
+			cuda_loop_relation->thread_loop_identifier = *(cudaParam->cuda_params_args_list.front()->arg);
+			for(IdentifierDeclarator* identifier_declarator :cuda_loop_relation->cuda_variable_declared_list) {
+				if(identifier_declarator->identifier == cuda_loop_relation->thread_loop_identifier) {
+					identifier_declarator->identifier=true;
+				}
+			}
+		}
 	}
 }
 
 
 void integrityTest() {
-	for(CudaLoopRelation* &i : cuda_loop_relation_list) {
-		std::string for_loop_inc_identifier;
+	for(CudaLoopRelation* &cuda_loop_relation : cuda_loop_relation_list) {
 
-		for(auto cudaParam : i->cuda_definition->pragma_cuda->cuda_param_list) {
-			if(cudaParam->token == 318) {
-				i->thread_loop_identifier = *(cudaParam->cuda_params_args_list.front()->arg);
-			}
-		}
+		threadLoopIdentifierSave(cuda_loop_relation);
 
-		for(auto &j : i->loop_list) {
-			for_loop_inc_identifier = "";
 
-			ForCompoundIterationStatement * for_compound = dynamic_cast<ForCompoundIterationStatement *>(j);
-			if(for_compound) {
-				if(for_compound->expression.size() == 1) {
-					PostfixOperation * postfix_operation = dynamic_cast<PostfixOperation *>(for_compound->expression.back());
-					UnaryOperation * unary_operation = dynamic_cast<UnaryOperation *>(for_compound->expression.back());
-					if(postfix_operation || unary_operation) {
-						Identifier * identifier;
-						std::string inc_operator;
+		for(auto &loop : cuda_loop_relation->loop_list) {
+			ForCompoundIterationStatement * for_compound = dynamic_cast<ForCompoundIterationStatement *>(loop);
+			if(for_compound && for_compound->expression.size() == 1) {
 
-						if(postfix_operation) {
-						 identifier = dynamic_cast<Identifier *>(postfix_operation->operand);
-						 inc_operator = postfix_operation->unary_operator->value;
-						}
-						if(unary_operation) {
-							identifier = dynamic_cast<Identifier *>(unary_operation->operand);
-							inc_operator = unary_operation->unary_operator->value;
-						}
-						if(identifier) {
-							for_loop_inc_identifier = identifier->value;
-						}
-						if(inc_operator != "++") {
-							std::cout << "Loop found but ignored, inc operator incorrect" << std::endl;
-							for_compound->isInACudaFunction = true;
-							i->cuda_definition->functionDefinition->isACudaFunction=true;
-						}
-					}
+
+				Identifier * identifier;
+				std::string inc_operator;
+				PostfixOperation * postfix_operation = dynamic_cast<PostfixOperation *>(for_compound->expression.back());
+				UnaryOperation * unary_operation = dynamic_cast<UnaryOperation *>(for_compound->expression.back());
+
+				if(postfix_operation) {
+					identifier = dynamic_cast<Identifier *>(postfix_operation->operand);
+					inc_operator = postfix_operation->unary_operator->value;
+				} else if(unary_operation){
+					identifier = dynamic_cast<Identifier *>(unary_operation->operand);
+					inc_operator = unary_operation->unary_operator->value;
 				}
-			}
-			if(i->thread_loop_identifier == for_loop_inc_identifier) {
-				checkVariables(i->cuda_variable_used_list, i->cuda_variable_declared_list);
-				std::cout << "Loop found" << std::endl;
-				for_compound->isInACudaFunction = true;
-				i->cuda_definition->functionDefinition->isACudaFunction=true;
 
-			} else {
-				std::cout << "Loop found but ignored, loop on " << for_loop_inc_identifier << " instead of " << i->thread_loop_identifier << std::endl;
+				if(identifier && cuda_loop_relation->thread_loop_identifier == identifier->value) {
+
+					checkVariables(cuda_loop_relation->cuda_variable_used_list, cuda_loop_relation->cuda_variable_declared_list);
+					if(inc_operator != "++") {
+						std::cout << "[WARNING] Find \"" << inc_operator << "\" instead of \"++\"" << std::endl;
+					}
+					for_compound->isInACudaFunction = true;
+					cuda_loop_relation->cuda_definition->functionDefinition->isACudaFunction=true;
+				}
 			}
 		}
 	}

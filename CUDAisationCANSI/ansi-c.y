@@ -392,7 +392,7 @@ declarator
 	;
 
 direct_declarator
-	: IDENTIFIER 									{ $$ = new IdentifierDeclarator(*$1); cuda_variable_declared_list_tmp.push_back(*$1); delete $1; }
+	: IDENTIFIER 									{ cuda_variable_declared_list_tmp.push_back(new IdentifierDeclarator(*$1)); $$ = cuda_variable_declared_list_tmp.back();  delete $1; }
 	| '(' declarator ')' 							{ $$ = new NestedDeclarator($2); }
 	| direct_declarator '[' constant_expression ']' { $$ = new ArrayDeclarator($1,$3); }
 	| direct_declarator '[' ']' 					{ $$ = new ArrayDeclarator($1); }
