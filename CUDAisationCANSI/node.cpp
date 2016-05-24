@@ -1340,6 +1340,8 @@ void checkVariables(std::vector<std::string> variable_used_list, std::vector<Ide
 
 	std::vector<std::string> variable_declared_list;
 	for(IdentifierDeclarator* identifier_declarator : variable_declared_identifier_list) {
+		std::cout << "aaaaaa " << identifier_declarator->identifier << std::endl;
+
 		variable_declared_list.push_back(identifier_declarator->identifier);
 	}
 	std::set<std::string> declared(variable_declared_list.begin(), variable_declared_list.end());
@@ -1364,8 +1366,9 @@ void threadLoopIdentifierSave(CudaLoopRelation* &cuda_loop_relation){
 		if(cudaParam->token == THREAD_LOOP) {
 			cuda_loop_relation->thread_loop_identifier = *(cudaParam->cuda_params_args_list.front()->arg);
 			for(IdentifierDeclarator* identifier_declarator :cuda_loop_relation->cuda_variable_declared_list) {
+				std::cout << identifier_declarator->identifier << "  " << cuda_loop_relation->thread_loop_identifier << std::endl;
 				if(identifier_declarator->identifier == cuda_loop_relation->thread_loop_identifier) {
-					identifier_declarator->identifier=true;
+					identifier_declarator->isGtid=true;
 				}
 			}
 		}
