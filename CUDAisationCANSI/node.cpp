@@ -810,13 +810,6 @@ void TaggedStatement::toPrettyCode(CodeString* context){
 std::string CompoundStatement::toStdString(){
 	std::string result = "<CompoundStatement>";
 
-    if(declaration_list.size() != 0){
-		result += "<DeclarationList>";
-		for( auto &i : declaration_list ) {
-			result += i->toStdString();
-		}
-		result += "</DeclarationList>";
-	}
 
 	if(statement_list.size() != 0){
 		result += "<StatementList>";
@@ -834,11 +827,6 @@ void CompoundStatement::toPrettyCode(CodeString* context){
 	context->add(new CodeLine("{"));
 	CodeBlock *local_context = new CodeBlock();
 
-    if(declaration_list.size() != 0){
-		for( auto &i : declaration_list ) {
-			i->toPrettyCode(local_context);
-		}
-	}
 
 	if(statement_list.size() != 0){
 		for( auto &i : statement_list ) {
@@ -1350,12 +1338,11 @@ void checkVariables(std::vector<std::string> variable_used_list, std::vector<std
 
 void integrityTest() {
 	for(CudaLoopRelation* &i : cuda_loop_relation_list) {
-		std::string thread_loop_identifier;
 		std::string for_loop_inc_identifier;
 
 		for(auto cudaParam : i->cuda_definition->pragma_cuda->cuda_param_list) {
 			if(cudaParam->token == 318) {
-				thread_loop_identifier = *(cudaParam->cuda_params_args_list.front()->arg);
+				i->thread_loop_identifier = *(cudaParam->cuda_params_args_list.front()->arg);
 			}
 		}
 
@@ -1390,14 +1377,14 @@ void integrityTest() {
 					}
 				}
 			}
-			if(thread_loop_identifier == for_loop_inc_identifier) {
+			if(i->thread_loop_identifier == for_loop_inc_identifier) {
 				checkVariables(i->cuda_variable_used_list, i->cuda_variable_declared_list);
 				std::cout << "Loop found" << std::endl;
 				for_compound->isInACudaFunction = true;
 				i->cuda_definition->functionDefinition->isACudaFunction=true;
 
 			} else {
-				std::cout << "Loop found but ignored, loop on " << for_loop_inc_identifier << " instead of " << thread_loop_identifier << std::endl;
+				std::cout << "Loop found but ignored, loop on " << for_loop_inc_identifier << " instead of " << i->thread_loop_identifier << std::endl;
 			}
 		}
 	}
