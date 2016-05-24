@@ -1152,6 +1152,7 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 
 	if(declaration_specifier_list.size() != 0){
 		for( auto &i : declaration_specifier_list ) {
+			context->add(new CodeLine("__global__"));
 			i->toPrettyCode(line);
 		}
 	}
