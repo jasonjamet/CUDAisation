@@ -133,7 +133,7 @@
 %%
 
 primary_expression
-	: IDENTIFIER 			{ $$ = new Identifier(*$1); delete $1; }
+	: IDENTIFIER 			{ $$ = new Identifier(*$1); cuda_variable_used_list_tmp.push_back(*$1); delete $1; }
 	| CONSTANT				{ $$ = new Constant(*$1); delete $1; }
 	| STRING_LITERAL		{ $$ = new StringLiteral(*$1); delete $1; }
 	| '(' expression ')'	{ $$ = new PrimaryExpression(*$2); }
@@ -390,7 +390,7 @@ declarator
 	;
 
 direct_declarator
-	: IDENTIFIER 									{ $$ = new IdentifierDeclarator(*$1); cuda_variable_list_tmp.push_back(*$1); delete $1; }
+	: IDENTIFIER 									{ $$ = new IdentifierDeclarator(*$1); cuda_variable_declared_list_tmp.push_back(*$1); delete $1; }
 	| '(' declarator ')' 							{ $$ = new NestedDeclarator($2); }
 	| direct_declarator '[' constant_expression ']' { $$ = new ArrayDeclarator($1,$3); }
 	| direct_declarator '[' ']' 					{ $$ = new ArrayDeclarator($1); }
@@ -429,7 +429,7 @@ parameter_declaration
 	;
 
 identifier_list
-	: IDENTIFIER 						{ $$ = new IdentifierList(); $$->push_back(new Identifier(*$1)); }
+	: IDENTIFIER 						{ $$ = new IdentifierList(); $$->push_back(new Identifier(*$1)); cuda_variable_used_list_tmp.push_back(*$1); }
 	| identifier_list ',' IDENTIFIER 	{ $1->push_back(new Identifier(*$3)), $$ = $1;}
 	;
 
@@ -480,7 +480,7 @@ statement
 	;
 
 labeled_statement
-	: IDENTIFIER ':' statement					{ $$ = new TaggedStatement(*$1,$3); }
+	: IDENTIFIER ':' statement					{ $$ = new TaggedStatement(*$1,$3); cuda_variable_used_list_tmp.push_back(*$1);}
 	| CASE constant_expression ':' statement	{ $$ = new CaseStatement($2,$4); }
 	| DEFAULT ':' statement						{ $$ = new DefaultStatement($3); }
 	;
@@ -558,7 +558,7 @@ translation_unit
 	;
 
 external_declaration
-	: function_definition 	{ $$ = $1; loop_list_tmp.clear(); cuda_variable_list_tmp.clear();}
+	: function_definition 	{ $$ = $1; loop_list_tmp.clear(); cuda_variable_declared_list_tmp.clear(); cuda_variable_used_list_tmp.clear();}
 	| cuda_definition { $$ = $1; }
 	| declaration			{ $$ = $1; }
 	;

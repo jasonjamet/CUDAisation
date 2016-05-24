@@ -9,4 +9,4 @@ all:
 	g++ -g -o parser parser.lex.o parser.y.o -lfl
 
 clean:
-	rm *.o *.c parser *.h
+	rm *.o *.c parser *.h *.gch
