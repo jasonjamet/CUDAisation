@@ -1193,13 +1193,13 @@ std::string TaggedStatement::generateCode(CodeContext* context){
 std::string CompoundStatement::toStdString(){
 	std::string result = "<CompoundStatement>";
 
-    if(declaration_list.size() != 0){
+  /*  if(declaration_list.size() != 0){
 		result += "<DeclarationList>";
 		for( auto &i : declaration_list ) {
 			result += i->toStdString();
 		}
 		result += "</DeclarationList>";
-	}
+	}*/
 
 	if(statement_list.size() != 0){
 		result += "<StatementList>";
@@ -1217,11 +1217,11 @@ void CompoundStatement::toPrettyCode(CodeString* context){
 	context->add(new CodeLine("{"));
 	CodeBlock *local_context = new CodeBlock();
 
-    if(declaration_list.size() != 0){
+  /*  if(declaration_list.size() != 0){
 		for( auto &i : declaration_list ) {
 			i->toPrettyCode(local_context);
 		}
-	}
+	}*/
 
 	if(statement_list.size() != 0){
 		for( auto &i : statement_list ) {
@@ -1236,11 +1236,11 @@ void CompoundStatement::toPrettyCode(CodeString* context){
 std::string CompoundStatement::generateCode(CodeContext* context){
 	std::string result = "";
 
-    if(declaration_list.size() != 0){
+    /*if(declaration_list.size() != 0){
 		for( auto &i : declaration_list ) {
 			i->generateCode(context);
 		}
-	}
+	}*/
 
 	if(statement_list.size() != 0){
 		for( auto &i : statement_list ) {

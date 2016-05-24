@@ -28,6 +28,7 @@
 
 	Declaration *declaration;
 	DeclarationList *declaration_list;
+	MixedDeclarationStatement * mixed_declaration_statement;
 
 	ParameterDeclaration *parameter_declaration;
 	ParameterDeclarationList *parameter_list;
@@ -113,6 +114,7 @@
 %type <compound_statement> compound_statement
 %type <declaration_list> declaration_list
 %type <statement_list> statement_list
+%type <mixed_declaration_statement> mixed_declaration_statement
 %type <type_qualifier_list> type_qualifier_list
 %type <identifier_list> identifier_list
 %type <parameter_declaration> parameter_declaration
@@ -491,9 +493,14 @@ labeled_statement
 
 compound_statement
 	: '{' '}' 									{ $$ = new CompoundStatement(); }
-	| '{' statement_list '}' 					{ $$ = new CompoundStatement(*$2); }
-	| '{' declaration_list '}' 					{ $$ = new CompoundStatement(*$2); }
-	| '{' declaration_list statement_list '}' 	{ $$ = new CompoundStatement(*$2,*$3); }
+	| '{' mixed_declaration_statement '}' 	{ $$ = new CompoundStatement(*$2); }
+	;
+
+	mixed_declaration_statement
+	: declaration { $$ = new StatementList(); $$->push_back($1); }
+	| statement	{ $$ = new StatementList(); $$->push_back($1); }
+	| mixed_declaration_statement declaration { $1->push_back($2); $$ = $1;	}
+	| mixed_declaration_statement statement { $1->push_back($2); $$ = $1;	}
 	;
 
 declaration_list

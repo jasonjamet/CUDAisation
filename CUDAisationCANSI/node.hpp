@@ -422,6 +422,7 @@ class Declaration : public Statement {
 };
 
 typedef std::vector<Declaration*> DeclarationList;
+typedef std::vector<Statement*> MixedDeclarationStatement;
 
 class LabeledStatement : public Statement {};
 
@@ -468,16 +469,10 @@ class TaggedStatement : public LabeledStatement {
 class CompoundStatement : public Statement {
 	public:
 		StatementList statement_list;
-		DeclarationList declaration_list;
 
 		CompoundStatement(){}
 
 		CompoundStatement(StatementList statement_list) : statement_list(statement_list) {}
-
-		CompoundStatement(DeclarationList declaration_list) : declaration_list(declaration_list) {}
-
-		CompoundStatement(DeclarationList declaration_list, StatementList statement_list) :
-			statement_list(statement_list), declaration_list(declaration_list) {}
 
 		std::string toStdString();
 
