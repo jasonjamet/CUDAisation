@@ -392,6 +392,7 @@ class Declaration : public Statement {
 };
 
 typedef std::vector<Declaration*> DeclarationList;
+typedef std::vector<Statement*> MixedDeclarationStatement;
 
 class LabeledStatement : public Statement {};
 
@@ -435,16 +436,10 @@ class TaggedStatement : public LabeledStatement {
 class CompoundStatement : public Statement {
 	public:
 		StatementList statement_list;
-		DeclarationList declaration_list;
 
 		CompoundStatement(){}
 
 		CompoundStatement(StatementList statement_list) : statement_list(statement_list) {}
-
-		CompoundStatement(DeclarationList declaration_list) : declaration_list(declaration_list) {}
-
-		CompoundStatement(DeclarationList declaration_list, StatementList statement_list) :
-			statement_list(statement_list), declaration_list(declaration_list) {}
 
 		std::string toStdString();
 
@@ -702,6 +697,8 @@ public:
 	CudaDefinition *cuda_definition;
 	std::vector<std::string> cuda_variable_declared_list;
 	std::vector<std::string> cuda_variable_used_list;
+	std::string thread_loop_identifier;
+
 
 	CudaLoopRelation(CudaDefinition *cuda_definition) : cuda_definition(cuda_definition){
 		loop_list = loop_list_tmp;
