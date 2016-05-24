@@ -7,7 +7,7 @@
 	extern int column;
 	extern int yylex();
 
-	void yyerror(char *s)
+	void yyerror(std::string s)
 	{
 		fflush(stdout);
 		printf("\n%*s\n%*s\n", column, "^", column, s);
@@ -63,7 +63,6 @@
 	PragmaCuda *pragma_cuda;
 	CudaParam *cuda_param;
 	CudaParamList *cuda_param_list;
-	CudaParamArgs *cuda_param_args;
 	CudaParamArgsList *cuda_param_args_list;
 	CudaDefinition *cuda_definition;
 }
@@ -109,7 +108,6 @@
 %type <function_definition> function_definition
 %type <compound_statement> compound_statement
 %type <declaration_list> declaration_list
-%type <statement_list> statement_list
 %type <mixed_declaration_statement> mixed_declaration_statement
 %type <type_qualifier_list> type_qualifier_list
 %type <identifier_list> identifier_list
@@ -127,7 +125,6 @@
 %type <pragma_cuda> pragma_cuda
 %type <cuda_param> cuda_param
 %type <cuda_param_list> cuda_param_list
-%type <cuda_param_args> cuda_param_args
 %type <cuda_param_args_list> cuda_param_args_list
 %type <cuda_definition> cuda_definition
 
@@ -158,12 +155,11 @@ argument_expression_list
 	;
 
 unary_expression
-	: postfix_expression 				{ $$ = $1; std::cout << "HAHAHAHAHAHA1\n";}
-	| INC_OP unary_expression 			{ $$ = new UnaryOperation($2,new Operator("++")); std::cout << "HAHAHAHAHAHA2\n";}
+	: postfix_expression 				{ $$ = $1; }
+	| INC_OP unary_expression 			{ $$ = new UnaryOperation($2,new Operator("++"));}
 	| DEC_OP unary_expression 			{ $$ = new UnaryOperation($2,new Operator("--")); }
 	| unary_operator cast_expression 	{ $$ = new UnaryOperation($2,$1); } /* (?) */
 	| SIZEOF unary_expression 			{ $$ = new UnaryOperation($2,new Operator("sizeof")); }
-	| SIZEOF '(' type_name ')' 			/** not implemented */
 	;
 
 unary_operator
@@ -177,7 +173,6 @@ unary_operator
 
 cast_expression
 	: unary_expression 					{ $$ = $1; }
-	| '(' type_name ')' cast_expression	/** not implemented */
 	;
 
 multiplicative_expression
@@ -313,73 +308,8 @@ type_specifier
 	| DOUBLE 						{ $$ = new TypeSpecifier(DOUBLE, "double"); }
 	| SIGNED 						{ $$ = new TypeSpecifier(SIGNED, "signed"); }
 	| UNSIGNED 						{ $$ = new TypeSpecifier(UNSIGNED, "unsigned"); }
-	| struct_or_union_specifier 	/* not implemented */
-	| enum_specifier				/* not implemented */
-	| TYPE_NAME						/* not implemented */
 	;
 
-/** not implemented */
-struct_or_union_specifier
-	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'
-	| struct_or_union '{' struct_declaration_list '}'
-	| struct_or_union IDENTIFIER
-	;
-
-/** not implemented */
-struct_or_union
-	: STRUCT
-	| UNION
-	;
-
-/** not implemented */
-struct_declaration_list
-	: struct_declaration
-	| struct_declaration_list struct_declaration
-	;
-
-/** not implemented */
-struct_declaration
-	: specifier_qualifier_list struct_declarator_list ';'
-	;
-
-/** not implemented */
-specifier_qualifier_list
-	: type_specifier specifier_qualifier_list
-	| type_specifier
-	| type_qualifier specifier_qualifier_list
-	| type_qualifier
-	;
-
-/** not implemented */
-struct_declarator_list
-	: struct_declarator
-	| struct_declarator_list ',' struct_declarator
-	;
-
-/** not implemented */
-struct_declarator
-	: declarator
-	| ':' constant_expression
-	| declarator ':' constant_expression
-	;
-
-/** not implemented */
-enum_specifier
-	: ENUM '{' enumerator_list '}'
-	| ENUM IDENTIFIER '{' enumerator_list '}'
-	| ENUM IDENTIFIER
-	;
-
-/** not implemented */
-enumerator_list
-	: enumerator
-	| enumerator_list ',' enumerator
-	;
-/** not implemented */
-enumerator
-	: IDENTIFIER
-	| IDENTIFIER '=' constant_expression
-	;
 
 type_qualifier
 	: CONST 	{ $$ = new TypeQualifier(CONST, "const"); }
@@ -426,7 +356,6 @@ parameter_list
 
 parameter_declaration
 	: declaration_specifiers declarator          { $$ = new ParameterDeclaration(*$1,$2); }
-	| declaration_specifiers abstract_declarator /* not implemented */
 	| declaration_specifiers                     { $$ = new ParameterDeclaration(*$1); }
 	;
 
@@ -435,42 +364,10 @@ identifier_list
 	| identifier_list ',' IDENTIFIER 	{ $1->push_back(new Identifier(*$3)), $$ = $1;}
 	;
 
-/* not implemented */
-type_name
-	: specifier_qualifier_list
-	| specifier_qualifier_list abstract_declarator
-	;
-
-/* not implemented */
-abstract_declarator
-	: pointer
-	| direct_abstract_declarator
-	| pointer direct_abstract_declarator
-	;
-
-/* not implemented */
-direct_abstract_declarator
-	: '(' abstract_declarator ')'
-	| '[' ']'
-	| '[' constant_expression ']'
-	| direct_abstract_declarator '[' ']'
-	| direct_abstract_declarator '[' constant_expression ']'
-	| '(' ')'
-	| '(' parameter_type_list ')'
-	| direct_abstract_declarator '(' ')'
-	| direct_abstract_declarator '(' parameter_type_list ')'
-	;
-
 initializer
 	: assignment_expression 		{ $$ = new Initializer($1); }
-	| '{' initializer_list '}'		/** not implemented */
-	| '{' initializer_list ',' '}'	/** not implemented */
 	;
 
-initializer_list
-	: initializer						/** not implemented */
-	| initializer_list ',' initializer	/** not implemented */
-	;
 
 statement
 	: labeled_statement 	{ $$ = $1; }
@@ -504,10 +401,6 @@ declaration_list
 	| declaration_list declaration 	{ $1->push_back($2); $$ = $1; }
 	;
 
-statement_list
-	: statement 				{ $$ = new StatementList(); $$->push_back($1); }
-	| statement_list statement 	{ $1->push_back($2); $$ = $1; }
-	;
 
 expression_statement
 	: ';'            { $$ = new ExpressionStatement(); }
