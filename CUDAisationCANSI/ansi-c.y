@@ -6,7 +6,8 @@
 	extern char yytext[];
 	extern int column;
 	extern int yylex();
-	extern void tagLoop();
+	extern void tagLoop(PragmaCuda *pragma_cuda);
+	extern void tagIdentifiers(PragmaCuda *pragma_cuda);
 	extern void checkVariables();
 
 	void yyerror(char *s)
@@ -113,7 +114,6 @@
 %type <function_block> function_block
 %type <compound_statement> compound_statement
 %type <declaration_list> declaration_list
-%type <statement_list> statement_list
 %type <mixed_declaration_statement> mixed_declaration_statement
 %type <type_qualifier_list> type_qualifier_list
 %type <identifier_list> identifier_list
@@ -150,8 +150,6 @@ postfix_expression
 	| postfix_expression '[' expression ']'					{ $$ = new ArrayAccess($1,*$3); }
 	| postfix_expression '(' ')'							{ $$ = new FunctionCall($1); }
 	| postfix_expression '(' argument_expression_list ')'	{ $$ = new FunctionCall($1,*$3); }
-	| postfix_expression '.' IDENTIFIER 					/** not implemented */
-	| postfix_expression PTR_OP IDENTIFIER  				/** not implemented */
 	| postfix_expression INC_OP								{ $$ = new PostfixOperation($1,new Operator("++")); }
 	| postfix_expression DEC_OP								{ $$ = new PostfixOperation($1,new Operator("--")); }
 	;
@@ -167,7 +165,6 @@ unary_expression
 	| DEC_OP unary_expression 			{ $$ = new UnaryOperation($2,new Operator("--")); }
 	| unary_operator cast_expression 	{ $$ = new UnaryOperation($2,$1); } /* (?) */
 	| SIZEOF unary_expression 			{ $$ = new UnaryOperation($2,new Operator("sizeof")); }
-	| SIZEOF '(' type_name ')' 			/** not implemented */
 	;
 
 unary_operator
@@ -181,7 +178,6 @@ unary_operator
 
 cast_expression
 	: unary_expression 					{ $$ = $1; }
-	| '(' type_name ')' cast_expression	/** not implemented */
 	;
 
 multiplicative_expression
@@ -317,72 +313,6 @@ type_specifier
 	| DOUBLE 						{ $$ = new TypeSpecifier(DOUBLE, "double"); }
 	| SIGNED 						{ $$ = new TypeSpecifier(SIGNED, "signed"); }
 	| UNSIGNED 						{ $$ = new TypeSpecifier(UNSIGNED, "unsigned"); }
-	| struct_or_union_specifier 	/* not implemented */
-	| enum_specifier				/* not implemented */
-	| TYPE_NAME						/* not implemented */
-	;
-
-/** not implemented */
-struct_or_union_specifier
-	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'
-	| struct_or_union '{' struct_declaration_list '}'
-	| struct_or_union IDENTIFIER
-	;
-
-/** not implemented */
-struct_or_union
-	: STRUCT
-	| UNION
-	;
-
-/** not implemented */
-struct_declaration_list
-	: struct_declaration
-	| struct_declaration_list struct_declaration
-	;
-
-/** not implemented */
-struct_declaration
-	: specifier_qualifier_list struct_declarator_list ';'
-	;
-
-/** not implemented */
-specifier_qualifier_list
-	: type_specifier specifier_qualifier_list
-	| type_specifier
-	| type_qualifier specifier_qualifier_list
-	| type_qualifier
-	;
-
-/** not implemented */
-struct_declarator_list
-	: struct_declarator
-	| struct_declarator_list ',' struct_declarator
-	;
-
-/** not implemented */
-struct_declarator
-	: declarator
-	| ':' constant_expression
-	| declarator ':' constant_expression
-	;
-
-/** not implemented */
-enum_specifier
-	: ENUM '{' enumerator_list '}'
-	| ENUM IDENTIFIER '{' enumerator_list '}'
-	| ENUM IDENTIFIER
-	;
-
-/** not implemented */
-enumerator_list
-	: enumerator
-	| enumerator_list ',' enumerator
-	;
-/** not implemented */
-enumerator
-	: IDENTIFIER
-	| IDENTIFIER '=' constant_expression
 	;
 
 type_qualifier
@@ -396,7 +326,7 @@ declarator
 	;
 
 direct_declarator
-	: IDENTIFIER 									{ $$ = new IdentifierDeclarator(*$1); declaredVariables.push_back(*$1); delete $1; }
+	: IDENTIFIER 									{ $$ = new IdentifierDeclarator(*$1); declaredVariables.push_back(*$1); declaratorObjects.push_back(dynamic_cast<IdentifierDeclarator*>($$)); delete $1; }
 	| '(' declarator ')' 							{ $$ = new NestedDeclarator($2); }
 	| direct_declarator '[' constant_expression ']' { $$ = new ArrayDeclarator($1,$3); }
 	| direct_declarator '[' ']' 					{ $$ = new ArrayDeclarator($1); }
@@ -420,7 +350,6 @@ type_qualifier_list
 
 parameter_type_list
 	: parameter_list 				{ $$ = $1; }
-	| parameter_list ',' ELLIPSIS 	/** not implemented */
 	;
 
 parameter_list
@@ -430,7 +359,6 @@ parameter_list
 
 parameter_declaration
 	: declaration_specifiers declarator          { $$ = new ParameterDeclaration(*$1,$2); }
-	| declaration_specifiers abstract_declarator /* not implemented */
 	| declaration_specifiers                     { $$ = new ParameterDeclaration(*$1); }
 	;
 
@@ -439,41 +367,8 @@ identifier_list
 	| identifier_list ',' IDENTIFIER 	{ $1->push_back(new Identifier(*$3)), $$ = $1; }
 	;
 
-/* not implemented */
-type_name
-	: specifier_qualifier_list
-	| specifier_qualifier_list abstract_declarator
-	;
-
-/* not implemented */
-abstract_declarator
-	: pointer
-	| direct_abstract_declarator
-	| pointer direct_abstract_declarator
-	;
-
-/* not implemented */
-direct_abstract_declarator
-	: '(' abstract_declarator ')'
-	| '[' ']'
-	| '[' constant_expression ']'
-	| direct_abstract_declarator '[' ']'
-	| direct_abstract_declarator '[' constant_expression ']'
-	| '(' ')'
-	| '(' parameter_type_list ')'
-	| direct_abstract_declarator '(' ')'
-	| direct_abstract_declarator '(' parameter_type_list ')'
-	;
-
 initializer
 	: assignment_expression 		{ $$ = new Initializer($1); }
-	| '{' initializer_list '}'		/** not implemented */
-	| '{' initializer_list ',' '}'	/** not implemented */
-	;
-
-initializer_list
-	: initializer						/** not implemented */
-	| initializer_list ',' initializer	/** not implemented */
 	;
 
 statement
@@ -506,11 +401,6 @@ compound_statement
 declaration_list
 	: declaration 					{ $$ = new DeclarationList(); $$->push_back($1); }
 	| declaration_list declaration 	{ $1->push_back($2); $$ = $1; }
-	;
-
-statement_list
-	: statement 				{ $$ = new StatementList(); $$->push_back($1); }
-	| statement_list statement 	{ $1->push_back($2); $$ = $1; }
 	;
 
 expression_statement
@@ -558,8 +448,8 @@ selection_statement
 iteration_statement
 	: WHILE '(' expression ')' statement 											{ $$ = new WhileIterationStatement(WHILE, *$3, $5);}
 	| DO statement WHILE '(' expression ')' ';'										{ $$ = new DoWhileIterationStatement(DO, $2, WHILE, *$5);}
-	| FOR '(' expression_statement expression_statement ')' statement 				{ $$ = new ForSimpleIterationStatement(FOR, $3, $4, $6); loops.push_back($$);}
-	| FOR '(' expression_statement expression_statement expression ')' statement 	{ $$ = new ForCompoundIterationStatement(FOR,$3,$4,*$5,$7); loops.push_back($$);}
+	| FOR '(' expression_statement expression_statement ')' statement 				{ $$ = new ForSimpleIterationStatement(FOR, $3, $4, $6); }
+	| FOR '(' expression_statement expression_statement expression ')' statement 	{ $$ = new ForCompoundIterationStatement(FOR,$3,$4,*$5,$7); loops.push_back(dynamic_cast<ForCompoundIterationStatement*>($$));}
 	;
 
 jump_statement
@@ -591,7 +481,15 @@ function_definition
 	;
 
 function_block
-	: pragma_cuda function_definition { $$ = new FunctionBlock($1,$2); declaredVariables.erase(declaredVariables.begin()); tagLoop(); checkVariables(); loops.clear(); declaredVariables.clear(); usedVariables.clear(); }
+	: pragma_cuda function_definition { $$ = new FunctionBlock($1,$2);
+																			declaredVariables.erase(declaredVariables.begin());
+																			tagLoop($1);
+																			tagIdentifiers($1);
+																			checkVariables();
+																			loops.clear();
+																			declaredVariables.clear();
+																			declaratorObjects.clear();
+																			usedVariables.clear(); }
 	| function_definition 						{ loops.clear(); declaredVariables.clear(); usedVariables.clear(); }
 	;
 

@@ -2,8 +2,9 @@
 #include "ansi-c.tab.hpp"
 #include <string>
 
-std::vector<IterationStatement*> loops;
+std::vector<ForCompoundIterationStatement*> loops;
 std::vector<std::string> declaredVariables;
+std::vector<IdentifierDeclarator*> declaratorObjects;
 std::vector<std::string> usedVariables;
 
 std::string TranslationUnit::toStdString(){
@@ -114,7 +115,12 @@ std::string PointerDeclarator::generateCode(CodeContext* context){
 }
 
 std::string IdentifierDeclarator::toStdString(){
-	std::string result = "<IdentifierDeclarator>";
+	std::string result = "<IdentifierDeclarator toGTID='";
+	if(toGTID)
+	result += "true";
+	else
+	result += "false";
+	result += "' >";
 	result += identifier;
 	result += "</IdentifierDeclarator>";
 
@@ -166,16 +172,16 @@ std::string Operator::toStdString(){
 	std::string result = "<Operator>";
 
 	std::stringstream dst;
-    for (char ch : value) {
-        switch (ch) {
-            case '&': dst << "&amp;"; break;
-            case '\'': dst << "&apos;"; break;
-            case '"': dst << "&quot;"; break;
-            case '<': dst << "&lt;"; break;
-            case '>': dst << "&gt;"; break;
-            default: dst << ch; break;
-        }
-    }
+	for (char ch : value) {
+		switch (ch) {
+			case '&': dst << "&amp;"; break;
+			case '\'': dst << "&apos;"; break;
+			case '"': dst << "&quot;"; break;
+			case '<': dst << "&lt;"; break;
+			case '>': dst << "&gt;"; break;
+			default: dst << ch; break;
+		}
+	}
 
 	result += dst.str();
 
@@ -222,7 +228,7 @@ std::string StringLiteral::generateCode(CodeContext *context){
 }
 
 std::string PrimaryExpression::toStdString(){
-    std::string result = "<PrimaryExpression>";
+	std::string result = "<PrimaryExpression>";
 
 	if(expression_list.size() != 0){
 		result += "<ExpressionList>";
@@ -232,9 +238,9 @@ std::string PrimaryExpression::toStdString(){
 		result += "</ExpressionList>";
 	}
 
-    result += "</PrimaryExpression>";
+	result += "</PrimaryExpression>";
 
-    return result;
+	return result;
 }
 
 void PrimaryExpression::toPrettyCode(CodeString* context){
@@ -244,7 +250,7 @@ void PrimaryExpression::toPrettyCode(CodeString* context){
 			i->toPrettyCode(context);
 		}
 	}
-    context->add(")");
+	context->add(")");
 }
 
 std::string PrimaryExpression::generateCode(CodeContext* context){
@@ -256,28 +262,28 @@ std::string PrimaryExpression::generateCode(CodeContext* context){
 		}
 	}
 
-    return result;
+	return result;
 }
 
 std::string PostfixOperation::toStdString(){
-    std::string result = "<PostfixOperation>";
+	std::string result = "<PostfixOperation>";
 
-    if(operand != NULL){
-        result += operand->toStdString();
-    }
+	if(operand != NULL){
+		result += operand->toStdString();
+	}
 
 	if(unary_operator != NULL){
 		result += unary_operator->toStdString();
 	}
 
-    result += "</PostfixOperation>";
-    return result;
+	result += "</PostfixOperation>";
+	return result;
 }
 
 void PostfixOperation::toPrettyCode(CodeString* context){
-    if(operand != NULL){
-        operand->toPrettyCode(context);
-    }
+	if(operand != NULL){
+		operand->toPrettyCode(context);
+	}
 
 	if(unary_operator != NULL){
 		unary_operator->toPrettyCode(context);
@@ -285,13 +291,13 @@ void PostfixOperation::toPrettyCode(CodeString* context){
 }
 
 std::string PostfixOperation::generateCode(CodeContext *context){
-    std::string result = "";
+	std::string result = "";
 	std::string tmp = "";
 	std::string op = "";
 
-    if(operand != NULL){
-        tmp = operand->generateCode(context);
-    }
+	if(operand != NULL){
+		tmp = operand->generateCode(context);
+	}
 
 	if(unary_operator != NULL){
 		op = unary_operator->generateCode(context);
@@ -300,7 +306,7 @@ std::string PostfixOperation::generateCode(CodeContext *context){
 	result = context->new_temp();
 	context->buffer << result << " = " << op << " " << tmp << "\n";
 
-    return result;
+	return result;
 }
 
 std::string ArrayAccess::toStdString(){
@@ -361,22 +367,22 @@ std::string ArrayAccess::generateCode(CodeContext* context){
 }
 
 std::string FunctionCall::toStdString(){
-  std::string result = "<FunctionCall>";
+	std::string result = "<FunctionCall>";
 
-  if(postifx_expression != NULL){
-      result += postifx_expression->toStdString();
-  }
+	if(postifx_expression != NULL){
+		result += postifx_expression->toStdString();
+	}
 
-  if(argument_expression_list.size() != 0){
-	  result += "<ArgumentExpressionList>";
-	  for( auto &i : argument_expression_list){
-		  result += i->toStdString();
-	  }
-	  result += "</ArgumentExpressionList>";
-  }
+	if(argument_expression_list.size() != 0){
+		result += "<ArgumentExpressionList>";
+		for( auto &i : argument_expression_list){
+			result += i->toStdString();
+		}
+		result += "</ArgumentExpressionList>";
+	}
 
-  result += "</FunctionCall>";
-  return result;
+	result += "</FunctionCall>";
+	return result;
 }
 
 void FunctionCall::toPrettyCode(CodeString* context){
@@ -414,7 +420,7 @@ std::string FunctionCall::generateCode(CodeContext* context){
 
 	if(postifx_expression != NULL){
 		for( std::string a : params){
-	  		context->buffer << "PushParam " << a << "\n";
+			context->buffer << "PushParam " << a << "\n";
 		}
 
 		tmp = postifx_expression->generateCode(context);
@@ -427,18 +433,18 @@ std::string FunctionCall::generateCode(CodeContext* context){
 }
 
 std::string UnaryOperation::toStdString(){
-    std::string result = "<UnaryOperation>";
+	std::string result = "<UnaryOperation>";
 
 	if(unary_operator != NULL){
 		result += unary_operator->toStdString();
 	}
 
-    if(operand != NULL){
-        result += operand->toStdString();
-    }
+	if(operand != NULL){
+		result += operand->toStdString();
+	}
 
-    result += "</UnaryOperation>";
-    return result;
+	result += "</UnaryOperation>";
+	return result;
 }
 
 void UnaryOperation::toPrettyCode(CodeString* context){
@@ -447,14 +453,14 @@ void UnaryOperation::toPrettyCode(CodeString* context){
 		unary_operator->toPrettyCode(context);
 	}
 
-    if(operand != NULL){
-        operand->toPrettyCode(context);
-    }
+	if(operand != NULL){
+		operand->toPrettyCode(context);
+	}
 
 }
 
 std::string UnaryOperation::generateCode(CodeContext* context){
-    std::string result = "";
+	std::string result = "";
 	std::string op = "";
 	std::string tmp = "";
 
@@ -462,50 +468,50 @@ std::string UnaryOperation::generateCode(CodeContext* context){
 		op = unary_operator->generateCode(context);
 	}
 
-    if(operand != NULL){
-        tmp = operand->generateCode(context);
-    }
+	if(operand != NULL){
+		tmp = operand->generateCode(context);
+	}
 
 	result = context->new_temp();
 	context->buffer << result << " = " << op << " " << tmp << "\n";
 
-    return result;
+	return result;
 }
 
 std::string BinaryOperation::toStdString(){
-    std::string result = "<BinaryOperation>";
+	std::string result = "<BinaryOperation>";
 
-    if(left_operand != NULL){
-        result += left_operand->toStdString();
-    }
+	if(left_operand != NULL){
+		result += left_operand->toStdString();
+	}
 
 	if(binary_operator != NULL){
 		result += binary_operator->toStdString();
 	}
 
-    if(right_operand != NULL){
-        result += right_operand->toStdString();
-    }
+	if(right_operand != NULL){
+		result += right_operand->toStdString();
+	}
 
-    result += "</BinaryOperation>";
-    return result;
+	result += "</BinaryOperation>";
+	return result;
 }
 
 void BinaryOperation::toPrettyCode(CodeString *context){
 
-    if(left_operand != NULL){
-        left_operand->toPrettyCode(context);
-    }
+	if(left_operand != NULL){
+		left_operand->toPrettyCode(context);
+	}
 
 	if(binary_operator != NULL){
 		context->add(" ");
 		binary_operator->toPrettyCode(context);
 	}
 
-    if(right_operand != NULL){
+	if(right_operand != NULL){
 		context->add(" ");
-        right_operand->toPrettyCode(context);
-    }
+		right_operand->toPrettyCode(context);
+	}
 }
 
 std::string BinaryOperation::generateCode(CodeContext* context){
@@ -515,20 +521,20 @@ std::string BinaryOperation::generateCode(CodeContext* context){
 	std::string op = "";
 
 	if(left_operand != NULL){
-        left = left_operand->generateCode(context);
-    }
+		left = left_operand->generateCode(context);
+	}
 
 	if(binary_operator != NULL){
 		op = binary_operator->generateCode(context);
 	}
 
-    if(right_operand != NULL){
-        right = right_operand->generateCode(context);
-    }
+	if(right_operand != NULL){
+		right = right_operand->generateCode(context);
+	}
 	tmp = context->new_temp();
 	context->buffer << tmp << " = " << left << " " << op << " " << right << "\n";
 
-    return tmp;
+	return tmp;
 }
 
 std::string LogicalOperation::generateCode(CodeContext* context){
@@ -538,16 +544,16 @@ std::string LogicalOperation::generateCode(CodeContext* context){
 	std::string op = "";
 
 	if(left_operand != NULL){
-        left = left_operand->generateCode(context);
-    }
+		left = left_operand->generateCode(context);
+	}
 
 	if(binary_operator != NULL){
 		op = binary_operator->generateCode(context);
 	}
 
-    if(right_operand != NULL){
-        right = right_operand->generateCode(context);
-    }
+	if(right_operand != NULL){
+		right = right_operand->generateCode(context);
+	}
 
 	tmp = context->new_temp();
 	std::string L1 = context->new_label();
@@ -563,51 +569,51 @@ std::string LogicalOperation::generateCode(CodeContext* context){
 	context->buffer << tmp << " = " << 0 << "\n";
 	context->buffer << L3 << ":\n";
 
-    return tmp;
+	return tmp;
 }
 
 std::string ConditionalExpression::toStdString(){
-    std::string result = "<ConditionalExpression>";
+	std::string result = "<ConditionalExpression>";
 
-    if(logical_or_expression != NULL){
-        result += logical_or_expression->toStdString();
-    }
+	if(logical_or_expression != NULL){
+		result += logical_or_expression->toStdString();
+	}
 
-    if(expression.size() != 0){
-        result += "<ExpressionList>";
-        for( auto &i : expression ) {
-            result += i->toStdString();
-        }
-        result += "</ExpressionList>";
-    }
+	if(expression.size() != 0){
+		result += "<ExpressionList>";
+		for( auto &i : expression ) {
+			result += i->toStdString();
+		}
+		result += "</ExpressionList>";
+	}
 
-    if(conditional_expression != NULL){
-        result += conditional_expression->toStdString();
-    }
+	if(conditional_expression != NULL){
+		result += conditional_expression->toStdString();
+	}
 
-    result += "</ConditionalExpression>";
-    return result;
+	result += "</ConditionalExpression>";
+	return result;
 }
 
 void ConditionalExpression::toPrettyCode(CodeString* context){
 
-    if(logical_or_expression != NULL){
-        logical_or_expression->toPrettyCode(context);
+	if(logical_or_expression != NULL){
+		logical_or_expression->toPrettyCode(context);
 		context->add(" ?");
-    }
+	}
 
-    if(expression.size() != 0){
-        context->add(" ");
-        for( auto &i : expression ) {
-            i->toPrettyCode(context);
-        }
-        context->add(" :");
-    }
-
-    if(conditional_expression != NULL){
+	if(expression.size() != 0){
 		context->add(" ");
-        conditional_expression->toPrettyCode(context);
-    }
+		for( auto &i : expression ) {
+			i->toPrettyCode(context);
+		}
+		context->add(" :");
+	}
+
+	if(conditional_expression != NULL){
+		context->add(" ");
+		conditional_expression->toPrettyCode(context);
+	}
 }
 
 std::string ConditionalExpression::generateCode(CodeContext* context){
@@ -619,24 +625,24 @@ std::string ConditionalExpression::generateCode(CodeContext* context){
 	std::string LEnd = "";
 
 	if(logical_or_expression != NULL){
-        t1 = logical_or_expression->generateCode(context);
-    }
+		t1 = logical_or_expression->generateCode(context);
+	}
 
 	result = context->new_temp();
 	LFalse = context->new_label();
 	context->buffer << "if " << t1 << " == 0 goto " << LFalse << "\n";
 	if(expression.size() != 0){
-        for( auto &i : expression ) {
-            t2 = i->generateCode(context);
-        }
+		for( auto &i : expression ) {
+			t2 = i->generateCode(context);
+		}
 	}
 	context->buffer << result << " = " << t2 <<  "\n";
 	LEnd = context->new_label();
 	context->buffer << "goto " << LEnd << "\n";
 	context->buffer << LFalse << ":\n";
 	if(conditional_expression != NULL){
-        t3 = conditional_expression->generateCode(context);
-    }
+		t3 = conditional_expression->generateCode(context);
+	}
 	context->buffer << result << " = " << t3 <<  "\n";
 	context->buffer << "goto " << LEnd << "\n";
 	context->buffer << LEnd << ":\n";
@@ -644,22 +650,22 @@ std::string ConditionalExpression::generateCode(CodeContext* context){
 }
 
 std::string AssignmentExpression::toStdString(){
-  std::string result = "<AssignmentExpression>";
+	std::string result = "<AssignmentExpression>";
 
-  if(unary_expression != NULL){
-    result += unary_expression->toStdString();
-  }
+	if(unary_expression != NULL){
+		result += unary_expression->toStdString();
+	}
 
-  if(assignment_operator != NULL){
-    result += assignment_operator->toStdString();
-  }
+	if(assignment_operator != NULL){
+		result += assignment_operator->toStdString();
+	}
 
-  if(assignment_expression != NULL){
-    result += assignment_expression->toStdString();
-  }
+	if(assignment_expression != NULL){
+		result += assignment_expression->toStdString();
+	}
 
-  result += "</AssignmentExpression>";
-  return result;
+	result += "</AssignmentExpression>";
+	return result;
 }
 
 void AssignmentExpression::toPrettyCode(CodeString* context){
@@ -944,30 +950,30 @@ std::string InitDeclarator::generateCode(CodeContext* context){
 }
 
 std::string Initializer::toStdString(){
-    std::string result = "<Initializer>";
+	std::string result = "<Initializer>";
 
-    if(assignment_expression != NULL){
-        result += assignment_expression->toStdString();
-    }
+	if(assignment_expression != NULL){
+		result += assignment_expression->toStdString();
+	}
 
-    result += "</Initializer>";
+	result += "</Initializer>";
 
-    return result;
+	return result;
 }
 
 void Initializer::toPrettyCode(CodeString* context){
 
-    if(assignment_expression != NULL){
-        assignment_expression->toPrettyCode(context);
-    }
+	if(assignment_expression != NULL){
+		assignment_expression->toPrettyCode(context);
+	}
 }
 
 std::string Initializer::generateCode(CodeContext *context){
 	std::string tmp = "";
 
-    if(assignment_expression != NULL){
-        tmp = assignment_expression->generateCode(context);
-    }
+	if(assignment_expression != NULL){
+		tmp = assignment_expression->generateCode(context);
+	}
 
 	return tmp;
 }
@@ -1193,62 +1199,62 @@ std::string TaggedStatement::generateCode(CodeContext* context){
 std::string CompoundStatement::toStdString(){
 	std::string result = "<CompoundStatement>";
 
-  /*  if(declaration_list.size() != 0){
-		result += "<DeclarationList>";
-		for( auto &i : declaration_list ) {
-			result += i->toStdString();
-		}
-		result += "</DeclarationList>";
-	}*/
+	/*  if(declaration_list.size() != 0){
+	result += "<DeclarationList>";
+	for( auto &i : declaration_list ) {
+	result += i->toStdString();
+}
+result += "</DeclarationList>";
+}*/
 
-	if(statement_list.size() != 0){
-		result += "<StatementList>";
-		for( auto &i : statement_list ) {
-			result += i->toStdString();
-		}
-		result += "</StatementList>";
+if(statement_list.size() != 0){
+	result += "<StatementList>";
+	for( auto &i : statement_list ) {
+		result += i->toStdString();
 	}
+	result += "</StatementList>";
+}
 
-	result += "</CompoundStatement>";
-	return result;
+result += "</CompoundStatement>";
+return result;
 }
 
 void CompoundStatement::toPrettyCode(CodeString* context){
 	context->add(new CodeLine("{"));
 	CodeBlock *local_context = new CodeBlock();
 
-  /*  if(declaration_list.size() != 0){
-		for( auto &i : declaration_list ) {
-			i->toPrettyCode(local_context);
-		}
-	}*/
+	/*  if(declaration_list.size() != 0){
+	for( auto &i : declaration_list ) {
+	i->toPrettyCode(local_context);
+}
+}*/
 
-	if(statement_list.size() != 0){
-		for( auto &i : statement_list ) {
-			i->toPrettyCode(local_context);
-		}
+if(statement_list.size() != 0){
+	for( auto &i : statement_list ) {
+		i->toPrettyCode(local_context);
 	}
+}
 
-	context->add(local_context);
-	context->add(new CodeLine("}"));
+context->add(local_context);
+context->add(new CodeLine("}"));
 }
 
 std::string CompoundStatement::generateCode(CodeContext* context){
 	std::string result = "";
 
-    /*if(declaration_list.size() != 0){
-		for( auto &i : declaration_list ) {
-			i->generateCode(context);
-		}
-	}*/
+	/*if(declaration_list.size() != 0){
+	for( auto &i : declaration_list ) {
+	i->generateCode(context);
+}
+}*/
 
-	if(statement_list.size() != 0){
-		for( auto &i : statement_list ) {
-			i->generateCode(context);
-		}
+if(statement_list.size() != 0){
+	for( auto &i : statement_list ) {
+		i->generateCode(context);
 	}
+}
 
-	return result;
+return result;
 }
 
 std::string ExpressionStatement::toStdString(){
@@ -1550,15 +1556,20 @@ std::string ForSimpleIterationStatement::generateCode(CodeContext* context) {
 }
 
 std::string ForCompoundIterationStatement::toStdString() {
-	std::string result = "<ForCompoundIterationStatement>";
+	std::string result = "<ForCompoundIterationStatement toRewrite='";
+	if(toRewrite)
+	result += "true";
+	else
+	result += "false";
+	result += "' >";
 
 	result += expression_statement1->toStdString();
 	result += expression_statement2->toStdString();
 	result += "<ExpressionList>";
-		for(auto &i : expression){
-			result += i->toStdString();
-		}
-		result += "</ExpressionList>";
+	for(auto &i : expression){
+		result += i->toStdString();
+	}
+	result += "</ExpressionList>";
 
 	result += statement->toStdString();
 
@@ -1865,7 +1876,7 @@ std::string CudaParamList::generateCode(CodeContext* context){
 }
 
 std::string CudaParam::toStdString(){
-  //EMPTY
+	//EMPTY
 }
 
 void CudaParam::toPrettyCode(CodeString* context){
@@ -1892,8 +1903,50 @@ std::string ThreadLoop::generateCode(CodeContext* context){
 	//TODO
 }
 
-void tagLoop(){
-	std::cout << "TAGLOOP" << std::endl;
+std::string getLoopVariable(PragmaCuda *pragma_cuda){
+	for(CudaParam *cuda_param : pragma_cuda->cuda_param_list->params) {
+		if(dynamic_cast<ThreadLoop*>(cuda_param) != NULL) {
+			ThreadLoop* tl = dynamic_cast<ThreadLoop*>(cuda_param);
+			return tl->variable;
+		}
+	}
+	return "";
+}
+
+void tagLoop(PragmaCuda *pragma_cuda) {
+	std::string loop_variable = getLoopVariable(pragma_cuda);
+	if(!loop_variable.empty()){
+		for(auto &i : loops) {
+			std::string for_loop_inc_identifier = "";
+			//get loop increment variable
+			if(i->expression.size() == 1) {
+				PostfixOperation * postfix_operation = dynamic_cast<PostfixOperation *>(i->expression.back());
+				UnaryOperation * unary_operation = dynamic_cast<UnaryOperation *>(i->expression.back());
+				if(postfix_operation || unary_operation) {
+					Identifier * identifier;
+					std::string inc_operator;
+
+					if(postfix_operation) {
+						identifier = dynamic_cast<Identifier *>(postfix_operation->operand);
+						inc_operator = postfix_operation->unary_operator->value;
+					}
+					if(unary_operation) {
+						identifier = dynamic_cast<Identifier *>(unary_operation->operand);
+						inc_operator = unary_operation->unary_operator->value;
+					}
+					if(identifier) {
+						for_loop_inc_identifier = identifier->value;
+					}
+					if(inc_operator != "++") {
+						std::cout << "Loop found but ignored, inc operator incorrect" << std::endl;
+					}
+				}
+				if(!for_loop_inc_identifier.empty() && for_loop_inc_identifier == loop_variable){
+					i->toRewrite = true;
+				}
+			}
+		}
+	}
 }
 
 void checkVariables(){
@@ -1901,10 +1954,20 @@ void checkVariables(){
 	std::set<std::string> used(usedVariables.begin(), usedVariables.end());
 	std::set<std::string> result;
 	std::set_difference(used.begin(), used.end(), declared.begin(), declared.end(),
-    std::inserter(result, result.end()));
+	std::inserter(result, result.end()));
 	if(result.size())
-		std::cout << "WARNING!!! THESE VARIABLES MAY NOT BE REACHABLE" << std::endl;
+	std::cout << "WARNING!!! THESE VARIABLES MAY NOT BE REACHABLE" << std::endl;
 	for(auto &i : result) {
 		std::cout << i << std::endl;
+	}
+}
+
+void tagIdentifiers(PragmaCuda *pragma_cuda){
+	std::string loop_variable = getLoopVariable(pragma_cuda);
+	if(!loop_variable.empty()){
+		for(auto &i : declaratorObjects) {
+			if(loop_variable == i->identifier)
+			i->toGTID = true;
+		}
 	}
 }

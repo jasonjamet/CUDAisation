@@ -265,6 +265,7 @@ class DirectDeclarator : public Declarator {};
 
 class IdentifierDeclarator : public DirectDeclarator {
 	public:
+		bool toGTID = false;
 		std::string identifier;
 		IdentifierDeclarator(std::string identifier) : identifier(identifier) {}
 
@@ -607,6 +608,7 @@ class ForSimpleIterationStatement : public IterationStatement {
 
 class ForCompoundIterationStatement : public IterationStatement {
 	public:
+		bool toRewrite = false;
 		int token;
 		ExpressionStatement *expression_statement1, *expression_statement2;
 		ExpressionList expression;
@@ -773,8 +775,9 @@ class FunctionBlock : public Statement {
 		std::string generateCode(CodeContext*);
 };
 
-extern std::vector<IterationStatement*> loops;
+extern std::vector<ForCompoundIterationStatement*> loops;
 extern std::vector<std::string> declaredVariables;
+extern std::vector<IdentifierDeclarator*> declaratorObjects;
 extern std::vector<std::string> usedVariables;
 
 #endif /* NODE_HPP */
