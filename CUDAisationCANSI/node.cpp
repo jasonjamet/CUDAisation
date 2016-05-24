@@ -102,6 +102,14 @@ std::string IdentifierDeclarator::toStdString(){
 
 void IdentifierDeclarator::toPrettyCode(CodeString* context){
 	context->add(identifier);
+	if (cuda_loop_relation_list.size() != 0) {
+		for (CudaLoopRelation* &i : cuda_loop_relation_list)
+		{
+			if (i->thread_loop_identifier == identifier) {
+				context->add(" = ((((blockIdx.x * gridDim.y + blockIdx.y) * gridDim.z + blockIdx.z) * blockDim.x + threadIdx.x) * blockDim.y + threadIdx.y) * blockDim.z + threadIdx.z");
+			}
+		}
+	}	
 }
 
 
@@ -501,7 +509,6 @@ std::string FunctionDeclarator::toStdString(){
 void FunctionDeclarator::toPrettyCode(CodeString* context){
 
 	if(direct_declarator != NULL){
-		context->add("kernel_");
 		direct_declarator->toPrettyCode(context);
 	}
 
@@ -662,6 +669,8 @@ std::string Declaration::toStdString(){
 
 void Declaration::toPrettyCode(CodeString *context){
 	CodeLine *line = new CodeLine();
+
+
 
 	/** Get specifiers childs std strings */
 	if(declaration_specifiers.size() != 0 ){
@@ -1155,17 +1164,22 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 
 	if(declaration_specifier_list.size() != 0){
 		for( auto &i : declaration_specifier_list ) {
-			context->add(new CodeLine("__global__"));
+			if (isACudaFunction)
+				context->add(new CodeLine("__global__"));
 			i->toPrettyCode(line);
 		}
 	}
 
 	if(declarator != NULL){
-		line->add(" ");
+		if (isACudaFunction)
+			line->add(" kernel_");
+		else
+			line->add(" ");
 		declarator->toPrettyCode(line);
 	}
 
 	if(declaration_list.size() != 0){
+
 		for( auto &i : declaration_list ) {
 			i->toPrettyCode(line);
 		}

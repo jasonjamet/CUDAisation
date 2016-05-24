@@ -649,10 +649,12 @@ class JumpStatement : public Statement {
 class FunctionDefinition : public Statement {
 	public:
 		bool isACudaFunction;
+
 		DeclarationSpecifierList declaration_specifier_list;
 		Declarator *declarator = NULL;
 		DeclarationList declaration_list;
 		CompoundStatement *compound_statement = NULL;
+
 
 		FunctionDefinition(DeclarationSpecifierList declaration_specifier_list, Declarator *declarator, DeclarationList declaration_list, CompoundStatement *compound_statement) :
 			declaration_specifier_list(declaration_specifier_list),
