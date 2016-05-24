@@ -10,7 +10,6 @@ void sum(float *x, float *y, float *z, int size) {
   }
 }
 
-
 void sum(float *x, float *y, float *z, int size) {
   int i;
   for(i=0; i<size; ++i) {

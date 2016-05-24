@@ -245,8 +245,9 @@ class DirectDeclarator : public Declarator {};
 
 class IdentifierDeclarator : public DirectDeclarator {
 	public:
+		bool isGtid;
 		std::string identifier;
-		IdentifierDeclarator(std::string identifier) : identifier(identifier) {}
+		IdentifierDeclarator(std::string identifier) : identifier(identifier), isGtid(false) {}
 
 		std::string toStdString();
 
@@ -689,7 +690,7 @@ class CudaDefinition : public Statement {
 };
 
 extern std::vector<IterationStatement*> loop_list_tmp;
-extern std::vector<std::string> cuda_variable_declared_list_tmp;
+extern std::vector<IdentifierDeclarator*> cuda_variable_declared_list_tmp;
 extern std::vector<std::string> cuda_variable_used_list_tmp;
 
 
@@ -697,7 +698,7 @@ class CudaLoopRelation {
 public:
 	std::vector<IterationStatement*> loop_list;
 	CudaDefinition *cuda_definition;
-	std::vector<std::string> cuda_variable_declared_list;
+	std::vector<IdentifierDeclarator*> cuda_variable_declared_list;
 	std::vector<std::string> cuda_variable_used_list;
 	std::string thread_loop_identifier;
 
