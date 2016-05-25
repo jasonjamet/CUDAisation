@@ -4,6 +4,7 @@ H			[a-fA-F0-9]
 E			[Ee][+-]?{D}+
 FS			(f|F|l|L)
 IS			(u|U|l|L)*
+C			\/\/.*
 
 %{
 #include <stdio.h>
@@ -59,7 +60,7 @@ int check_type();
 "grid_size"	{ count(); return(GRID_SIZE); }
 
 
-
+{C}					{}
 {L}({L}|{D})*		{ count(); SAVE_TOKEN; return(check_type()); }
 
 0[xX]{H}+{IS}?		{ count(); SAVE_TOKEN; return(CONSTANT); }

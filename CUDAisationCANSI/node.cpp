@@ -1355,7 +1355,7 @@ void checkVariables(std::vector<std::string> variable_used_list, std::vector<Ide
 		variable_not_declared_concat.pop_back();
 		variable_not_declared_concat.pop_back();
 
-		std::cout << "[WARNING] Variables " << variable_not_declared_concat << " may not be reachable" << std::endl;
+		std::cout << "[WARNING] Variable(s) " << variable_not_declared_concat << " may not be reachable" << std::endl;
 	}
 }
 
