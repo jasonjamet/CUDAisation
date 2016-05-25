@@ -5,6 +5,7 @@ E			[Ee][+-]?{D}+
 FS			(f|F|l|L)
 IS			(u|U|l|L)*
 C			\/\/.*
+CC		\/\*([\n\t]*|.*)*\*\/
 
 %{
 #include <stdio.h>
@@ -19,7 +20,6 @@ int check_type();
 %}
 
 %%
-"/*"			{ comment(); }
 
 "auto"			{ count(); return(AUTO); }
 "break"			{ count(); return(BREAK); }
@@ -61,6 +61,7 @@ int check_type();
 
 
 {C}					{}
+{CC}				{}
 {L}({L}|{D})*		{ count(); SAVE_TOKEN; return(check_type()); }
 
 0[xX]{H}+{IS}?		{ count(); SAVE_TOKEN; return(CONSTANT); }
@@ -131,24 +132,6 @@ extern "C" int yywrap()
 	return(1);
 }
 
-
-void comment()
-{
-	char c, c1;
-
-loop:
-	while ((c = getchar()) != '*' && c != 0)
-		putchar(c);
-
-	if ((c1 = getchar()) != '/' && c != 0)
-	{
-		unput(c1);
-		goto loop;
-	}
-
-	if (c != 0)
-		putchar(c1);
-}
 
 
 int column = 0;

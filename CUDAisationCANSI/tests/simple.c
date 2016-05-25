@@ -1,4 +1,3 @@
-//bonjour
 #pragma cuda thread_loop(j) block_size(x,y,z) grid_size(x,y,z)
 void sum(float *x, float *y, float *z, int size) {
   int i;
@@ -9,4 +8,8 @@ void sum(float *x, float *y, float *z, int size) {
   for(j=0; j<w; j++) {
   		z[i] = x[i] + y[i];
   }
+  /* bonjour
+      enculé
+  */
+  /*bonjour */
 }
