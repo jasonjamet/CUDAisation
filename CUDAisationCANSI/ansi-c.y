@@ -121,6 +121,7 @@
 %type <expression> additive_expression multiplicative_expression cast_expression
 %type <op> assignment_operator unary_operator
 %type <initializer> initializer
+%type <string> identifier_or_const
 
 %type <pragma_cuda> pragma_cuda
 %type <cuda_param> cuda_param
@@ -423,9 +424,14 @@ cuda_param
 	;
 
 cuda_param_args_list
-	: IDENTIFIER { $$ = new CudaParamArgsList(); $$->push_back(new CudaParamArgs($1));}
-	| IDENTIFIER ',' IDENTIFIER { $$ = new CudaParamArgsList(); $$->push_back(new CudaParamArgs($1)); $$->push_back(new CudaParamArgs($3));}
-	| IDENTIFIER ',' IDENTIFIER ',' IDENTIFIER{ $$ = new CudaParamArgsList(); $$->push_back(new CudaParamArgs($1)); $$->push_back(new CudaParamArgs($3)); $$->push_back(new CudaParamArgs($5));}
+	: identifier_or_const { $$ = new CudaParamArgsList(); $$->push_back(new CudaParamArgs($1));}
+	| identifier_or_const ',' identifier_or_const { $$ = new CudaParamArgsList(); $$->push_back(new CudaParamArgs($1)); $$->push_back(new CudaParamArgs($3));}
+	| identifier_or_const ',' identifier_or_const ',' identifier_or_const { $$ = new CudaParamArgsList(); $$->push_back(new CudaParamArgs($1)); $$->push_back(new CudaParamArgs($3)); $$->push_back(new CudaParamArgs($5));}
+	;
+
+identifier_or_const
+	: IDENTIFIER { $$ = $1; }
+	| CONSTANT { $$ = $1; }
 	;
 
 selection_statement
