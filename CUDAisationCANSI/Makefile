@@ -13,4 +13,4 @@ test: parser
 	@./test.sh
 
 clean:
-	rm -f ansi-c.tab.cpp ansi-c.tab.hpp lex.yy.cpp parser *.gch
+	rm -f ansi-c.tab.cpp ansi-c.tab.hpp lex.yy.cpp parser *.gch main.o
