@@ -1335,9 +1335,13 @@ void CudaParamArgs::toPrettyCode(CodeString* context){
 }
 
 
-void getGtid(CudaLoopRelation* &cuda_loop_relation) {
+std::string getDimBlockGridString(CudaLoopRelation* &cuda_loop_relation) {
 	std::vector<std::string> block_size_variables;
 	std::vector<std::string> grid_size_variables;
+
+	std::string nbr_thread_op_str = "";
+	std::string nbr_thread_str = "dim3(";
+	std::string nbr_block_str = "dim3(";
 
 	for (auto cudaParam : cuda_loop_relation->cuda_definition->pragma_cuda->cuda_param_list) {
 
@@ -1351,6 +1355,38 @@ void getGtid(CudaLoopRelation* &cuda_loop_relation) {
 			for (auto CudaParamArg : cudaParam->cuda_params_args_list) {
 				grid_size_variables.push_back(*(CudaParamArg->arg));
 			}
+		}
+	}
+
+	if(block_size_variables.size() != 0) {
+		for(std::string block_size_variable : block_size_variables) {
+			nbr_thread_op_str += block_size_variable + "*";
+			nbr_thread_str += block_size_variable +", ";
+		}
+		nbr_thread_str.pop_back();
+		nbr_thread_str.pop_back();
+		nbr_thread_op_str.pop_back();
+
+		if(grid_size_variables.size() != 0) {
+			for(std::string grid_size_variable : grid_size_variables) {
+				nbr_block_str += "(" + grid_size_variable + " + " + nbr_thread_op_str + " - 1 ) / " + nbr_thread_op_str + ", ";
+			}
+			nbr_block_str.pop_back();
+			nbr_block_str.pop_back();
+		  return nbr_block_str+ "), dim3(" + nbr_thread_str +")";
+		} else {
+			return "dim3(1, 1, 1), dim3(" + nbr_thread_str +")";
+		}
+	} else {
+		if(grid_size_variables.size() != 0) {
+			for(std::string grid_size_variable : grid_size_variables) {
+				nbr_block_str += grid_size_variable + ", ";
+			}
+			nbr_block_str.pop_back();
+			nbr_block_str.pop_back();
+			return nbr_block_str + "), dim3(1, 1, 1)";
+		} else {
+			return "dim3(1, 1, 1), dim3(" + nbr_thread_str +")";
 		}
 	}
 }
@@ -1395,8 +1431,11 @@ void threadLoopIdentifierSave(CudaLoopRelation* &cuda_loop_relation){
 
 
 void integrityTest() {
-	
+
 	for(CudaLoopRelation* &cuda_loop_relation : cuda_loop_relation_list) {
+
+
+
 		threadLoopIdentifierSave(cuda_loop_relation);
 
 
