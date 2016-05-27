@@ -1,4 +1,4 @@
-#pragma cuda thread_loop(j) block_size(x1,y1,z1) grid_size(x2,y2,z2)
+#pragma cuda thread_loop(j) block_size(x1,1,z1) grid_size(x2)
 void sum(float *x, float *y, float *z, int size) {
  int i;
  for(i=0; i<size; ++i) {
