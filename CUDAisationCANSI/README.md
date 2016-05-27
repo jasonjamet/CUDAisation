@@ -3,9 +3,9 @@ Transforms "C" functions to "CUDA" functions.
 
 
 ###Usage :
-```
+
 Usage: cudaparse [OPTION] [FILE]
-```
+
 -x     Print an XML representation of the tree (build from ANSI-C).
 
 -c     Print the C code with cuda kernel(s).
