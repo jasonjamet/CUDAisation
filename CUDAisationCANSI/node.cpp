@@ -11,6 +11,8 @@ std::vector<std::string> cuda_variable_used_list_tmp;
 
 bool point_virgule = true;
 
+bool boole = true;
+
 std::string TranslationUnit::toStdString(){
 	std::string result = "<TranslationUnit>";
 
@@ -834,16 +836,23 @@ std::string CompoundStatement::toStdString(){
 
 void CompoundStatement::toPrettyCode(CodeString* context){
 	context->add(new CodeLine("{"));
-	CodeBlock *local_context = new CodeBlock();
+	if( boole ) {
+		CodeBlock *local_context = new CodeBlock();
 
 
-	if(statement_list.size() != 0){
-		for( auto &i : statement_list ) {
-			i->toPrettyCode(local_context);
+		if(statement_list.size() != 0){
+			for( auto &i : statement_list ) {
+				i->toPrettyCode(local_context);
+			}
 		}
+
+		context->add(local_context);
+	}
+	
+	else {
+		
 	}
 
-	context->add(local_context);
 	context->add(new CodeLine("}"));
 }
 
@@ -1162,34 +1171,63 @@ std::string FunctionDefinition::toStdString(){
 void FunctionDefinition::toPrettyCode(CodeString* context){
 	CodeLine *line = new CodeLine();
 
-	if(declaration_specifier_list.size() != 0){
-		for( auto &i : declaration_specifier_list ) {
-			if (isACudaFunction)
-				context->add(new CodeLine("__global__"));
-			i->toPrettyCode(line);
+	if (boole) {
+			if(declaration_specifier_list.size() != 0){
+			for( auto &i : declaration_specifier_list ) {
+				if (isACudaFunction)
+					context->add(new CodeLine("__global__"));
+				i->toPrettyCode(line);
+			}
+		}
+
+		if(declarator != NULL){
+			if (isACudaFunction) {
+				line->add(" kernel_");
+				declarator->toPrettyCode(line);
+			}
+			else {
+				line->add(" ");
+				declarator->toPrettyCode(line);
+			}
+			
+		}
+
+		if(declaration_list.size() != 0){
+
+			for( auto &i : declaration_list ) {
+				i->toPrettyCode(line);
+			}
+		}
+
+		context->add(line);
+
+		if(compound_statement != NULL){
+			compound_statement->toPrettyCode(context);
 		}
 	}
 
-	if(declarator != NULL){
-		if (isACudaFunction)
-			line->add(" kernel_");
-		else
-			line->add(" ");
-		declarator->toPrettyCode(line);
-	}
+	else {
+		if(declaration_specifier_list.size() != 0){
+			for( auto &i : declaration_specifier_list ) {
+				i->toPrettyCode(line);
+			}
+		}
 
-	if(declaration_list.size() != 0){
+		if(declarator != NULL){
+				line->add(" ");
+				declarator->toPrettyCode(line);
+			}
+			
+	
 
-		for( auto &i : declaration_list ) {
-			i->toPrettyCode(line);
+
+		context->add(line);
+
+		if(compound_statement != NULL){
+			compound_statement->toPrettyCode(context);
 		}
 	}
-
-	context->add(line);
-
-	if(compound_statement != NULL){
-		compound_statement->toPrettyCode(context);
-	}
+	
 
 }
 
@@ -1239,10 +1277,19 @@ std::string CudaDefinition::toStdString(){
 
 void CudaDefinition::toPrettyCode(CodeString* context){
 
+	CodeLine *line = new CodeLine();
+
 	pragma_cuda->toPrettyCode(context);
 	functionDefinition->toPrettyCode(context);
 
+	boole = false;
 
+	if (functionDefinition->isACudaFunction) {
+		functionDefinition->toPrettyCode(context);
+	}
+	
+
+	
 }
 
 std::string PragmaCuda::toStdString(){

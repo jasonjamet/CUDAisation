@@ -647,6 +647,8 @@ class JumpStatement : public Statement {
 		void toPrettyCode(CodeString*);
 };
 
+
+
 class FunctionDefinition : public Statement {
 	public:
 		bool isACudaFunction;
@@ -693,6 +695,15 @@ extern std::vector<IterationStatement*> loop_list_tmp;
 extern std::vector<IdentifierDeclarator*> cuda_variable_declared_list_tmp;
 extern std::vector<std::string> cuda_variable_used_list_tmp;
 
+
+class FunctionMain {
+	public:
+		CudaDefinition *cuda_definition;
+
+		FunctionMain(CudaDefinition *cuda_definition) : cuda_definition(cuda_definition) {}
+
+		void toPrettyCode(CodeString*);
+};
 
 class CudaLoopRelation {
 public:
