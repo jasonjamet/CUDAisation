@@ -645,14 +645,18 @@ class JumpStatement : public Statement {
 		void toPrettyCode(CodeString*);
 };
 
+class CudaDefinition;
+
 class FunctionDefinition : public Statement {
 	public:
 		bool isACudaFunction;
+		CudaDefinition *cuda_definition;
 
 		DeclarationSpecifierList declaration_specifier_list;
 		Declarator *declarator = NULL;
 		DeclarationList declaration_list;
 		CompoundStatement *compound_statement = NULL;
+		std::string function_name;
 
 
 		FunctionDefinition(DeclarationSpecifierList declaration_specifier_list, Declarator *declarator, DeclarationList declaration_list, CompoundStatement *compound_statement) :
@@ -681,6 +685,7 @@ class CudaDefinition : public Statement {
 		PragmaCuda *pragma_cuda;
 		FunctionDefinition *functionDefinition;
 		CudaDefinition(PragmaCuda *pragma_cuda, FunctionDefinition *functionDefinition) : pragma_cuda(pragma_cuda), functionDefinition(functionDefinition) {
+			functionDefinition->cuda_definition = this;
 		}
 
 		std::string toStdString();
@@ -699,7 +704,6 @@ public:
 	std::vector<IdentifierDeclarator*> cuda_variable_declared_list;
 	std::vector<std::string> cuda_variable_used_list;
 	std::string thread_loop_identifier;
-	std::string function_name;
 
 
 	CudaLoopRelation(CudaDefinition *cuda_definition) : cuda_definition(cuda_definition){
@@ -709,7 +713,7 @@ public:
 		cuda_variable_used_list = cuda_variable_used_list_tmp;
 		cuda_variable_used_list_tmp.clear();
 
-		function_name = cuda_variable_declared_list_tmp.front()->identifier;
+		cuda_definition->functionDefinition->function_name = cuda_variable_declared_list_tmp.front()->identifier;
 		cuda_variable_declared_list_tmp.erase(cuda_variable_declared_list_tmp.begin());
 		cuda_variable_declared_list = cuda_variable_declared_list_tmp;
 		cuda_variable_declared_list_tmp.clear();

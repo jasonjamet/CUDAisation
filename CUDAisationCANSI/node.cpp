@@ -1159,6 +1159,62 @@ std::string FunctionDefinition::toStdString(){
 	return result;
 }
 
+std::string getDimBlockGridString(CudaDefinition *cuda_definition) {
+	std::vector<std::string> block_size_variables;
+	std::vector<std::string> grid_size_variables;
+
+	std::string nbr_thread_op_str = "";
+	std::string nbr_thread_str = "dim3(";
+	std::string nbr_block_str = "dim3(";
+
+	for (auto cudaParam : cuda_definition->pragma_cuda->cuda_param_list) {
+
+		if (cudaParam->token == BLOCK_SIZE) {
+			for (auto CudaParamArg : cudaParam->cuda_params_args_list) {
+				block_size_variables.push_back(*(CudaParamArg->arg));
+			}
+		}
+
+		if (cudaParam->token == GRID_SIZE) {
+			for (auto CudaParamArg : cudaParam->cuda_params_args_list) {
+				grid_size_variables.push_back(*(CudaParamArg->arg));
+			}
+		}
+	}
+
+	if(block_size_variables.size() != 0) {
+		for(std::string block_size_variable : block_size_variables) {
+			nbr_thread_op_str += block_size_variable + "*";
+			nbr_thread_str += block_size_variable +", ";
+		}
+		nbr_thread_str.pop_back();
+		nbr_thread_str.pop_back();
+		nbr_thread_op_str.pop_back();
+
+		if(grid_size_variables.size() != 0) {
+			for(std::string grid_size_variable : grid_size_variables) {
+				nbr_block_str += "(" + grid_size_variable + " + " + nbr_thread_op_str + " - 1 ) / " + nbr_thread_op_str + ", ";
+			}
+			nbr_block_str.pop_back();
+			nbr_block_str.pop_back();
+		  return nbr_block_str+ "), " + nbr_thread_str +")";
+		} else {
+			return "dim3(1, 1, 1), " + nbr_thread_str +")";
+		}
+	} else {
+		if(grid_size_variables.size() != 0) {
+			for(std::string grid_size_variable : grid_size_variables) {
+				nbr_block_str += grid_size_variable + ", ";
+			}
+			nbr_block_str.pop_back();
+			nbr_block_str.pop_back();
+			return nbr_block_str + "), dim3(1, 1, 1)";
+		} else {
+			std::cout << "[WARNING] Neither grid size or block size defined, please modify manually these values." << std::endl;
+			return "dim3(/*grid*/), dim3(/*block*/))";
+		}
+	}
+}
 
 
 void FunctionDefinition::toPrettyCode(CodeString* context){
@@ -1195,27 +1251,60 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 	}
 
 	//Empty normal function for kernel calling
-	// if(isACudaFunction) {
-	//
-	// 	CodeLine *line = new CodeLine();
-	// 	if(declaration_specifier_list.size() != 0){
-	// 		for( auto &i : declaration_specifier_list ) {
-	// 			i->toPrettyCode(line);
-	// 		}
-	// 	}
-	//
-	// 	if(declarator != NULL){
-	// 		line->add(" ");
-	// 		declarator->toPrettyCode(line);
-	// 	}
-	//
-	// 	if(declaration_list.size() != 0){
-	// 		for( auto &i : declaration_list ) {
-	// 			i->toPrettyCode(line);
-	// 		}
-	// 	}
-	// 	context->add(line);
-	// }
+	if(isACudaFunction) {
+
+		CodeLine *line = new CodeLine();
+		if(declaration_specifier_list.size() != 0){
+			for( auto &i : declaration_specifier_list ) {
+				i->toPrettyCode(line);
+			}
+		}
+
+		if(declarator != NULL){
+			line->add(" ");
+			declarator->toPrettyCode(line);
+		}
+
+		if(declaration_list.size() != 0){
+			for( auto &i : declaration_list ) {
+				i->toPrettyCode(line);
+			}
+		}
+		line->add("\n{\n");
+
+		FunctionDeclarator * function_declarator = dynamic_cast<FunctionDeclarator *>(declarator);
+		std::string parameters = "";
+		if(function_declarator) {
+			for(ParameterDeclaration *parameter_declaration : function_declarator->parameter_type_list) {
+				PointerDeclarator * pointer_declarator = dynamic_cast<PointerDeclarator *>(parameter_declaration->declarator);
+				if(pointer_declarator) {
+					IdentifierDeclarator *identifer_declarator = dynamic_cast<IdentifierDeclarator *>(pointer_declarator->direct_declarator);
+					if(identifer_declarator) {
+						parameters += identifer_declarator->identifier + ", ";
+					}
+				} else {
+					IdentifierDeclarator *identifer_declarator = dynamic_cast<IdentifierDeclarator *>(parameter_declaration->declarator);
+					if(identifer_declarator) {
+						parameters += identifer_declarator->identifier + ", ";
+					}
+				}
+				//parameter_declaration->declarator->toPrettyCode(line);
+			}
+			if(parameters.size() > 2) {
+				parameters.pop_back();
+				parameters.pop_back();
+			}
+		}
+		line->add("\t kernel_" + cuda_definition->functionDefinition->function_name + " <<< " + getDimBlockGridString(cuda_definition) + " >>> (" + parameters + ");");
+
+
+		line->add("\n}");
+
+
+
+		context->add(line);
+
+	}
 
 
 }
@@ -1322,62 +1411,6 @@ void CudaParamArgs::toPrettyCode(CodeString* context){
 }
 
 
-std::string getDimBlockGridString(CudaLoopRelation* &cuda_loop_relation) {
-	std::vector<std::string> block_size_variables;
-	std::vector<std::string> grid_size_variables;
-
-	std::string nbr_thread_op_str = "";
-	std::string nbr_thread_str = "dim3(";
-	std::string nbr_block_str = "dim3(";
-
-	for (auto cudaParam : cuda_loop_relation->cuda_definition->pragma_cuda->cuda_param_list) {
-
-		if (cudaParam->token == BLOCK_SIZE) {
-			for (auto CudaParamArg : cudaParam->cuda_params_args_list) {
-				block_size_variables.push_back(*(CudaParamArg->arg));
-			}
-		}
-
-		if (cudaParam->token == GRID_SIZE) {
-			for (auto CudaParamArg : cudaParam->cuda_params_args_list) {
-				grid_size_variables.push_back(*(CudaParamArg->arg));
-			}
-		}
-	}
-
-	if(block_size_variables.size() != 0) {
-		for(std::string block_size_variable : block_size_variables) {
-			nbr_thread_op_str += block_size_variable + "*";
-			nbr_thread_str += block_size_variable +", ";
-		}
-		nbr_thread_str.pop_back();
-		nbr_thread_str.pop_back();
-		nbr_thread_op_str.pop_back();
-
-		if(grid_size_variables.size() != 0) {
-			for(std::string grid_size_variable : grid_size_variables) {
-				nbr_block_str += "(" + grid_size_variable + " + " + nbr_thread_op_str + " - 1 ) / " + nbr_thread_op_str + ", ";
-			}
-			nbr_block_str.pop_back();
-			nbr_block_str.pop_back();
-		  return nbr_block_str+ "), " + nbr_thread_str +")";
-		} else {
-			return "dim3(1, 1, 1), " + nbr_thread_str +")";
-		}
-	} else {
-		if(grid_size_variables.size() != 0) {
-			for(std::string grid_size_variable : grid_size_variables) {
-				nbr_block_str += grid_size_variable + ", ";
-			}
-			nbr_block_str.pop_back();
-			nbr_block_str.pop_back();
-			return nbr_block_str + "), dim3(1, 1, 1)";
-		} else {
-			std::cout << "[WARNING] Neither grid size or block size defined, please modify manually these values." << std::endl;
-			return "dim3(/*grid*/), dim3(/*block*/))";
-		}
-	}
-}
 
 
 
@@ -1422,8 +1455,6 @@ void integrityTest() {
 
 	for(CudaLoopRelation* &cuda_loop_relation : cuda_loop_relation_list) {
 
-
-		std::cout << getDimBlockGridString(cuda_loop_relation) << std::endl;
 		threadLoopIdentifierSave(cuda_loop_relation);
 
 
