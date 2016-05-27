@@ -409,7 +409,7 @@ expression_statement
 	;
 
 pragma_cuda
-	: PRAGMA CUDA cuda_param_list { $$ = new PragmaCuda(PRAGMA, CUDA, *$3); }
+	: PRAGMA CUDA cuda_param_list { $$ = new PragmaCuda(*$3); }
 	;
 
 cuda_param_list
