@@ -579,11 +579,9 @@ typedef std::vector<CudaParam*> CudaParamList;
 
 class PragmaCuda : public Node {
 	public:
-	int token1;
-	int token2;
-	CudaParamList cuda_param_list;
+		CudaParamList cuda_param_list;
 
-	PragmaCuda(int token1, int token2, CudaParamList cuda_param_list) :token1(token1), token2(token2), cuda_param_list(cuda_param_list) {
+	PragmaCuda(CudaParamList cuda_param_list) : cuda_param_list(cuda_param_list) {
 
 	}
 
@@ -712,6 +710,7 @@ public:
 	std::vector<IdentifierDeclarator*> cuda_variable_declared_list;
 	std::vector<std::string> cuda_variable_used_list;
 	std::string thread_loop_identifier;
+	std::string function_name;
 
 
 	CudaLoopRelation(CudaDefinition *cuda_definition) : cuda_definition(cuda_definition){
@@ -721,11 +720,10 @@ public:
 		cuda_variable_used_list = cuda_variable_used_list_tmp;
 		cuda_variable_used_list_tmp.clear();
 
+		function_name = cuda_variable_declared_list_tmp.front()->identifier;
 		cuda_variable_declared_list_tmp.erase(cuda_variable_declared_list_tmp.begin());
 		cuda_variable_declared_list = cuda_variable_declared_list_tmp;
 		cuda_variable_declared_list_tmp.clear();
-
-
 	}
 };
 extern std::vector<CudaLoopRelation*> cuda_loop_relation_list;

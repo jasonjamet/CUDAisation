@@ -518,6 +518,7 @@ void FunctionDeclarator::toPrettyCode(CodeString* context){
 	if(parameter_type_list.size() != 0){
 		int size = parameter_type_list.size();
 		for ( auto &i : parameter_type_list) {
+			i->declarator->toPrettyCode(context);
 			i->toPrettyCode(context);
 			context->add(--size == 0? "":", ");
 		}
@@ -850,7 +851,8 @@ void CompoundStatement::toPrettyCode(CodeString* context){
 	}
 	
 	else {
-		
+		context->add(new CodeLine("\tcudaMalloc()"));
+		//context.add(new CodeLine(getDimBlockGridString(CudaLoopRelation* &cuda_loop_relation)));
 	}
 
 	context->add(new CodeLine("}"));
@@ -1168,7 +1170,11 @@ std::string FunctionDefinition::toStdString(){
 	return result;
 }
 
+
+
 void FunctionDefinition::toPrettyCode(CodeString* context){
+	// Normal or cuda kernel function
+
 	CodeLine *line = new CodeLine();
 
 	if (boole) {
@@ -1218,7 +1224,7 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 				declarator->toPrettyCode(line);
 			}
 			
-	
+		
 
 
 		context->add(line);
@@ -1229,36 +1235,31 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 	}
 	
 
+	//Empty normal function for kernel calling
+	// if(isACudaFunction) {
+	//
+	// 	CodeLine *line = new CodeLine();
+	// 	if(declaration_specifier_list.size() != 0){
+	// 		for( auto &i : declaration_specifier_list ) {
+	// 			i->toPrettyCode(line);
+	// 		}
+	// 	}
+	//
+	// 	if(declarator != NULL){
+	// 		line->add(" ");
+	// 		declarator->toPrettyCode(line);
+	// 	}
+	//
+	// 	if(declaration_list.size() != 0){
+	// 		for( auto &i : declaration_list ) {
+	// 			i->toPrettyCode(line);
+	// 		}
+	// 	}
+	// 	context->add(line);
+	// }
+
+
 }
-
-// void CudaDefinition::isACudaFunction(){
-// 	if(functionDefinition) {
-// 		if(functionDefinition->compound_statement && functionDefinition->compound_statement->statement_list.size() > 0){
-// 			for( auto &statement : functionDefinition->compound_statement->statement_list ) {
-// 				ForSimpleIterationStatement * for_simple = dynamic_cast<ForSimpleIterationStatement *>(statement);
-// 				ForCompoundIterationStatement * for_compound = dynamic_cast<ForCompoundIterationStatement *>(statement);
-// 				if(for_simple) {
-// 					if(for_simple->expression_statement2) {
-// 						for( auto &expression : for_simple->expression_statement2->expression_list) {
-// 							std::cout << expression->toStdString() << std::endl;
-// 						}
-// 					}
-//
-// 				}
-// 				if(for_compound) {
-// 					if(for_compound->expression_statement2) {
-// 						for( auto &expression : for_compound->expression_statement2->expression_list) {
-// std::cout << expression->toStdString() << std::endl;						}
-// 					}
-// 				}
-// 			}
-// 		}
-// 	}
-//
-//
-// }
-
-//////////////////////////////////////
 
 
 std::string CudaDefinition::toStdString(){
@@ -1268,8 +1269,8 @@ std::string CudaDefinition::toStdString(){
 	if(pragma_cuda){
 			result += pragma_cuda->toStdString();
 	}
-	result += "</CudaDefinition>";
 	result += functionDefinition->toStdString();
+	result += "</CudaDefinition>";
 
 	return result;
 }
@@ -1286,24 +1287,14 @@ void CudaDefinition::toPrettyCode(CodeString* context){
 
 	if (functionDefinition->isACudaFunction) {
 		functionDefinition->toPrettyCode(context);
-	}
-	
 
+	}
 	
 }
 
 std::string PragmaCuda::toStdString(){
 
-	std::string var_pragma, var_cuda;
-
-	if(token1 == PRAGMA){
-		var_pragma = "#pragma";
-	}
-	if(token2 == CUDA){
-		var_cuda = "cuda";
-	}
-
-	std::string result = "<PragmaCuda> <Pragma>" + var_pragma + "</Pragma> <Cuda>" + var_cuda+ "</Cuda>\n" ;
+	std::string result = "<PragmaCuda>" ;
 	if(cuda_param_list.size() != 0){
 		result += "<CudaParamsList>";
 		for( auto &i : cuda_param_list ) {
@@ -1359,7 +1350,6 @@ std::string CudaParam::toStdString(){
 }
 
 void CudaParam::toPrettyCode(CodeString* context){
-
 	CodeLine *line = new CodeLine();
 	context->add(line);
 }
@@ -1382,9 +1372,13 @@ void CudaParamArgs::toPrettyCode(CodeString* context){
 }
 
 
-void getGtid(CudaLoopRelation* &cuda_loop_relation) {
+std::string getDimBlockGridString(CudaLoopRelation* &cuda_loop_relation) {
 	std::vector<std::string> block_size_variables;
 	std::vector<std::string> grid_size_variables;
+
+	std::string nbr_thread_op_str = "";
+	std::string nbr_thread_str = "dim3(";
+	std::string nbr_block_str = "dim3(";
 
 	for (auto cudaParam : cuda_loop_relation->cuda_definition->pragma_cuda->cuda_param_list) {
 
@@ -1398,6 +1392,39 @@ void getGtid(CudaLoopRelation* &cuda_loop_relation) {
 			for (auto CudaParamArg : cudaParam->cuda_params_args_list) {
 				grid_size_variables.push_back(*(CudaParamArg->arg));
 			}
+		}
+	}
+
+	if(block_size_variables.size() != 0) {
+		for(std::string block_size_variable : block_size_variables) {
+			nbr_thread_op_str += block_size_variable + "*";
+			nbr_thread_str += block_size_variable +", ";
+		}
+		nbr_thread_str.pop_back();
+		nbr_thread_str.pop_back();
+		nbr_thread_op_str.pop_back();
+
+		if(grid_size_variables.size() != 0) {
+			for(std::string grid_size_variable : grid_size_variables) {
+				nbr_block_str += "(" + grid_size_variable + " + " + nbr_thread_op_str + " - 1 ) / " + nbr_thread_op_str + ", ";
+			}
+			nbr_block_str.pop_back();
+			nbr_block_str.pop_back();
+		  return nbr_block_str+ "), " + nbr_thread_str +")";
+		} else {
+			return "dim3(1, 1, 1), " + nbr_thread_str +")";
+		}
+	} else {
+		if(grid_size_variables.size() != 0) {
+			for(std::string grid_size_variable : grid_size_variables) {
+				nbr_block_str += grid_size_variable + ", ";
+			}
+			nbr_block_str.pop_back();
+			nbr_block_str.pop_back();
+			return nbr_block_str + "), dim3(1, 1, 1)";
+		} else {
+			std::cout << "[WARNING] Neither grid size or block size defined, please modify manually these values." << std::endl;
+			return "dim3(/*grid*/), dim3(/*block*/))";
 		}
 	}
 }
@@ -1442,8 +1469,11 @@ void threadLoopIdentifierSave(CudaLoopRelation* &cuda_loop_relation){
 
 
 void integrityTest() {
-	
+
 	for(CudaLoopRelation* &cuda_loop_relation : cuda_loop_relation_list) {
+
+
+		std::cout << getDimBlockGridString(cuda_loop_relation) << std::endl;
 		threadLoopIdentifierSave(cuda_loop_relation);
 
 
