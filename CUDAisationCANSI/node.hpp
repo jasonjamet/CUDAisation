@@ -701,6 +701,7 @@ public:
 	std::vector<IdentifierDeclarator*> cuda_variable_declared_list;
 	std::vector<std::string> cuda_variable_used_list;
 	std::string thread_loop_identifier;
+	std::string function_name;
 
 
 	CudaLoopRelation(CudaDefinition *cuda_definition) : cuda_definition(cuda_definition){
@@ -710,11 +711,10 @@ public:
 		cuda_variable_used_list = cuda_variable_used_list_tmp;
 		cuda_variable_used_list_tmp.clear();
 
+		function_name = cuda_variable_declared_list_tmp.front()->identifier;
 		cuda_variable_declared_list_tmp.erase(cuda_variable_declared_list_tmp.begin());
 		cuda_variable_declared_list = cuda_variable_declared_list_tmp;
 		cuda_variable_declared_list_tmp.clear();
-
-
 	}
 };
 extern std::vector<CudaLoopRelation*> cuda_loop_relation_list;

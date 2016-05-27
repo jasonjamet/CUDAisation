@@ -143,7 +143,6 @@ int main(int argc, char **argv) {
 					} else {
 						generateXmlOutput(outputFileName.c_str(), showXml);
 						generateCcodeOutput(outputFileName.c_str(), showC);
-
 					}
 				} else {
 						std::cout << "Error during the parse of the file." << std::endl;
