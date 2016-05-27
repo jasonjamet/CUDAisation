@@ -105,8 +105,34 @@ void IdentifierDeclarator::toPrettyCode(CodeString* context){
 	if (isGtid && cuda_loop_relation_list.size() != 0) {
 		for (CudaLoopRelation* &i : cuda_loop_relation_list)
 		{
+			std::vector<std::string> block_size_variables;
+			std::vector<std::string> grid_size_variables;
+			for (auto cudaParam : i->cuda_definition->pragma_cuda->cuda_param_list) {
+				if (cudaParam->token == BLOCK_SIZE) {
+					for (auto CudaParamArg : cudaParam->cuda_params_args_list) {
+						block_size_variables.push_back(*(CudaParamArg->arg));
+					}
+				}
+
+				if (cudaParam->token == GRID_SIZE) {
+					for (auto CudaParamArg : cudaParam->cuda_params_args_list) {
+						grid_size_variables.push_back(*(CudaParamArg->arg));
+					}
+				}
+			}
 			if (i->thread_loop_identifier == identifier) {
-				context->add(" = ((((blockIdx.x * gridDim.y + blockIdx.y) * gridDim.z + blockIdx.z) * blockDim.x + threadIdx.x) * blockDim.y + threadIdx.y) * blockDim.z + threadIdx.z");
+				std::string gtid = "blockIdx.x";
+				if(grid_size_variables.size() >= 2 && grid_size_variables[1] != "1")
+				gtid = "(" + gtid + " * gridDim.y + blockIdx.y)";
+				if(grid_size_variables.size() >= 3 && grid_size_variables[2] != "1")
+				gtid = "(" + gtid + " * gridDim.z + blockIdx.z)";
+				if(block_size_variables.size() >= 1 && block_size_variables[0] != "1")
+				gtid = "(" + gtid + " * blockDim.x + threadIdx.x)";
+				if(block_size_variables.size() >= 2 && block_size_variables[1] != "1")
+				gtid = "(" + gtid + " * blockDim.y + threadIdx.y)";
+				if(block_size_variables.size() >= 3 && block_size_variables[2] != "1")
+				gtid = "(" + gtid + " * blockDim.z + threadIdx.z)";
+				context->add(" = " + gtid);
 			}
 		}
 	}
