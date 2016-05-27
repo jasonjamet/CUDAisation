@@ -1241,6 +1241,8 @@ void CudaDefinition::toPrettyCode(CodeString* context){
 
 	pragma_cuda->toPrettyCode(context);
 	functionDefinition->toPrettyCode(context);
+
+
 }
 
 std::string PragmaCuda::toStdString(){
@@ -1333,6 +1335,25 @@ void CudaParamArgs::toPrettyCode(CodeString* context){
 }
 
 
+void getGtid(CudaLoopRelation* &cuda_loop_relation) {
+	std::vector<std::string> block_size_variables;
+	std::vector<std::string> grid_size_variables;
+
+	for (auto cudaParam : cuda_loop_relation->cuda_definition->pragma_cuda->cuda_param_list) {
+
+		if (cudaParam->token == BLOCK_SIZE) {
+			for (auto CudaParamArg : cudaParam->cuda_params_args_list) {
+				block_size_variables.push_back(*(CudaParamArg->arg));
+			}
+		}
+
+		if (cudaParam->token == GRID_SIZE) {
+			for (auto CudaParamArg : cudaParam->cuda_params_args_list) {
+				grid_size_variables.push_back(*(CudaParamArg->arg));
+			}
+		}
+	}
+}
 
 
 
@@ -1374,8 +1395,8 @@ void threadLoopIdentifierSave(CudaLoopRelation* &cuda_loop_relation){
 
 
 void integrityTest() {
+	
 	for(CudaLoopRelation* &cuda_loop_relation : cuda_loop_relation_list) {
-
 		threadLoopIdentifierSave(cuda_loop_relation);
 
 
