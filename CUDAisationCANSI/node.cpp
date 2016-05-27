@@ -1230,8 +1230,8 @@ std::string CudaDefinition::toStdString(){
 	if(pragma_cuda){
 			result += pragma_cuda->toStdString();
 	}
-	result += "</CudaDefinition>";
 	result += functionDefinition->toStdString();
+	result += "</CudaDefinition>";
 
 	return result;
 }
@@ -1247,16 +1247,7 @@ void CudaDefinition::toPrettyCode(CodeString* context){
 
 std::string PragmaCuda::toStdString(){
 
-	std::string var_pragma, var_cuda;
-
-	if(token1 == PRAGMA){
-		var_pragma = "#pragma";
-	}
-	if(token2 == CUDA){
-		var_cuda = "cuda";
-	}
-
-	std::string result = "<PragmaCuda> <Pragma>" + var_pragma + "</Pragma> <Cuda>" + var_cuda+ "</Cuda>\n" ;
+	std::string result = "<PragmaCuda>" ;
 	if(cuda_param_list.size() != 0){
 		result += "<CudaParamsList>";
 		for( auto &i : cuda_param_list ) {
@@ -1395,7 +1386,7 @@ void threadLoopIdentifierSave(CudaLoopRelation* &cuda_loop_relation){
 
 
 void integrityTest() {
-	
+
 	for(CudaLoopRelation* &cuda_loop_relation : cuda_loop_relation_list) {
 		threadLoopIdentifierSave(cuda_loop_relation);
 

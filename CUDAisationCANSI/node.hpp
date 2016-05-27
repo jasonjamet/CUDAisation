@@ -579,11 +579,9 @@ typedef std::vector<CudaParam*> CudaParamList;
 
 class PragmaCuda : public Node {
 	public:
-	int token1;
-	int token2;
-	CudaParamList cuda_param_list;
+		CudaParamList cuda_param_list;
 
-	PragmaCuda(int token1, int token2, CudaParamList cuda_param_list) :token1(token1), token2(token2), cuda_param_list(cuda_param_list) {
+	PragmaCuda(CudaParamList cuda_param_list) : cuda_param_list(cuda_param_list) {
 
 	}
 
