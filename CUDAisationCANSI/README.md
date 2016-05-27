@@ -6,13 +6,13 @@ Transforms "C" functions to "CUDA" functions.
 ```
 Usage: cudaparse [OPTION] [FILE]
 ```
--x \t\t Print an XML representation of the tree (build from ANSI-C).
+-x     Print an XML representation of the tree (build from ANSI-C).
 
--c \t\t Print the C code with cuda kernel(s).
+-c     Print the C code with cuda kernel(s).
 
--o OUTPUT_FILE \t\t Save the result on a file, depend to the prints options (if none, store the c result).
+-o OUTPUT_FILE     Save the result on a file, depend to the prints options (if none, store the c result).
 
--h \t	 Print help informations.
+-h   Print help informations.
 
 ####Compilation:
 ```
