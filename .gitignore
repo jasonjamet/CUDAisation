@@ -7,7 +7,7 @@ rapport/*.pdf
 *.y.*
 *.lex.*
 *.o
-parser
+cudaparse
 parser.h
 *.ouput
 *.gch

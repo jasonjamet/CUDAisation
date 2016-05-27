@@ -66,12 +66,14 @@ void generateCcodeOutput(std::string outputFileName, bool show) {
 }
 
 void help() {
-	std::cout	<< "Transforms a \"C\" function in a \"CUDA\" function." << std::endl
-	<< "Usage: parser [OPTION] [FILE]" << std::endl
+	std::cout	<< "Transforms \"C\" functions to \"CUDA\" functions." << std::endl
+	<< "Usage: cudaparse [OPTION] [FILE]" << std::endl
 	<< std::endl
-	<< "Example: parser main.c" << std::endl
-	<< "-x OUTPUT_FILE \t\t Print an XML representation of the tree (build from ANSI-C)." << std::endl
-	<< "-c OUTPUT_FILE \t\t Print the C code with cuda kernel(s)." << std::endl;
+	<< "Example: cudaparse main.c" << std::endl
+	<< "-x  \t\t Print an XML representation of the tree (build from ANSI-C)." << std::endl
+	<< "-c  \t\t Print the C code with cuda kernel(s)." << std::endl
+	<< "-o OUTPUT_FILE \t Save the result on a file, depend to the prints options (if none, store the c result)." << std::endl
+	<< "-h \t	 Print help informations." << std::endl;
 
 }
 
@@ -93,12 +95,12 @@ int main(int argc, char **argv) {
 				break;
 			case 'o':
 				if(optarg == NULL || optarg == argv[argc-1]) {
-					std::cout << "Option -o requires an argument." << std::endl;
+					std::cout << "Option -o requires an argument. -h for more informations" << std::endl;
 					return 1;
 				} else {
 					std::string outputFileNameStr = optarg;
 					if(outputFileNameStr.find("-") != std::string::npos) {
-						std::cout << "Option -o requires an argument." << std::endl;
+						std::cout << "Option -o requires an argument. -h for more informations" << std::endl;
 						return 1;
 					}
 					outputFileName = optarg;
@@ -107,10 +109,10 @@ int main(int argc, char **argv) {
 			case 'h':
 			case '?':
 				if (optopt == 'o') {
-					fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+					fprintf (stderr, "Option -%c requires an argument. -h for more informations\n", optopt);
 				}
 				else if (isprint (optopt)) {
-					fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+					fprintf (stderr, "Unknown option `-%c'. -h for more informations\n", optopt);
 				}
 				help();
 				return 1;
