@@ -152,38 +152,15 @@
 
 
 \newpage
-
+\thispagestyle{empty}
+\mbox{}
+\setcounter{page}{0}
+\glsresetall
+\newpage
+\tableofcontents
+\newpage
 
 	\section{Objectifs}
-	
-	\section{Analyse de la traductibilité}
-
-	
-	\paragraph{Problèmes exclus}
-	\begin{itemize}
-  		\item Boucle while
-  		\item Fonction void
-  		\item Plusieurs boucles for séquentiels
-  		\item 
-	
-	\end{itemize}
-	\paragraph{Problèmes potentiel}
-		\begin{itemize}
-  		\item Conditions if else
-  		\item Passage de variables vers CUDA et inverse
-  		\item Création de la grille/blocs/threads (tailles)
-  		\item Incrémentation dans la boucle for
-  		\item Taille de la boucle plus grande que la grille
-  		\item Boucles imbriquées
-  		\item Variables globales
-	
-	\end{itemize}
-	\paragraph{Fonction non void}
-	Une fonction CUDA ne peut pas retourner de valeurs, nous avons donc trouvé judicieux de ne pas traiter les fonction ayant un retour, la contrainte est de plus extremement minime pour l'utilisateur.
-	\paragraph{}
-	
-	\section{Transformation}
-	
 	\begin{lstlisting}[
     language=cpp,
 ]
@@ -206,27 +183,49 @@ void sum(float *x, float *y, float *z, int size) {
 	
 	\end{lstlisting}
 
-	\begin{lstlisting}[
-    language=cpp,
-]
-void sum(float *x, float *y, float *z, int size) {
-	for (int i=0; i<size; i*2) {
-		z[i] = x[i] + y[i]
-	}
-}
-
-_____________________________________
-
-
-__global__
-void sum(float *x, float *y, float *z, int size) {
-  int gtid = threadIdx.x ;
-  if (gtid < size) {
-    z[gtid] = x[gtid] + y[gtid];
-  }
-}
 	
-	\end{lstlisting}
+	
+	\section{Analyse du problème}
+
+	Liste des fonctionnalités a implementer
+	Liste des cas a exclures
+	\paragraph{Problèmes exclus}
+	\begin{itemize}
+  		\item Boucle while
+  		\item Fonction non void
+  		\item Plusieurs boucles for imbriquées	
+	\end{itemize}
+	
+	\paragraph{Problèmes potentiel}
+		\begin{itemize}
+  		\item Conditions if else
+  		\item Passage de variables vers CUDA et inverse
+  		\item Création de la grille/blocs/threads (tailles)
+  		\item Incrémentation dans la boucle for
+  		\item Taille de la boucle plus grande que la grille
+  		\item Boucles imbriquées
+  		\item Variables globales
+	\end{itemize}
+	\paragraph{Fonction non void}
+	Une fonction CUDA ne peut pas retourner de valeurs, nous avons donc trouvé judicieux de ne pas traiter les fonction ayant un retour, la contrainte est de plus extremement minime pour l'utilisateur.
+	
+	\section{Solutions}
+	\paragraph{Analyseur synthaxique}
+	\paragraph{Compilateur gcc}
+	\paragraph{Regex}
+	\paragraph{Solution retenue}
+	
+	\section{Implémentations}
+	
+	Parler des fonctionnalitées implémentées.
+	Palrer des différentes appoches de traitement (pre abre post arbre)
+	
+	\section{Améliorations}
+	
+	\section{Conclusion}
+	
+	Parler de montée en compétence..
+	
 
 
 
