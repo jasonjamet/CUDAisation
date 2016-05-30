@@ -7,7 +7,7 @@
 	extern int column;
 	extern int yylex();
 
-	void yyerror(std::string s)
+	void yyerror(char *s)
 	{
 		fflush(stdout);
 		printf("\n%*s\n%*s\n", column, "^", column, s);

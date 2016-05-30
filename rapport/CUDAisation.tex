@@ -161,31 +161,39 @@
 \newpage
 
 	\section{Objectifs}
+
+	\paragraph{}
+	Le but du projet était de pouvoir mettre en oeuvre une étude de faisabilité, ou POC (Proof of Concept) afin de montrer comment transformer du code impératif vers CUDA.
+	
 	\begin{lstlisting}[
     language=cpp,
 ]
-void sum(float *x, float *y, float *z, int size) {
+#pragma cuda thread_loop(i) params(x,y,z,size) 
+void sum(float *x, float *y, float *z, int size) { 
 	for (int i=0; i<size; ++i) {
-		z[i] = x[i] + y[i]
+		z[i] = x[i] + y[i];
 	}
 }
 
 _____________________________________
 
 
-__global__
-void sum(float *x, float *y, float *z, int size) {
-  int gtid = threadIdx.x ;
-  if (gtid < size) {
-    z[gtid] = x[gtid] + y[gtid];
-  }
+__global__ void kernel(float *x, float *y, float *z, int size) { 
+	int gtid = ...
+	if (gtid < size) {
+		z[i] = x[i] + y[i];
+	}
 }
 	
-	\end{lstlisting}
-
+	\end{lstlisting}	
 	
 	
 	\section{Analyse du problème}
+	
+	Nous avons commencé par identifier les différents problèmes que nous pourrions rencontrer lors de la transformation d'une fonction lambda vers CUDA.
+	
+	
+	En effet, tout les cas ne peuvent fonctionner, et il faut bien évidemment prendre en compte tous les paramètres qui peuvent intervenir :
 
 	Liste des fonctionnalités a implementer
 	Liste des cas a exclures
@@ -209,16 +217,92 @@ void sum(float *x, float *y, float *z, int size) {
 	\paragraph{Fonction non void}
 	Une fonction CUDA ne peut pas retourner de valeurs, nous avons donc trouvé judicieux de ne pas traiter les fonction ayant un retour, la contrainte est de plus extremement minime pour l'utilisateur.
 	
+	\newpage	
+	
 	\section{Solutions}
-	\paragraph{Analyseur synthaxique}
+	
+	Afin de réaliser le projet, nous nous sommes penché sur les différentes solutions possibles qu'il existait et avons cherché les pour et les contres :
+	
+	\paragraph{Analyseur syntaxique}
+	
 	\paragraph{Compilateur gcc}
 	\paragraph{Regex}
 	\paragraph{Solution retenue}
+	
+
+	
+	
+	\newpage
+	
+	
+	
 	
 	\section{Implémentations}
 	
 	Parler des fonctionnalitées implémentées.
 	Palrer des différentes appoches de traitement (pre abre post arbre)
+
+	\section{Résultat}
+
+
+	\begin{lstlisting}[
+    language=cpp,
+]
+int x1 = 2;
+int y2 = 2;
+
+
+
+#pragma cuda thread_loop(j) block_size(x1,y2) grid_size(16,16)
+void sum(float *x, float *y, float *z, int size) {
+ int i;
+ for(i=0; i<size; ++i) {
+   z[i] = x[i] + y[i];
+ }
+ int j;
+ for(j=0; j<size; j++) {
+    z[i] = x[i] + y[i];
+ }
+}
+
+int main() {
+  return 0;
+}
+
+
+
+_____________________________________
+
+
+int x1 = 2;
+int y2 = 2;
+
+__global__
+void kernel_sum(float *x, float *y, float *z, int size)
+{
+	int i;
+	for ( i = 0; i < size; ++i )
+	{
+		z[i] = x[i] + y[i];
+	}
+	int j = (((blockIdx.x * gridDim.y + blockIdx.y) * blockDim.x + threadIdx.x) * blockDim.y + threadIdx.y);
+	if (j < size)
+	{
+		z[i] = x[i] + y[i];
+	}
+}
+void sum(float *x, float *y, float *z, int size)
+{
+	 kernel_sum <<< dim3((16 + x1*y2 - 1 ) / x1*y2, (16 + x1*y2 - 1 ) / x1*y2), dim3(x1, y2) >>> (x, y, z, size);
+}
+int main()
+{
+	return 0;
+}
+\end{lstlisting}
+
+	
+	
 	
 	\section{Améliorations}
 	

@@ -11,6 +11,8 @@ std::vector<std::string> cuda_variable_used_list_tmp;
 
 bool point_virgule = true;
 
+bool boole = true;
+
 std::string TranslationUnit::toStdString(){
 	std::string result = "<TranslationUnit>";
 
@@ -1336,6 +1338,7 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 }
 
 
+
 std::string CudaDefinition::toStdString(){
 
 	std::string result = "<CudaDefinition>";
@@ -1352,8 +1355,13 @@ std::string CudaDefinition::toStdString(){
 
 void CudaDefinition::toPrettyCode(CodeString* context){
 
+	CodeLine *line = new CodeLine();
+
 	pragma_cuda->toPrettyCode(context);
 	functionDefinition->toPrettyCode(context);
+
+
+	
 }
 
 std::string PragmaCuda::toStdString(){
@@ -1414,7 +1422,6 @@ std::string CudaParam::toStdString(){
 }
 
 void CudaParam::toPrettyCode(CodeString* context){
-
 	CodeLine *line = new CodeLine();
 	context->add(line);
 }

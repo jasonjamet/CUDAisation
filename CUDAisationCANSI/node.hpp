@@ -697,6 +697,15 @@ extern std::vector<IdentifierDeclarator*> cuda_variable_declared_list_tmp;
 extern std::vector<std::string> cuda_variable_used_list_tmp;
 
 
+class FunctionMain {
+	public:
+		CudaDefinition *cuda_definition;
+
+		FunctionMain(CudaDefinition *cuda_definition) : cuda_definition(cuda_definition) {}
+
+		void toPrettyCode(CodeString*);
+};
+
 class CudaLoopRelation {
 public:
 	std::vector<IterationStatement*> loop_list;
