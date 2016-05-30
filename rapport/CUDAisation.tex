@@ -152,43 +152,26 @@
 
 
 \newpage
-
+\thispagestyle{empty}
+\mbox{}
+\setcounter{page}{0}
+\glsresetall
+\newpage
+\tableofcontents
+\newpage
 
 	\section{Objectifs}
+
 	\paragraph{}
 	Le but du projet était de pouvoir mettre en oeuvre une étude de faisabilité, ou POC (Proof of Concept) afin de montrer comment transformer du code impératif vers CUDA.
 	
-	\section{Analyse de la traductibilité}
-
+	
+	\section{Analyse du problème}
+	
 	Nous avons commencé par identifier les différents problèmes que nous pourrions rencontrer lors de la transformation d'une fonction lambda vers CUDA.
-	En effet, tout les cas ne peuvent fonctionner, et il faut bien évidemment prendre en compte tous les paramètres qui peuvent intervenir :	
 	
-	\paragraph{Problèmes exclus}
-	\begin{itemize}
-  		\item Boucle while
-  		\item Fonction void
-  		\item Plusieurs boucles for séquentiels
-  		\item 
 	
-	\end{itemize}
-	\paragraph{Problèmes potentiel}
-		\begin{itemize}
-  		\item Conditions if else
-  		\item Passage de variables vers CUDA et inverse
-  		\item Création de la grille/blocs/threads (tailles)
-  		\item Incrémentation dans la boucle for
-  		\item Taille de la boucle plus grande que la grille
-  		\item Boucles imbriquées
-  		\item Variables globales
-	
-	\end{itemize}
-	\paragraph{Fonction non void}
-	Une fonction CUDA ne peut pas retourner de valeur, nous avons donc trouvé judicieux de ne pas traiter les fonction ayant un retour, la contrainte est de plus extremement minime pour l'utilisateur.
-	\paragraph{}
-	
-	\section{Transformation attendue}
-	
-	\begin{lstlisting}[
+\begin{lstlisting}[
     language=cpp,
 ]
 #pragma cuda thread_loop(i) params(x,y,z,size) 
@@ -208,11 +191,59 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	}
 }
 	
-	\end{lstlisting}
+	\end{lstlisting}	
+	
+	En effet, tout les cas ne peuvent fonctionner, et il faut bien évidemment prendre en compte tous les paramètres qui peuvent intervenir :
+
+	Liste des fonctionnalités a implementer
+	Liste des cas a exclures
+	\paragraph{Problèmes exclus}
+	\begin{itemize}
+  		\item Boucle while
+  		\item Fonction non void
+  		\item Plusieurs boucles for imbriquées	
+	\end{itemize}
+	
+	\paragraph{Problèmes potentiel}
+		\begin{itemize}
+  		\item Conditions if else
+  		\item Passage de variables vers CUDA et inverse
+  		\item Création de la grille/blocs/threads (tailles)
+  		\item Incrémentation dans la boucle for
+  		\item Taille de la boucle plus grande que la grille
+  		\item Boucles imbriquées
+  		\item Variables globales
+	\end{itemize}
+	\paragraph{Fonction non void}
+	Une fonction CUDA ne peut pas retourner de valeurs, nous avons donc trouvé judicieux de ne pas traiter les fonction ayant un retour, la contrainte est de plus extremement minime pour l'utilisateur.
+	
+	\newpage	
+	
+	\section{Solutions}
+	
+	Afin de réaliser le projet, nous nous sommes penché sur les différentes solutions possibles qu'il existait et avons cherché les pour et les contres :
+	
+	\paragraph{Analyseur syntaxique}
+	
+	\paragraph{Compilateur gcc}
+	\paragraph{Regex}
+	\paragraph{Solution retenue}
+	
+
+	
 	
 	\newpage
+	
+	
+	
+	
+	\section{Implémentations}
+	
+	Parler des fonctionnalitées implémentées.
+	Palrer des différentes appoches de traitement (pre abre post arbre)
 
 	\section{Résultat}
+
 
 	\begin{lstlisting}[
     language=cpp,
@@ -268,9 +299,17 @@ int main()
 {
 	return 0;
 }
+\end{lstlisting}
 
 	
-	\end{lstlisting}
+	
+	
+	\section{Améliorations}
+	
+	\section{Conclusion}
+	
+	Parler de montée en compétence..
+	
 
 
 
