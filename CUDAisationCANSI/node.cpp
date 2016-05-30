@@ -1226,7 +1226,7 @@ std::string getDimBlockGridString(CudaDefinition *cuda_definition) {
 			nbr_block_str.pop_back();
 			nbr_block_str.pop_back();
 		  return nbr_block_str+ "), " + nbr_thread_str +")";
-		} else {
+		} else {			
 			return "dim3(1, 1, 1), " + nbr_thread_str +")";
 		}
 	} else {
@@ -1361,7 +1361,7 @@ void CudaDefinition::toPrettyCode(CodeString* context){
 	functionDefinition->toPrettyCode(context);
 
 
-	
+
 }
 
 std::string PragmaCuda::toStdString(){
@@ -1493,6 +1493,8 @@ void integrityTest() {
 
 		for(auto &loop : cuda_loop_relation->loop_list) {
 			ForCompoundIterationStatement * for_compound = dynamic_cast<ForCompoundIterationStatement *>(loop);
+			// inc loop integrity test
+
 			if(for_compound && for_compound->expression.size() == 1) {
 
 
@@ -1513,12 +1515,42 @@ void integrityTest() {
 
 					checkVariables(cuda_loop_relation->cuda_variable_used_list, cuda_loop_relation->cuda_variable_declared_list);
 					if(inc_operator != "++") {
-						std::cout << "[WARNING] Find \"" << inc_operator << "\" instead of \"++\"" << std::endl;
+						std::cout << "[WARNING] Operator \"" << inc_operator << "\" instead of \"++\"" << std::endl;
 					}
 					for_compound->isInACudaFunction = true;
 					cuda_loop_relation->cuda_definition->functionDefinition->isACudaFunction=true;
+					// condition loop integrity test
+					if(for_compound && for_compound->expression_statement2 && for_compound->expression_statement2->expression_list.size() == 1) {
+						BinaryOperation * binary_operation = dynamic_cast<BinaryOperation *>(for_compound->expression_statement2->expression_list.back());
+						Identifier *right_operand = dynamic_cast<Identifier *>(binary_operation->right_operand);
+						Operator *binary_operator =  dynamic_cast<Operator *>(binary_operation->binary_operator);
+						Identifier *left_operand = dynamic_cast<Identifier*>(binary_operation->left_operand);
+						if(right_operand && binary_operator && left_operand) {
+							if(left_operand->value == identifier->value) {
+								if(binary_operator->value == "<") {
+									std::cout << "OKOKOKOK" << std::endl;
+									cuda_loop_relation->cuda_definition->size_identifier = left_operand->value;
+								} else {
+									std::cout << "[WARNING] Loop condition is not correctly formed, \"" << right_operand->value << " < " << left_operand->value << "\" instead of \"" << right_operand->value << " > " << left_operand->value + "\"." << std::endl;
+								}
+							} else if(right_operand->value == identifier->value) {
+									if(binary_operator->value == ">") {
+										std::cout << "OKOKOKOK" << std::endl;
+										cuda_loop_relation->cuda_definition->size_identifier = right_operand->value;
+									} else {
+										std::cout << "[WARNING] Loop condition is not correctly formed, \"" << right_operand->value << " > " << left_operand->value << "\" instead of \"" << right_operand->value << " < " << left_operand->value + "\"." << std::endl;
+									}
+							} else {
+								std::cout << "[WARNING] Operator \"" << identifier->value << " \" not used on the loop condition." << std::endl;
+							}
+						} else {
+							std::cout << "[WARNING] Loop condition is not correctly formed." << std::endl;
+						}
+					}
 				}
 			}
+
+
 		}
 	}
 }

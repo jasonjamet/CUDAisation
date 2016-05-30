@@ -221,13 +221,34 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	
 	\section{Solutions}
 	
-	Afin de réaliser le projet, nous nous sommes penché sur les différentes solutions possibles qu'il existait et avons cherché les pour et les contres :
+
+	\subsection{Solutions envisagées}
 	
-	\paragraph{Analyseur syntaxique}
+		Afin de réaliser le projet, nous nous sommes penché sur les différentes solutions possibles qu'il existait et avons cherché les pour et les contres :
+	\paragraph{Analyseur syntaxique/lexical}
+	~~\\
+	\indent
+	Le principe est de parser le fichier contenant notre fonction à paralleliser grâce à des outils d'analyse tel que flex (analyseur lexical) et bison (analyseur syntaxique).\\
+	Le résultat de l'analyse est alors stocké dans un arbre pouvant être modifié selon nos besoins.\\
+	La transformation peut ce faire lors de l'analyse (et création de l'arbre), lors d'un traitement annexe ou lors de l'affichage.\\
+	Cette solution est très adaptée à notre problème, elle peut cependant devenir complexe techniquement si le langage à parser est complet.
+	
+	\paragraph{Regex}
+	~~\\
+	\indent
+	Basé sur le même principe que l'idée précédente, la création de l'arbre ne ce ferais plus via des outils, mais manuellement grâce à des expressions régulières.\\
+	Cette solution à pour inconvénient d'être très abordable techniquement, mais à tendance à vite devenir complexe (du notamment à l'absence d'analyseur synthaxique).
 	
 	\paragraph{Compilateur gcc}
-	\paragraph{Regex}
-	\paragraph{Solution retenue}
+	~~\\
+	\indent
+	Utiliser l'aptitude du compilateur gcc à accueillir des plugins, il existe un plugin baptisé "PLUGIN\_PRAGMAS" permettant l'intégration de pragma personnalisé, il est alors possible d'effectuer des actions spécifique en fonction du pragma renseigné. \\
+	Ce principe est notamment utilisé pour le pragma d'OpenMp, et cette solution correspondrais parfaitement à notre problème.
+	
+	\subsection{Solution retenue}
+	~~\\
+	\indent
+	La courbe d'apprentissage pour apréhender l'utilisation et la confection de plugin gcc nous à parut trop longue pour un projet aussi court, c'est pour cela que nous avons opté pour la solution utilisant les analyses syntaxique et lexicales qui à pour avantage d'être connue et plus ou moin maitrisée par les membres de l'équipe.
 	
 
 	
@@ -242,8 +263,64 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	Parler des fonctionnalitées implémentées.
 	Palrer des différentes appoches de traitement (pre abre post arbre)
 
-	\section{Résultat}
+	\newpage
 
+
+
+	
+	
+	
+	\section{Améliorations}
+	
+	\section{Conclusion}
+	
+	Parler de montée en compétence..
+	
+	
+	\section*{Figures}
+\indent
+\textbf{Figure \ref{fig:KaliGanttPrev}} Diagramme de gantt prévisionnel\\
+\indent
+
+\section*{Code}
+
+\indent
+\textbf{Code \ref{cod:apiREST}} Exemple de retour de l'api REST\\
+\indent
+
+\newglossaryentry{aikau}{name={AIKAU},
+    description={Framework Open source JavaScript réalisé pour alfresco}}
+\newglossaryentry{amp}{name={AMP},
+    description={Alfresco Module Package: Collection de code, \gls{xml}, images... Format compressé pouvant  être appliqué à un fichier war.}}
+    
+
+
+\section*{Glossaire}
+\renewcommand{\glossarysection}[2][]{}
+
+\printglossary[title=List of Terms,toctitle=Terms and abbreviations]
+
+
+
+\section*{Bibliographie}
+\begin{itemize}
+
+\item https://github.com/dnoliver/tc-parser/tree/e3c06751c2bca8a9aaea8afe601a7ad05b3384a4
+\item http://www.quut.com/c/ANSI-C-grammar-y.html
+\item https://gcc.gnu.org/onlinedocs/gccint/Plugins-attr.html\#Plugins-attr
+
+\end{itemize}
+	
+problemes:
+
+structure
+cast
+grid_size(1,,2);
+
+\newpage
+	\section{Annexe}
+
+	\subsection{Exemple}
 
 	\begin{lstlisting}[
     language=cpp,
@@ -300,51 +377,6 @@ int main()
 	return 0;
 }
 \end{lstlisting}
-
-	
-	
-	
-	\section{Améliorations}
-	
-	\section{Conclusion}
-	
-	Parler de montée en compétence..
-	
-	
-	\section*{Figures}
-\indent
-\textbf{Figure \ref{fig:KaliGanttPrev}} Diagramme de gantt prévisionnel\\
-\indent
-
-\section*{Code}
-
-\indent
-\textbf{Code \ref{cod:apiREST}} Exemple de retour de l'api REST\\
-\indent
-
-\newglossaryentry{aikau}{name={AIKAU},
-    description={Framework Open source JavaScript réalisé pour alfresco}}
-\newglossaryentry{amp}{name={AMP},
-    description={Alfresco Module Package: Collection de code, \gls{xml}, images... Format compressé pouvant  être appliqué à un fichier war.}}
-    
-
-
-\section*{Glossaire}
-\renewcommand{\glossarysection}[2][]{}
-
-\printglossary[title=List of Terms,toctitle=Terms and abbreviations]
-
-
-
-\section*{Bibliographie}
-\begin{itemize}
-
-\item https://github.com/dnoliver/tc-parser/tree/e3c06751c2bca8a9aaea8afe601a7ad05b3384a4
-\item http://www.quut.com/c/ANSI-C-grammar-y.html
-
-\end{itemize}
-	
-
 
 
 \end{document}

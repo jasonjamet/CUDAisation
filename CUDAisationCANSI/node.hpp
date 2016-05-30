@@ -684,6 +684,8 @@ class CudaDefinition : public Statement {
 	public:
 		PragmaCuda *pragma_cuda;
 		FunctionDefinition *functionDefinition;
+		std::string size_identifier;
+
 		CudaDefinition(PragmaCuda *pragma_cuda, FunctionDefinition *functionDefinition) : pragma_cuda(pragma_cuda), functionDefinition(functionDefinition) {
 			functionDefinition->cuda_definition = this;
 		}
