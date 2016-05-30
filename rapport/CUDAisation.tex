@@ -165,13 +165,7 @@
 	\paragraph{}
 	Le but du projet était de pouvoir mettre en oeuvre une étude de faisabilité, ou POC (Proof of Concept) afin de montrer comment transformer du code impératif vers CUDA.
 	
-	
-	\section{Analyse du problème}
-	
-	Nous avons commencé par identifier les différents problèmes que nous pourrions rencontrer lors de la transformation d'une fonction lambda vers CUDA.
-	
-	
-\begin{lstlisting}[
+	\begin{lstlisting}[
     language=cpp,
 ]
 #pragma cuda thread_loop(i) params(x,y,z,size) 
@@ -192,6 +186,12 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 }
 	
 	\end{lstlisting}	
+	
+	
+	\section{Analyse du problème}
+	
+	Nous avons commencé par identifier les différents problèmes que nous pourrions rencontrer lors de la transformation d'une fonction lambda vers CUDA.
+	
 	
 	En effet, tout les cas ne peuvent fonctionner, et il faut bien évidemment prendre en compte tous les paramètres qui peuvent intervenir :
 
