@@ -5,7 +5,7 @@ rapport/*.ist
 rapport/*.log
 rapport/*.pdf
 rapport/*.toc
-rapoort/*.glsdefs
+rapport/*.glsdefs
 *.y.*
 *.lex.*
 *.o
