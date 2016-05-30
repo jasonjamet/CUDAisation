@@ -1,0 +1,60 @@
+\ifglsentryexists{aikau}{}%
+{%
+\gls@defglossaryentry{aikau}%
+{%
+name={AIKAU},%
+sort={AIKAU},%
+type={main},%
+first={AIKAU},%
+firstplural={AIKAUs},%
+text={AIKAU},%
+plural={AIKAUs},%
+description={Framework Open source JavaScript réalisé pour alfresco},%
+descriptionplural={Framework Open source JavaScript réalisé pour alfresco},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{amp}{}%
+{%
+\gls@defglossaryentry{amp}%
+{%
+name={AMP},%
+sort={AMP},%
+type={main},%
+first={AMP},%
+firstplural={AMPs},%
+text={AMP},%
+plural={AMPs},%
+description={Alfresco Module Package: Collection de code, \gls {xml}, images... Format compressé pouvant être appliqué à un fichier war.},%
+descriptionplural={Alfresco Module Package: Collection de code, \gls {xml}, images... Format compressé pouvant être appliqué à un fichier war.},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
