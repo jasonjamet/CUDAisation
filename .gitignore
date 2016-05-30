@@ -4,6 +4,8 @@ rapport/*.glo
 rapport/*.ist
 rapport/*.log
 rapport/*.pdf
+rapport/*.toc
+rapport/*.glsdefs
 *.y.*
 *.lex.*
 *.o
