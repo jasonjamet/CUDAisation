@@ -160,7 +160,9 @@
 \tableofcontents
 \newpage
 
-	\section{Objectifs}
+	\section{Présentation}
+
+	\subsection{Objectifs}
 
 	\paragraph{}
 	Le but du projet était de pouvoir mettre en œuvre une étude de faisabilité, ou POC (Proof of Concept) afin de montrer comment transformer du code impératif vers CUDA.
@@ -187,6 +189,13 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	
 	\end{lstlisting}	
 	
+	\subsection{Technologies et outils utilisés}
+	
+	Pour ce projet, comme nous le verrons plus tard, nous sommes partis d'un projet déjà existant implémenté en \verb|C++|, nous avons donc continué avec ce langage pour la structure de l'arbre réalisé.
+	Pour le parseur, nous avons utilisé les technologies \verb|bison| et \verb|flex|, que nous avions déjà utilisé lors d'un précédent projet.
+	Enfin, étant 3 personnes à travailler sur les mêmes fichiers, nous avons utilisé le système de gestion de version \verb|Git|, qui nous permet de garder les fichiers modifiés et de faciliter le travail.
+	
+	\newpage	
 	
 	\section{Analyse du problème}
 	Nous avons commencé par identifier les différents cas que nous pourrions rencontrer lors de la transformation d'une fonction lambda vers CUDA, ainsi nous avons pu établir une liste des paramètres qui influent sur la transformation.
@@ -234,7 +243,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
   		\item Variables globales
 	\end{itemize}
 	\paragraph{Fonction non void}
-	Une fonction CUDA ne peut pas retourner de valeurs, nous avons donc trouvé judicieux de ne pas traiter les fonction ayant un retour, la contrainte est de plus extrèmement minime pour l'utilisateur.
+	Une fonction CUDA ne peut pas retourner de valeurs, nous avons donc trouvé judicieux de ne pas traiter les fonction ayant un retour, la contrainte est de plus extrêmement minime pour l'utilisateur.
 	
 	\newpage	
 	
@@ -316,7 +325,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\end{itemize}
 	L'ordre des paramètres n'a pas d'importance.
 	Les différentes variables déclarées précédemment sont initialisées à l'intérieur de la fonction après transformation.
-	Si elles ne sont pas déclarées, les variables du \verb|bloc_size| sont initialisées à 1 tandis que si celles de \verb|grid_size| ne le sont pas, nous récupérons la variable de la boucle \verb|for|.
+	Si elles ne sont pas déclarées, les variables du \verb|bloc_size| sont initialisées à 1 tandis que si celles de \verb|grid_size| ne le sont pas, nous récupérons la variable de la boucle \verb|for| (du type : i<size).
 	\\Nous avons ensuite modifié l'arbre pour qu'il prenne en compte ce pragma, mais qu'il puisse évidemment aussi prendre en compte les fonctions sans pragma que nous retranscrivons comme telle.
 	
 	
@@ -330,7 +339,8 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\paragraph{Vérification de la portée des variables}
 	~~\\
 	\indent
-	Etant donné que le kernel sera exécute sur la carte nVidia, certaines variables n'y seront pas accessible. Pour repérer toutes les variables initialisées et utilisées, nous utilisons le même principe que pour repérer les boucles. Lors de la lecture de la fonction, nous listons les variables déclarées dans un Set, et les variables utilisées dans un autre Set, et effectuons une simple soustraction entre ces deux listes. Si le résultat n'est pas vide, on emet un warning indiquant les variables qui ne seront peut-être pas accessibles.
+
+	Etant donné que le kernel sera exécute sur la carte nVidia, certaines variables n'y seront pas accessible. Pour repérer toutes les variables initialisées et utilisées, nous utilisons le même principe que pour repérer les boucles. Lors de la lecture de la fonction, nous listons les variables déclarées dans un Set, et les variables utilisées dans un autre Set, et effectuons une simple soustraction entre ces deux listes. Si le résultat n'est pas vide, on émet un warning indiquant les variables qui ne seront peut-être pas accessibles.
 	
 	\paragraph{Transformation de la fonction}
 	~~\\
@@ -341,13 +351,30 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	~~\\
 	\indent
 	
-	Parler des fonctionnalités implémentées.
-	Parler des différentes approches de traitement (pre arbre post arbre)
+	Afin de rendre une fonction pouvant être directement compilée ( et exécutée si la fonction C donnée l'est), et étant donné qu'il nous restait du temps, nous avons décidé de générer une deuxième fonction qui appelle la fonction kernel générée. Cette dernière est identique à celle que l'on transforme au niveau de la déclaration (nom de la fonction ainsi que ses paramètres).
+	
+	Le corps de cette fonction contient au départ l'initialisation des différentes variables contenues dans les paramètres du \verb|pragma| (\verb|block_size| et \verb|grid_size|).
+	En ce qui concerne les variables du \verb|block_size| nous les affectons directement par leurs valeurs si elles existent, sinon elles valent 1.
+	Pour celles du \verb|grid_size|, nous les affectons grâce au calcul suivant : 
+	\begin{lstlisting}[
+    language=cpp,
+]
+	nbr_block_x = (size - nbr_threads - 1) / nbr_threads
+\end{lstlisting}	
+	 avec \verb|nbr_thread| la multiplication de chacune des variables de \verb|block_size|.
+	
+	S'ensuit une allocation mémoire des variables, puis l'appel au kernel (c'est-à-dire l'appel de la fonction transformée)
+	\begin{lstlisting}[
+    language=cpp,
+]
+	 kernel_sum <<< dim3(nbr_block_x, nbr_block_y, nbr_block_z) , dim3(nbr_thread_x, nbr_thread_y, nbr_thread_z) >>> (x, y, z, size);
+\end{lstlisting}	
 
 	\newpage
 
 
-
+Parler des fonctionnalités implémentées.
+	Parler des différentes approches de traitement (pre arbre post arbre)
 	
 	
 	
