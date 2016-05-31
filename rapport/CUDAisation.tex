@@ -205,12 +205,12 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\paragraph{boucle for}
 	~~\\
 	\indent
-	
+	Il nous faut ensuite les informations liée à la boucle à paralléliser : sa taille, qu'on trouve dans la condition d'arrêt, ainsi que la variable sur la quelle elle itère, qu'on peut retrouver dans l'incrémentation. On pourra ainsi voir si la boucle est parallélisable simplement, et renvoyer un warning dans le cas où l'incrémentation n'est pas de type i++ ou ++i, ou la condition d'arrêt n'est pas de type i<size.	
 	
 	\paragraph{déclaration de variables}
 	~~\\
 	\indent
-	
+	Un dernier point à vérifier est que les variables soient accessibles dans la fonction étant donné que le kernel sera exécuté à part sur la carte nVidia. Les variables globales par exemple ne seront pas accessibles. Il faut donc émettre un warning si une variable est utilisée et n'est pas déclarée dans le corps de la fonction ou dans ses paramètres.
 	
 	En effet, tout les cas ne peuvent fonctionner, et il faut bien évidemment prendre en compte tous les paramètres qui peuvent intervenir :
 
