@@ -4,7 +4,7 @@ int y2 = 2;
 
 
 
-#pragma cuda thread_loop(j) block_size(4,2,3) grid_size(15,15,15)
+#pragma cuda thread_loop(j) 
 void sum(float *x, float *y, float *z, int size) {
  int i;
  for(i=0; i<size; ++i) {

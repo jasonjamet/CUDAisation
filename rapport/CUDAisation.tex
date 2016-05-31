@@ -163,7 +163,7 @@
 	\section{Objectifs}
 
 	\paragraph{}
-	Le but du projet était de pouvoir mettre en oeuvre une étude de faisabilité, ou POC (Proof of Concept) afin de montrer comment transformer du code impératif vers CUDA.
+	Le but du projet était de pouvoir mettre en œuvre une étude de faisabilité, ou POC (Proof of Concept) afin de montrer comment transformer du code impératif vers CUDA.
 	
 	\begin{lstlisting}[
     language=cpp,
@@ -198,14 +198,14 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\begin{itemize}
 		\item la boucle visée pour identifier la boucle à transformer dans le cas où plusieurs boucles sont présentes
 		\item la taille des blocs (optionnel, pour avoir un contrôle plus fin sur la façon dont sera exécutée le kernel)
-		\item le nombre de threads total pour utiliser le minimum de ressources possible (ne pas lancer le kernel sur des coeurs inutilement)
+		\item le nombre de threads total pour utiliser le minimum de ressources possible (ne pas lancer le kernel sur des cœurs inutilement)
 	\end{itemize}		
 	Nous allons donc récupérer toutes ces informations via un pragma placé au dessus de la fonction à traduire.
 	
 	\paragraph{boucle for}
 	~~\\
 	\indent
-	Il nous faut ensuite les informations liée à la boucle à paralléliser : sa taille, qu'on trouve dans la condition d'arrêt, ainsi que la variable sur la quelle elle itère, qu'on peut retrouver dans l'incrémentation. On pourra ainsi voir si la boucle est parallélisable simplement, et renvoyer un warning dans le cas où l'incrémentation n'est pas de type i++ ou ++i, ou la condition d'arrêt n'est pas de type i\textless size.	
+	Il nous faut ensuite les informations liée à la boucle à paralléliser : sa taille, qu'on trouve dans la condition d'arrêt, ainsi que la variable sur la quelle elle itère, qu'on peut retrouver dans l'incrémentation. On pourra ainsi voir si la boucle est parallélisable simplement, et renvoyer un warning dans le cas où l'incrémentation n'est pas de type i++ ou ++i, ou la condition d'arrêt n'est pas de type i<size.	
 	
 	\paragraph{déclaration de variables}
 	~~\\
@@ -214,8 +214,8 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	
 	En effet, tout les cas ne peuvent fonctionner, et il faut bien évidemment prendre en compte tous les paramètres qui peuvent intervenir :
 
-	Liste des fonctionnalités a implementer
-	Liste des cas a exclures
+	Liste des fonctionnalités à implémenter
+	Liste des cas à exclure
 	\paragraph{Problèmes exclus}
 	\begin{itemize}
   		\item Boucle while
@@ -262,9 +262,9 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\paragraph{Compilateur gcc}
 		~~\\
 	\indent
-	Utiliser l'aptitude du compilateur gcc à accueillir des plugins, il existe un plugin baptisé "PLUGIN\_PRAGMAS" permettant l'intégration de pragma personnalisé, il serais alors possible d'effectuer des actions spécifique en fonction du pragma renseigné.\\ La transformation s'effectue lors de la compilation (principule utilisé par OpenMp). \\
+	Utiliser l'aptitude du compilateur gcc à accueillir des plugins, il existe un plugin baptisé "PLUGIN\_PRAGMAS" permettant l'intégration de pragma personnalisé, il serait alors possible d'effectuer des actions spécifique en fonction du pragma renseigné.\\ La transformation s'effectue lors de la compilation (principule utilisé par OpenMp). \\
 	\begin{itemize}
-		\item Directement integré dans la compilation, ne nécéssite pas d'autres outils
+		\item Directement intégré dans la compilation, ne nécessite pas d'autres outils
 		\item Fournit l'arbre syntaxique
 		\item API trop complexe à prendre en main pour un projet de 4 semaines
 	\end{itemize}
@@ -283,7 +283,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\subsection{Solution retenue}
 	~~\\
 	\indent
-	La solution retenue est l'analyseur syntaxique avec Flex et Bison. \\Cette solution est simple à prendre en main et à pour avantage d'être connue et plus ou moin maitrisée par les membres de l'équipe. \\Elle nous permet d'avoir un arbre syntaxique qu'on peut facilement adapter pour prendre en compte le pragma cuda. \\Il nous permet aussi de repérer rapidement les structures qui nous intéresse (boucles, initialisation,...).
+	La solution retenue est l'analyseur syntaxique avec Flex et Bison. \\Cette solution est simple à prendre en main et à pour avantage d'être connue et plus ou moins maîtrisée par les membres de l'équipe. \\Elle nous permet d'avoir un arbre syntaxique qu'on peut facilement adapter pour prendre en compte le pragma cuda. \\Il nous permet aussi de repérer rapidement les structures qui nous intéresse (boucles, initialisation,...).
 
 	
 	\newpage
@@ -306,16 +306,19 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\paragraph{Analyse du pragma}
 	~~\\
 	\indent
-	la première partie de cette tâche est de définir le format du pragma. Nous avons donc choisi celui-ci:
+	La première partie de cette tâche est de définir le format du pragma. Nous avons donc choisi celui-ci:
 	\\\#pragma cuda \{liste des paramètres cuda\}
-	\\où chaque paramètre est l'un des suivants:
+	\\où la liste des paramètres correspond au schéma suivant :
 	\begin{itemize}
-		\item thread\_loop(i) : indique que la boucle à paralélliser est celle qui utilise la variable i
+		\item thread\_loop(i) : indique que la boucle à paralléliser est celle qui utilise la variable i
 		\item bloc\_size(x[,y[,z]]) : indique la taille du bloc
 		\item grid(x) : indique le nombre de threads total à créer
 	\end{itemize}
 	L'ordre des paramètres n'a pas d'importance.
-	\\Nous avons ensuite modifié l'arbre pour qu'il prenne en compte ce pragma, mais qu'il puisse évidemment aussi prendre en compte les fonctions sans pragma.
+	Les différentes variables déclarées précédemment sont initialisées à l'intérieur de la fonction après transformation.
+	Si elles ne sont pas déclarées, les variables du \verb|bloc_size| sont initialisées à 1 tandis que si celles de \verb|grid_size| ne le sont pas, nous récupérons la variable de la boucle \verb|for|.
+	\\Nous avons ensuite modifié l'arbre pour qu'il prenne en compte ce pragma, mais qu'il puisse évidemment aussi prendre en compte les fonctions sans pragma que nous retranscrivons comme telle.
+	
 	
 	\paragraph{Recherche de la boucle à paralléliser}
 	~~\\
@@ -338,8 +341,8 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	~~\\
 	\indent
 	
-	Parler des fonctionnalitées implémentées.
-	Palrer des différentes appoches de traitement (pre abre post arbre)
+	Parler des fonctionnalités implémentées.
+	Parler des différentes approches de traitement (pre arbre post arbre)
 
 	\newpage
 
