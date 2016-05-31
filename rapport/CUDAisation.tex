@@ -205,7 +205,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\paragraph{boucle for}
 	~~\\
 	\indent
-	Il nous faut ensuite les informations liée à la boucle à paralléliser : sa taille, qu'on trouve dans la condition d'arrêt, ainsi que la variable sur la quelle elle itère, qu'on peut retrouver dans l'incrémentation. On pourra ainsi voir si la boucle est parallélisable simplement, et renvoyer un warning dans le cas où l'incrémentation n'est pas de type i++ ou ++i, ou la condition d'arrêt n'est pas de type i<size.	
+	Il nous faut ensuite les informations liée à la boucle à paralléliser : sa taille, qu'on trouve dans la condition d'arrêt, ainsi que la variable sur la quelle elle itère, qu'on peut retrouver dans l'incrémentation. On pourra ainsi voir si la boucle est parallélisable simplement, et renvoyer un warning dans le cas où l'incrémentation n'est pas de type i++ ou ++i, ou la condition d'arrêt n'est pas de type i\textless size.	
 	
 	\paragraph{déclaration de variables}
 	~~\\
@@ -320,10 +320,21 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\paragraph{Recherche de la boucle à paralléliser}
 	~~\\
 	\indent
-	
+	Nous avons fait le choix de repérer la boucle par la variable qui est incrémentée (i++ ou ++i). Nous avons donc besoin de la variable indiquée dans le paramètre thread\_loop du pragma pour reconnaître la boucle for correspondante. Etant donné la structure de l'arbre, nous ne pouvons pas connaître cette variable avant de parcourir le corps de la fonction. Nous conservons donc toutes les boucles trouvées dans le corps de la fonction et effectuons la comparaison une fois toute la fonction lue.
+	\\Il serait possible de reconnaître toutes les boucles for, mais nous nous sommes limités aux boucles simples (condition d'arrêt de type i<size, incrémentation i++ ou ++i) par soucis de temps.
 	
 	
 	\paragraph{Vérification de la portée des variables}
+	~~\\
+	\indent
+	Etant donné que le kernel sera exécute sur la carte nVidia, certaines variables n'y seront pas accessible. Pour repérer toutes les variables initialisées et utilisées, nous utilisons le même principe que pour repérer les boucles. Lors de la lecture de la fonction, nous listons les variables déclarées dans un Set, et les variables utilisées dans un autre Set, et effectuons une simple soustraction entre ces deux listes. Si le résultat n'est pas vide, on emet un warning indiquant les variables qui ne seront peut-être pas accessibles.
+	
+	\paragraph{Transformation de la fonction}
+	~~\\
+	\indent
+		
+	
+	\paragraph{Wrapper de la fonction transformée}
 	~~\\
 	\indent
 	
