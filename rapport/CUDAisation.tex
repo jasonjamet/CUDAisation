@@ -391,11 +391,10 @@ Parler des fonctionnalités implémentées.
 	
 	
 	\section{Améliorations}
-	Par manque de temps, certaines fonctionnalitées n'ont pas put être mis en oeuvre, elles ne sont pas indispensable au fonctionnement de l'application, mais permettraient une plus grande souplesse d'utilisation.
+	Par manque de temps, certaines fonctionnalités n'ont pas put être mis en œuvre, elles ne sont pas indispensable au fonctionnement de l'application, mais permettraient une plus grande souplesse d'utilisation.
 	\begin{itemize}
 		\item Parse complet du langage c (structure, union, enum, sizeof...)
-		\item Gestion plus complete des paramètres de la boucle for
-		\item 
+		\item Gestion plus complète des paramètres de la boucle for
 	\end{itemize}
 	
 	
@@ -418,49 +417,18 @@ if (j < size) {
 	...
 }
 	\end{lstlisting}
-	
-	\subsubsection{Définition de la variable}
-	
-	Nous partons du principe que la partie gauche du "for" sera uniquement composé d'une définition de variable. (ex: "i=0")
-	Si la variable i est initialisée à 0 n'est pas initialiser à 0, il faut appliquer le décalage au calcul du gtid ainsi qu'à l'élement max de la condition.
-	
+	Il est cependant possible de prendre en compte les cas plus particuliers, où j est initialisé à une autre valeur que 0, ou où la condition d'arrêt est de type j\textless size+2, ou où l'incrémentation n'est pas faite de 1 en 1.
+	\\Soit D la valeur à la quelle commence la boucle, S la taille de la boucle, et I l'incrémentation par itération de la boucle et GTID l'indice du thread CUDA. on peut établir le cas général suivant:
 	\begin{lstlisting}[
     language=cpp,
-]
-int j;
-for(j=1; j<size; j++) {
-	...
-}
-
-_____________________________________
-
-int j = ... +1;
-if (j < size +1) {
-	...
-}
-	\end{lstlisting}
-	Il faudra faire attention à appliquer le décalage aux allocations GPU, ici il faudra allouer de l'espace en plus.
-	\subsubsection{Condition d'arrêt}
-
-			\begin{lstlisting}[
-    language=cpp,
-]
-int j;
-for(j=0; j<size+2; j++) {
-	...
-}
-
-_____________________________________
-
-int j = ... +2;
-if (j < size +2) {
+    ]
+int j = GTID * I + D;
+if (j < S + D) {
 	...
 }
 	\end{lstlisting}
 	
-
-	\subsubsection{Incrémentation}
-	
+	Il est cependant assez compliqué de trouver la valeur de D, S, et I étant donné le grand nombre de formes de que peuvent prendre les paramètres de la boucle for.
 
 	\section{Conclusion}
 	
@@ -471,18 +439,6 @@ if (j < size +2) {
 \indent
 \textbf{Figure \ref{fig:KaliGanttPrev}} Diagramme de gantt prévisionnel\\
 \indent
-
-\section*{Code}
-
-\indent
-\textbf{Code \ref{cod:apiREST}} Exemple de retour de l'api REST\\
-\indent
-
-\newglossaryentry{aikau}{name={AIKAU},
-    description={Framework Open source JavaScript réalisé pour alfresco}}
-\newglossaryentry{amp}{name={AMP},
-    description={Alfresco Module Package: Collection de code, \gls{xml}, images... Format compressé pouvant  être appliqué à un fichier war.}}
-    
 
 
 \section*{Glossaire}
