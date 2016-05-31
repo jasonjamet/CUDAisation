@@ -189,8 +189,27 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	
 	
 	\section{Analyse du problème}
+	Nous avons commencé par identifier les différents cas que nous pourrions rencontrer lors de la transformation d'une fonction lambda vers CUDA, ainsi nous avons pu établir une liste des paramètres qui influent sur la transformation.
 	
-	Nous avons commencé par identifier les différents problèmes que nous pourrions rencontrer lors de la transformation d'une fonction lambda vers CUDA.
+	\paragraph{pragma}
+	~~\\
+	\indent
+	Pour pouvoir traduire le code, il nous faut plusieurs informations sur la zone à paralléliser : 
+	\begin{itemize}
+		\item la boucle visée pour identifier la boucle à transformer dans le cas où plusieurs boucles sont présentes
+		\item la taille des blocs (optionnel, pour avoir un contrôle plus fin sur la façon dont sera exécutée le kernel)
+		\item le nombre de threads total pour utiliser le minimum de ressources possible (ne pas lancer le kernel sur des coeurs inutilement)
+	\end{itemize}		
+	Nous allons donc récupérer toutes ces informations via un pragma placé au dessus de la fonction à traduire.
+	
+	\paragraph{boucle for}
+	~~\\
+	\indent
+	
+	
+	\paragraph{déclaration de variables}
+	~~\\
+	\indent
 	
 	
 	En effet, tout les cas ne peuvent fonctionner, et il faut bien évidemment prendre en compte tous les paramètres qui peuvent intervenir :
@@ -215,20 +234,37 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
   		\item Variables globales
 	\end{itemize}
 	\paragraph{Fonction non void}
-	Une fonction CUDA ne peut pas retourner de valeurs, nous avons donc trouvé judicieux de ne pas traiter les fonction ayant un retour, la contrainte est de plus extremement minime pour l'utilisateur.
+	Une fonction CUDA ne peut pas retourner de valeurs, nous avons donc trouvé judicieux de ne pas traiter les fonction ayant un retour, la contrainte est de plus extrèmement minime pour l'utilisateur.
 	
 	\newpage	
 	
 	\section{Solutions}
 	
-	Afin de réaliser le projet, nous nous sommes penché sur les différentes solutions possibles qu'il existait et avons cherché les pour et les contres :
+	Afin de réaliser le projet, nous nous sommes penchés sur les différentes solutions possibles qu'il existait et avons cherché les pour et les contres :
 	
 	\paragraph{Analyseur syntaxique}
+	Une première solution consiste à créer un analyseur syntaxique avec Flex et Bison, qui reécrira la fonction en entrée en fonction de son pragma.
+	\begin{itemize}
+		\item Simple à manipuler
+		\item Doit être utilisé avec un compilateur
+	\end{itemize}
 	
 	\paragraph{Compilateur gcc}
+	Il est possible de créer des plugins pour le compilateur gcc. Une solution possible est donc de créer un plugin qui prend en compte les \#pragma cuda, et effectue la transformation lors de la compilation.
+	\begin{itemize}
+		\item Directement integré dans la compilation, ne nécéssite pas d'autres outils
+		\item Fournit l'arbre syntaxique
+		\item API trop complexe à prendre en main pour un projet de 4 semaines
+	\end{itemize}
 	\paragraph{Regex}
-	\paragraph{Solution retenue}
+	Une dernière solution consiste à créer un programme qui repère les parties importantes (boucle, pragma, initialisation de variable ...) avec des expressions régulières, et d'effectuer ensuite la transformation.
+	\begin{itemize}
+		\item Simple d'utilisation
+		\item Pas d'arbre syntaxique
+	\end{itemize}
 	
+	\paragraph{Solution retenue}
+	La solution retenue est l'analyseur syntaxique avec Flex et Bison. Cette solution est simple à prendre en main. Elle nous permet d'avoir un arbre syntaxique qu'on peut facilement adapter pour prendre en compte le pragma cuda. Il nous permet aussi de repérer rapidement les structures qui nous intéresse (boucles, initialisation,...).
 
 	
 	
@@ -237,13 +273,46 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	
 	
 	
-	\section{Implémentations}
+	\section{Implémentation}
+	
+	\paragraph{Base de travail}
+	~~\\
+	\indent
+	Nous sommes partis d'un projet Bison/Flex existant permettant de parser une grande partie du code C et de créer son arbre syntaxique(COLLER UN LIEN?). Nous avons ensuite corrigé et modifié cette base pour répondre au besoin.
+	
+	\paragraph{Correction de la base}
+	~~\\
+	\indent
+	Le projet de base n'était pas terminé, plusieurs fonctions n'étaient pas implémentées ou mal implémentées. Par exemple, toutes les initialisations de variables devaient être faites dès le début du corps de la fonction, nous avons donc fait une modification pour ne plus avoir cette limitation.
+	
+	\paragraph{Analyse du pragma}
+	~~\\
+	\indent
+	la première partie de cette tâche est de définir le format du pragma. Nous avons donc choisi celui-ci:
+	\\\#pragma cuda \{liste des paramètres cuda\}
+	\\où chaque paramètre est l'un des suivants:
+	\begin{itemize}
+		\item thread\_loop(i) : indique que la boucle à paralélliser est celle qui utilise la variable i
+		\item bloc\_size(x[,y[,z]]) : indique la taille du bloc
+		\item grid(x) : indique le nombre de threads total à créer
+	\end{itemize}
+	L'ordre des paramètres n'a pas d'importance.
+	\\Nous avons ensuite modifié l'arbre pour qu'il prenne en compte ce pragma, mais qu'il puisse évidemment aussi prendre en compte les fonctions sans pragma.
+	
+	\paragraph{Recherche de la boucle à paralléliser}
+	~~\\
+	\indent
+	
+	
+	
+	\paragraph{Vérification de la portée des variables}
+	~~\\
+	\indent
 	
 	Parler des fonctionnalitées implémentées.
 	Palrer des différentes appoches de traitement (pre abre post arbre)
 
 	\section{Résultat}
-
 
 	\begin{lstlisting}[
     language=cpp,
