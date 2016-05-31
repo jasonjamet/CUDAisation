@@ -1239,7 +1239,10 @@ std::vector<std::vector<std::string>> getDimBlockGridString(CudaDefinition *cuda
 
 		  return vector_block_grid; //nbr_block_str+ "), " + nbr_thread_str +")";
 		} else {
+			vector_grid.push_back("(" + cuda_definition->size_identifier + " + " + nbr_thread_op_str + " - 1 ) / " + nbr_thread_op_str);
+
 			vector_block_grid.push_back(vector_block);
+			vector_block_grid.push_back(vector_grid);
 
 			return vector_block_grid; //"dim3(1, 1, 1), " + nbr_thread_str +")";
 		}
@@ -1252,11 +1255,14 @@ std::vector<std::vector<std::string>> getDimBlockGridString(CudaDefinition *cuda
 			vector_block = {"1","1","1"};
 			vector_block_grid.push_back(vector_block);
 			vector_block_grid.push_back(vector_grid);
-			return  vector_block_grid; 
+			return  vector_block_grid;
 		} else {
 			std::cout << "[WARNING] Neither grid size or block size defined" << std::endl;
 			vector_block = {"1","1","1"};
+			vector_grid.push_back(cuda_definition->size_identifier);
 			vector_block_grid.push_back(vector_block);
+			vector_block_grid.push_back(vector_grid);
+
 			return  vector_block_grid; //"dim3(/*grid*/), dim3(/*block*/))";
 		}
 	}
@@ -1346,7 +1352,7 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 		string thread_str = "dim3(";
 
 		std::vector<std::vector<string>> vector_block_grid = getDimBlockGridString(cuda_definition);
-	
+
 
 		if(vector_block_grid.size() > 0) {
 			if (vector_block_grid[0].size() > 0) {
@@ -1364,7 +1370,7 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 				}
 			}
 		}
-		
+
 
 		thread_str += ")";
 
@@ -1496,7 +1502,7 @@ void CudaParam::toPrettyCode(CodeString* context){
 
 
 std::string CudaParamArgs::toStdString(){
-	
+
 	std::string result = "<CudaParamArg>";
 
 	result += *arg;
@@ -1598,14 +1604,14 @@ void integrityTest() {
 							if(left_operand->value == identifier->value) {
 								if(binary_operator->value == "<") {
 									std::cout << "OKOKOKOK" << std::endl;
-									cuda_loop_relation->cuda_definition->size_identifier = left_operand->value;
+									cuda_loop_relation->cuda_definition->size_identifier = right_operand->value;
 								} else {
 									std::cout << "[WARNING] Loop condition is not correctly formed, \"" << right_operand->value << " < " << left_operand->value << "\" instead of \"" << right_operand->value << " > " << left_operand->value + "\"." << std::endl;
 								}
 							} else if(right_operand->value == identifier->value) {
 									if(binary_operator->value == ">") {
 										std::cout << "OKOKOKOK" << std::endl;
-										cuda_loop_relation->cuda_definition->size_identifier = right_operand->value;
+										cuda_loop_relation->cuda_definition->size_identifier = left_operand->value;
 									} else {
 										std::cout << "[WARNING] Loop condition is not correctly formed, \"" << right_operand->value << " > " << left_operand->value << "\" instead of \"" << right_operand->value << " < " << left_operand->value + "\"." << std::endl;
 									}

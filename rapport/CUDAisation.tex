@@ -175,17 +175,19 @@ void sum(float *x, float *y, float *z, int size) {
 	}
 }
 
-_____________________________________
+	\end{lstlisting}	
 
-
+	\begin{lstlisting}[
+    language=cpp,
+]
 __global__ void kernel(float *x, float *y, float *z, int size) { 
 	int gtid = ...
 	if (gtid < size) {
 		z[i] = x[i] + y[i];
 	}
 }
-	
 	\end{lstlisting}	
+	
 	
 	
 	\section{Analyse du problème}
