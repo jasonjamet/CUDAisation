@@ -1241,6 +1241,7 @@ std::vector<std::vector<std::string>> getDimBlockGridString(CudaDefinition *cuda
 
 		  return vector_block_grid; //nbr_block_str+ "), " + nbr_thread_str +")";
 		} else {
+			vector_grid.push_back("(" + cuda_definition->size_identifier + " + " + nbr_thread_op_str + " - 1 ) / " + nbr_thread_op_str);
 			return vector_block_grid; //"dim3(1, 1, 1), " + nbr_thread_str +")";
 		}
 	} else {
