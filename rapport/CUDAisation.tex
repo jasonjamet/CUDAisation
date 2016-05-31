@@ -214,7 +214,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\paragraph{boucle for}
 	~~\\
 	\indent
-	Il nous faut ensuite les informations liée à la boucle à paralléliser : sa taille, qu'on trouve dans la condition d'arrêt, ainsi que la variable sur la quelle elle itère, qu'on peut retrouver dans l'incrémentation. On pourra ainsi voir si la boucle est parallélisable simplement, et renvoyer un warning dans le cas où l'incrémentation n'est pas de type i++ ou ++i, ou la condition d'arrêt n'est pas de type i<size.	
+	Il nous faut ensuite les informations liée à la boucle à paralléliser : sa taille, qu'on trouve dans la condition d'arrêt, ainsi que la variable sur la quelle elle itère, qu'on peut retrouver dans l'incrémentation. On pourra ainsi voir si la boucle est parallélisable simplement, et renvoyer un warning dans le cas où l'incrémentation n'est pas de type i++ ou ++i, ou la condition d'arrêt n'est pas de type i\textless size.	
 	
 	\paragraph{déclaration de variables}
 	~~\\
@@ -333,15 +333,31 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	~~\\
 	\indent
 	Nous avons fait le choix de repérer la boucle par la variable qui est incrémentée (i++ ou ++i). Nous avons donc besoin de la variable indiquée dans le paramètre thread\_loop du pragma pour reconnaître la boucle for correspondante. Etant donné la structure de l'arbre, nous ne pouvons pas connaître cette variable avant de parcourir le corps de la fonction. Nous conservons donc toutes les boucles trouvées dans le corps de la fonction et effectuons la comparaison une fois toute la fonction lue.
-	\\Il serait possible de reconnaître toutes les boucles for, mais nous nous sommes limités aux boucles simples (condition d'arrêt de type i<size, incrémentation i++ ou ++i) par soucis de temps.
+	\\Il serait possible de reconnaître toutes les boucles for, mais nous nous sommes limités aux boucles simples (condition d'arrêt de type i\textless size, incrémentation i++ ou ++i) par soucis de temps.
 	
 	
 	\paragraph{Vérification de la portée des variables}
 	~~\\
 	\indent
-	Etant donné que le kernel sera exécute sur la carte nVidia, certaines variables n'y seront pas accessible. Pour repérer toutes les variables initialisées et utilisées, nous utilisons le même principe que pour repérer les boucles. Lors de la lecture de la fonction, nous listons les variables déclarées dans un Set, et les variables utilisées dans un autre Set, et effectuons une simple soustraction entre ces deux listes. Si le résultat n'est pas vide, on émet un warning indiquant les variables qui ne seront peut-être pas accessibles.
 
-		
+	Etant donné que le kernel sera exécute sur la carte nVidia, certaines variables n'y seront pas accessible. Pour repérer toutes les variables initialisées et utilisées, nous utilisons le même principe que pour repérer les boucles. Lors de la lecture de la fonction, nous listons les variables déclarées dans un Set, et les variables utilisées dans un autre Set, et effectuons une simple soustraction entre ces deux listes. Si le résultat n'est pas vide, on émet un warning indiquant les variables qui ne seront peut-être pas accessibles.
+	
+	\paragraph{Transformation de la fonction}
+	~~\\
+	\indent
+	3 transformations sont nécessaires pour passer du code reçu au kernel CUDA :
+	\begin{itemize}
+		\item changer la déclaration de la fonction pour lui ajouter \_\_global\_\_
+		\item changer la valeur de la variable sur la quelle la boucle opère par une formule qui fournit un identifiant unique en fonction de la position dans la matrice CUDA
+		\item changer la boucle for en condition if
+	\end{itemize}
+	Le premier point s'effectue simplement en ajoutant une chaîne de caractères "\_\_global\_\_" lors de la lecture de l'arbre.
+	\\Le second point nécessite plus d'informations. Il faut premièrement repérer la déclaration de la variable, que nous effectuons de la même manière que précédemment. Il faut ensuite remplacer la valeur par une formule adéquate:
+	\begin{itemize}
+	\item soit la formule basique qui fonctionnera dans tous les cas : 
+	\\ ((((blockIdx.x * gridDim.y + blockIdx.y) * gridDim.z + blockIdx.z) * blockDim.x + threadIdx.x) * blockDim.y + threadIdx.y) * blockDim.z + threadIdx.z;
+	\item soit une formule qui utilise uniquement les indexes dont la dimension est plus grande que un, ce qui évite de faire toutes les multiplications par un inutiles. il nous faut donc les paramètres passés dans le bloc\_size et le grid\_size, pour utiliser uniquement les identifiants utiles (dont la dimension est plus grande que un).
+	\end{itemize}
 	
 	\paragraph{Wrapper de la fonction transformée}
 	~~\\
@@ -375,7 +391,77 @@ Parler des fonctionnalités implémentées.
 	
 	
 	\section{Améliorations}
+	Par manque de temps, certaines fonctionnalitées n'ont pas put être mis en oeuvre, elles ne sont pas indispensable au fonctionnement de l'application, mais permettraient une plus grande souplesse d'utilisation.
+	\begin{itemize}
+		\item Parse complet du langage c (structure, union, enum, sizeof...)
+		\item Gestion plus complete des paramètres de la boucle for
+		\item 
+	\end{itemize}
 	
+	
+	\subsection{Boucles for}
+	
+	Actuellement, notre boucle for reste très limitée (voir "Recherche de la boucle à paralléliser" du chapitre 4), mais il est facilement envisageable d'en étendre l'utilisation.
+	Exemple d'utilisation simple (celle implémentée):
+			\begin{lstlisting}[
+    language=cpp,
+]
+int j;
+for(j=0; j<size; j++) {
+	...
+}
+
+_____________________________________
+
+int j = ...;
+if (j < size) {
+	...
+}
+	\end{lstlisting}
+	
+	\subsubsection{Définition de la variable}
+	
+	Nous partons du principe que la partie gauche du "for" sera uniquement composé d'une définition de variable. (ex: "i=0")
+	Si la variable i est initialisée à 0 n'est pas initialiser à 0, il faut appliquer le décalage au calcul du gtid ainsi qu'à l'élement max de la condition.
+	
+	\begin{lstlisting}[
+    language=cpp,
+]
+int j;
+for(j=1; j<size; j++) {
+	...
+}
+
+_____________________________________
+
+int j = ... +1;
+if (j < size +1) {
+	...
+}
+	\end{lstlisting}
+	Il faudra faire attention à appliquer le décalage aux allocations GPU, ici il faudra allouer de l'espace en plus.
+	\subsubsection{Condition d'arrêt}
+
+			\begin{lstlisting}[
+    language=cpp,
+]
+int j;
+for(j=0; j<size+2; j++) {
+	...
+}
+
+_____________________________________
+
+int j = ... +2;
+if (j < size +2) {
+	...
+}
+	\end{lstlisting}
+	
+
+	\subsubsection{Incrémentation}
+	
+
 	\section{Conclusion}
 	
 	Parler de montée en compétence..
