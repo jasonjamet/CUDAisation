@@ -335,7 +335,19 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\paragraph{Transformation de la fonction}
 	~~\\
 	\indent
-		
+	3 transformations sont nécessaires pour passer du code reçu au kernel CUDA :
+	\begin{itemize}
+		\item changer la déclaration de la fonction pour lui ajouter \_\_global\_\_
+		\item changer la valeur de la variable sur la quelle la boucle opère par une formule qui fournit un identifiant unique en fonction de la position dans la matrice CUDA
+		\item changer la boucle for en condition if
+	\end{itemize}
+	Le premier point s'effectue simplement en ajoutant une chaîne de caractères "\_\_global\_\_" lors de la lecture de l'arbre.
+	\\Le second point nécessite plus d'informations. Il faut premièrement repérer la déclaration de la variable, que nous effectuons de la même manière que précédemment. Il faut ensuite remplacer la valeur par une formule adéquate:
+	\begin{itemize}
+	\item soit la formule basique qui fonctionnera dans tous les cas : 
+	\\ ((((blockIdx.x * gridDim.y + blockIdx.y) * gridDim.z + blockIdx.z) * blockDim.x + threadIdx.x) * blockDim.y + threadIdx.y) * blockDim.z + threadIdx.z;
+	\item soit une formule qui utilise uniquement les indexes dont la dimension est plus grande que un, ce qui évite de faire toutes les multiplications par un inutiles. il nous faut donc les paramètres passés dans le bloc\_size et le grid\_size, pour utiliser uniquement les identifiants utiles (dont la dimension est plus grande que un).
+	\end{itemize}
 	
 	\paragraph{Wrapper de la fonction transformée}
 	~~\\
