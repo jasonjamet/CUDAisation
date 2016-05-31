@@ -1,4 +1,4 @@
-\documentclass{article}
+ \documentclass{article}
 \usepackage{graphicx}
 \usepackage[utf8]{inputenc}
 \usepackage{fullpage}
@@ -371,11 +371,6 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 \end{lstlisting}	
 
 	\newpage
-
-
-Parler des fonctionnalités implémentées.
-	Parler des différentes approches de traitement (pre arbre post arbre)
-	
 	
 	
 	\section{Améliorations}
@@ -448,12 +443,15 @@ if (j < size +2) {
 	
 
 	\subsubsection{Incrémentation}
-	
+	\newpage
 
 	\section{Conclusion}
-	
-	Parler de montée en compétence..
-	
+	La parallélisation sur CPU est facilement abordable via des outils tel que openMp ou MPI, ce n'est pas la cas pour la parallélisation GPU.\\
+	L'utilisation de CUDA est finalement assez complexe et nécessite une grande rigueure, notamment dans la gestion de la mémoire.\\
+	Le projet CUDAisation tente de répondre à ce problème en proposant à l'utilisateur une manière transparente et simple d'effectuer des calculs parallèle sur ca carte graphique Nvidia.\\
+	L'application est capable de paralleliser des fonctions contenant des boucles simple, avec plus de temps il serait tout à fait possible de traiter un très grand panel de fonctions, même complexe.\\
+	Finalement, cette experience nous à fait monter en compétence sur les analyseurs flex/bison, les langage c++/cuda et nous a donné une plus grande visibilité sur la difficultée à transformer un code itératif en code parallelisé.
+		
 	
 	\section*{Figures}
 \indent
@@ -488,12 +486,6 @@ if (j < size +2) {
 \item https://gcc.gnu.org/onlinedocs/gccint/Plugins-attr.html\#Plugins-attr
 
 \end{itemize}
-	
-problemes:
-
-structure
-cast
-grid\_size(1,,2);
 
 \newpage
 	\section{Annexe}
