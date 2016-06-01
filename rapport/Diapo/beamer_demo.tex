@@ -1,0 +1,196 @@
+\documentclass[serif,mathserif]{beamer}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage[frenchb]{babel}
+
+\usepackage{beamerthemesplit}
+\definecolor{Silver1}{RGB}{0,93,117}
+\definecolor{Silver2}{RGB}{50,50,50}
+\definecolor{Silver3}{RGB}{0,142,178}
+
+
+\setbeamercolor{frametitle}{use=structure,fg=white,bg=Silver1}
+\setbeamercolor{structure}{fg=Silver3}
+\setbeamercolor{section in head/foot}{bg=Silver2}
+\setbeamercolor{author in head/foot}{bg=Silver2}
+\setbeamercolor{date in head/foot}{fg=Silver2}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%UNIVERSITY LOGO DEFINITION%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[absolute,overlay]{textpos}
+  \setlength{\TPHorizModule}{1mm}
+  \setlength{\TPVertModule}{1mm}
+\newcommand{\logoUniv}{
+	\begin{textblock}{0}(115,20)
+      \includegraphics[scale=0.12,viewport=0 0 0 0]{angers.png}
+    \end{textblock}	
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%PRESENTATION PAGE%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\author[Jason JAMET]{Jason JAMET}
+
+\title[Stage KaliConseil\hspace{2em}\insertframenumber/\inserttotalframenumber]{Développement de modules alfresco}
+\date{Jeudi 25 juin 2015} %leave out for today's date to be insterted
+
+\institute[UFR Sciences]{Université d'Angers}
+
+
+\begin{document}
+
+\begin{frame}[plain]
+\maketitle
+\scriptsize
+
+	\begin{minipage}{0.49\textwidth} 
+		\begin{flushleft}
+			\textbf{Tuteur pédagogique}: Benoit DAMOTA
+    	\end{flushleft}
+    \end{minipage}
+    \begin{minipage}{0.49\textwidth} 
+		\begin{flushright}
+			\textbf{Maitre de stage}: Vincent DEREC
+    	\end{flushright}
+    \end{minipage}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%TABLE OF CONTENT%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\frame{
+	\frametitle{Plan} 
+	\logoUniv \footnotesize
+	\tableofcontents 
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%SLIDES%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{KaliConseil} 
+\subsection{Présentation}
+\frame{\frametitle{KaliConseil} \logoUniv
+\begin{itemize}
+\item Esn créée en 2010
+\item Basée sur Angers 
+\item Conduite de projets
+\item Infogérance (tpe et pme)
+\end{itemize} 
+\hfill \includegraphics[scale=0.5,viewport=-30 50 320 170]{KaliConseil.jpg}
+}
+
+
+\subsection{KS2}
+\frame{\frametitle{La solution KS2} \logoUniv
+\begin{center}
+	\includegraphics[scale=0.25]{KS2Product.png}
+\end{center}
+}
+
+
+\section{Afresco}
+\subsection{Présentation}
+\frame{\frametitle{L'ECM Alfresco} \logoUniv
+\begin{center}
+	\includegraphics[scale=0.20]{alfrescoSchema.png}
+\end{center}
+
+}
+%\subsection{Architecture}
+%\frame{\frametitle{blocs}  \logoUniv
+
+%\begin{block}{title of the bloc}
+%bloc text
+%\end{block}
+
+%}
+\subsection{Workflow}
+\frame{\frametitle{Workflow}  \logoUniv
+\begin{block}{Objectif: }
+Automatisation des processus métier
+\end{block}
+\begin{center}
+\includegraphics[scale=0.70]{BPMNExemple.png}
+\end{center}
+
+
+}
+\subsection{Customisation de share}
+\frame{\frametitle{Nouvelles pages personnalisés}  \logoUniv
+ 
+\begin{block}{Les technologies:}
+\begin{itemize}
+\item Spring Surf
+\item AIKAU (Dojo)
+\item YUI
+\end{itemize} 
+\end{block}
+
+}
+
+\section{Mes Projets}
+\subsection{Nature des projets}
+\frame{\frametitle{Nature des projets}  \logoUniv
+\begin{block}{De nouveaux Workflows:}
+\begin{itemize}
+\item Workflow Facture
+\item Workflow demande de vacances
+\end{itemize} 
+\end{block}
+\begin{block}{De nouvelles pages WEB:}
+\begin{itemize}
+\item Page management d'aspects et propriétés
+\item Page management de Workflows
+\end{itemize}
+\end{block}
+}
+\subsection{Workflow Facture}
+\frame{\frametitle{Workflow  "Facture"}  \logoUniv
+\begin{block}{Objectif: }
+Qualifier une facture semi-automatiquement, ou manuellement.
+\end{block}
+\begin{center}
+\includegraphics[scale=0.35]{diagramFacture.png}
+\end{center}
+}
+\frame{\frametitle{Workflow "Facture"}  \logoUniv
+
+\begin{center}
+\includegraphics[scale=0.35]{TacheFacture.png}
+\end{center}
+}
+\subsection{Page management de Workflows}
+\frame{\frametitle{Page management de Workflows}  \logoUniv
+\begin{block}{Objectif: }
+Accès simple aux Workflows et tâches liées à l'utilisateur courant
+\end{block}
+\begin{center}
+\includegraphics[scale=0.25]{PageWF.png}
+\end{center}
+}
+\section{Bilan}
+\subsection{Difficultés rencontrées}
+\frame{\frametitle{Problèmes rencontrés}  \logoUniv
+\begin{itemize}
+\item Documentation faible
+\item Frameworks jeunes
+\item Difficultés techniques
+\end{itemize} 
+}
+\subsection{A venir}
+\frame{\frametitle{Ce qu'il reste à faire}  \logoUniv
+\begin{itemize}
+\item De nombreux nouveaux Workflows
+\item Lier une solution d'océrisation et  le Workflow "Facture"
+\item Terminer la page "management de Workflows"
+\end{itemize} 
+}
+\subsection{Conclusion}
+\frame{\frametitle{Conclusion}  \logoUniv
+\begin{itemize}
+\item Très bonne expérience professionnelle
+\item Confirmation de mon projet professionnel
+\end{itemize} 
+}
+\end{document}
+

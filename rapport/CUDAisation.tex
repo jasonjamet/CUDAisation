@@ -12,8 +12,8 @@
 \usepackage[acronym]{glossaries}
 \makeglossaries
 
-\renewcommand\lstlistingname{Code}
-\newacronym{cd}{CD}{compact disk}
+\usepackage{listings}
+
 \lstdefinelanguage{XML}
 {
   basicstyle=\normalfont\ttfamily,
@@ -102,7 +102,6 @@
       showtabs=false,                
       stepnumber=1,                   
       tabsize=5,                     
-      title=\lstname,                 
     }
 
 
@@ -147,8 +146,6 @@
 
     	
 	\end{titlepage}
-
-
 
 \newpage
 \thispagestyle{empty}
@@ -197,6 +194,9 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\newpage	
 	
 	\section{Analyse du problème}
+	
+	\subsection{Analyse générale}
+	
 	Nous avons commencé par identifier les différents cas que nous pourrions rencontrer lors de la transformation d'une fonction lambda vers CUDA, ainsi nous avons pu établir une liste des paramètres qui influent sur la transformation.
 	\\Prenons une fonction simple à traduire en kernel
 		\begin{lstlisting}[
@@ -279,11 +279,7 @@ void sum(float *x, float *y, float *z) {
 	\paragraph{Fonction non void}
 	Une fonction CUDA ne peut pas retourner de valeur, nous avons donc trouvé judicieux de ne pas traiter les fonctions ayant un retour, la contrainte est de plus extrêmement minime pour l'utilisateur.
 	
-	\newpage	
 	
-	\section{Solutions}
-	
-
 	\subsection{Solutions envisagées}
 	
 
@@ -323,19 +319,17 @@ void sum(float *x, float *y, float *z) {
 	\end{itemize}
 		
 	
+	
+	\newpage		
+	
+	\section{Conception}
+	
 	\subsection{Solution retenue}
 	~~\\
 	\indent
-	La solution retenue est l'analyseur syntaxique avec Flex et Bison. \\Cette solution est simple à prendre en main et a pour avantage d'être connue et plus ou moins maîtrisée par les membres de l'équipe. \\Elle nous permet d'avoir un arbre syntaxique qu'on peut facilement adapter pour prendre en compte le pragma cuda. \\Il nous permet aussi de repérer rapidement les structures qui nous intéressent (boucles, initialisation,...).
+	La solution retenue est l'analyseur syntaxique avec Flex et Bison. \\Cette solution est simple à prendre en main et a pour avantage d'être connue et plus ou moins maîtrisée par les membres de l'équipe. \\Elle nous permet d'avoir un arbre syntaxique qu'on peut facilement adapter pour prendre en compte le pragma cuda. \\Il nous permet aussi de repérer rapidement les structures qui nous intéressent (boucles, initialisation,...).	
+	\subsection{Réalisation}
 
-	
-	\newpage
-	
-	
-	
-	
-	\section{Implémentation}
-	
 	\paragraph{Base de travail}
 	~~\\
 	\indent
@@ -354,12 +348,12 @@ void sum(float *x, float *y, float *z) {
 	\\où la liste des paramètres correspond au schéma suivant :
 	\begin{itemize}
 		\item thread\_loop(i) : indique que la boucle à paralléliser est celle qui utilise la variable i
-		\item bloc\_size(x[,y[,z]]) : indique la taille du bloc
-		\item grid(x) : indique le nombre de threads total à créer
+		\item block\_size(x[,y[,z]]) : indique la taille du bloc
+		\item nbr\_threads(x) : indique le nombre de threads total à créer
 	\end{itemize}
 	L'ordre des paramètres n'a pas d'importance.
 	Les différentes variables déclarées précédemment sont initialisées à l'intérieur de la fonction après transformation.
-	Si elles ne sont pas déclarées, les variables du \verb|bloc_size| sont initialisées à 1 tandis que si celles de \verb|grid_size| ne le sont pas, nous récupérons la variable de la boucle \verb|for| (du type : i\textless size).
+	Si elles ne sont pas déclarées, les variables du \verb|block_size| sont initialisées à 1 tandis que si celles de \verb|grid_size| ne le sont pas, nous récupérons la variable de la boucle \verb|for| (du type : i\textless size).
 	\\Nous avons ensuite modifié l'arbre pour qu'il prenne en compte ce pragma, mais qu'il puisse évidemment aussi prendre en compte les fonctions sans pragma que nous retranscrivons comme telles.
 		
 	
@@ -429,7 +423,9 @@ void sum(float *x, float *y, float *z) {
 	\end{itemize}
 	
 	
-	\subsection{Boucles for}
+	\paragraph{Boucles for}
+	~~\\
+	\indent
 	
 	Actuellement, notre boucle for reste très limitée (voir "Recherche de la boucle à paralléliser" du chapitre 4), mais il est facilement envisageable d'en étendre l'utilisation.
 	Exemple d'utilisation simple (celle implémentée):
@@ -461,6 +457,7 @@ if (j < S + D) {
 	
 	Il est cependant assez compliqué de trouver la valeur de D, S, et I étant donné le grand nombre de formes que peuvent prendre les paramètres de la boucle for.
 
+\newpage
 	\section{Conclusion}
 	
 La parallélisation sur CPU est facilement abordable via des outils tel que openMp ou MPI, ce n'est pas la cas pour la parallélisation GPU.\\
@@ -468,9 +465,9 @@ La parallélisation sur CPU est facilement abordable via des outils tel que open
 	Le projet CUDAisation tente de répondre à ce problème en proposant à l'utilisateur une manière transparente et simple d'effectuer des calculs parallèle sur ca carte graphique Nvidia.\\
 	L'application est capable de paralleliser des fonctions contenant des boucles simple, avec plus de temps il serait tout à fait possible de traiter un très grand panel de fonctions, même complexe.\\
 	Finalement, cette experience nous à fait monter en compétence sur les analyseurs flex/bison, les langage c++/cuda et nous a donné une plus grande visibilité sur la difficultée à transformer un code itératif en code parallelisé. 
-	First use \gls{cd}\    subsequent \gls{cd}
-	
-	\paragraph{Repartition des tâches}
+		
+	\paragraph{Repartition des tâches}	
+	~~\\
 \begin{figure}[h!]
 		\hspace*{-1.18in}
 		\includegraphics[scale=0.345]{Gantt/ganttPrev.jpg}
@@ -488,12 +485,7 @@ La parallélisation sur CPU est facilement abordable via des outils tel que open
 
 \listoffigures
 
-
-
-\section*{Glossaire}
-\renewcommand{\glossarysection}[2][]{}
-
-\printglossary[title=List of Terms,toctitle=Terms and abbreviations]
+\lstlistoflistings
 
 
 
@@ -513,6 +505,7 @@ La parallélisation sur CPU est facilement abordable via des outils tel que open
 	\subsection{Exemple}
 
 	\begin{lstlisting}[
+	caption=Code à CUDAiser (Exemple annexe),
     language=cpp,
 ]
 int x1 = 2;
@@ -520,7 +513,7 @@ int y2 = 2;
 
 
 
-#pragma cuda thread_loop(j) block_size(x1,y2) grid_size(16,16)
+#pragma cuda thread_loop(j) block_size(x1,y2) nbr_threads(16)
 void sum(float *x, float *y, float *z, int size) {
  int i;
  for(i=0; i<size; ++i) {
@@ -528,19 +521,31 @@ void sum(float *x, float *y, float *z, int size) {
  }
  int j;
  for(j=0; j<size; j++) {
-    z[i] = x[i] + y[i];
+    z[j] = x[j] + y[i];
  }
 }
 
-int main() {
+
+int main(int argc, char *argv[]) {
+  int vector_size = 10;
+  float h_x[vector_size], h_y[vector_size], h_z[vector_size];
+  int i = 0;
+
+  for (i = 0;i < vector_size; i++) {
+		h_x[i] = i;
+		h_y[i] = i;
+	}
+
+  sum(h_x, h_y, h_z, vector_size);
+
   return 0;
 }
+\end{lstlisting}
 
-
-
-_____________________________________
-
-
+	\begin{lstlisting}[
+	caption=Résultat de la CUDAisation (Exemple annexe),
+    language=cpp,
+]
 int x1 = 2;
 int y2 = 2;
 
@@ -552,21 +557,50 @@ void kernel_sum(float *x, float *y, float *z, int size)
 	{
 		z[i] = x[i] + y[i];
 	}
-	int j = (((blockIdx.x * gridDim.y + blockIdx.y) * blockDim.x + threadIdx.x) * blockDim.y + threadIdx.y);
+	int j = ((blockIdx.x * blockDim.x + threadIdx.x) * blockDim.y + threadIdx.y);
 	if (j < size)
 	{
-		z[i] = x[i] + y[i];
+		z[j] = x[j] + y[i];
 	}
 }
 void sum(float *x, float *y, float *z, int size)
 {
-	 kernel_sum <<< dim3((16 + x1*y2 - 1 ) / x1*y2, (16 + x1*y2 - 1 ) / x1*y2), dim3(x1, y2) >>> (x, y, z, size);
+	 int nbr_thread_x = x1;
+	 int nbr_thread_y = y2;
+	 int nbr_block_x = (16 + x1*y2 - 1 ) / x1*y2;
+
+	 kernel_sum <<< dim3(nbr_block_x) , dim3(nbr_thread_x, nbr_thread_y) >>> (x, y, z, size);
 }
-int main()
+int main(int argc, char *argv[])
 {
+	int vector_size = 10;
+	float h_x[vector_size], h_y[vector_size], h_z[vector_size];
+	int i = 0;
+	for ( i = 0; i < vector_size; i++ )
+	{
+		h_x[i] = i;
+		h_y[i] = i;
+	}
+	sum(h_x, h_y, h_z, vector_size);
 	return 0;
 }
+
 \end{lstlisting}
+
+\subsection{Usage}
+
+Usage: cudaparse [OPTION] [FILE]
+
+Exemple: cudaparse main.c
+\begin{itemize}
+
+\item -x  		 Print an XML representation of the tree (build from ANSI-C).
+\item -c  		 Print the C code with cuda kernel(s).
+\item -o OUTPUT\_FILE 	 Save the result on a file, depend to the prints options (if none, store the c result).
+\item -h 		 Print help informations.
+
+\end{itemize}
+
 
 
 \end{document}
