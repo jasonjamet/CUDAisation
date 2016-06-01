@@ -325,7 +325,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\end{itemize}
 	L'ordre des paramètres n'a pas d'importance.
 	Les différentes variables déclarées précédemment sont initialisées à l'intérieur de la fonction après transformation.
-	Si elles ne sont pas déclarées, les variables du \verb|bloc_size| sont initialisées à 1 tandis que si celles de \verb|grid_size| ne le sont pas, nous récupérons la variable de la boucle \verb|for| (du type : i<size).
+	Si elles ne sont pas déclarées, les variables du \verb|bloc_size| sont initialisées à 1 tandis que si celles de \verb|grid_size| ne le sont pas, nous récupérons la variable de la boucle \verb|for| (du type : i\textless size).
 	\\Nous avons ensuite modifié l'arbre pour qu'il prenne en compte ce pragma, mais qu'il puisse évidemment aussi prendre en compte les fonctions sans pragma que nous retranscrivons comme telle.
 	
 	
