@@ -447,6 +447,7 @@ if (j < size) {
 	Il est cependant possible de prendre en compte les cas plus particuliers, où j est initialisé à une autre valeur que 0, ou où la condition d'arrêt est de type j\textless size+2, ou où l'incrémentation n'est pas faite de 1 en 1.
 	\\Soit D la valeur à la quelle commence la boucle, S la taille de la boucle, et I l'incrémentation par itération de la boucle et GTID l'indice du thread CUDA. on peut établir le cas général suivant:
 	\begin{lstlisting}[
+	caption=,
     language=cpp,
     ]
 int j = GTID * I + D;
