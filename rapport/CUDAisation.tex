@@ -425,11 +425,15 @@ if (j < S + D) {
 }
 	\end{lstlisting}
 	
-	Il est cependant assez compliqué de trouver la valeur de D, S, et I étant donné le grand nombre de formes que peuvent prendre les paramètres de la boucle for.
+	Il est cependant assez compliqué de trouver la valeur de D, S et I étant donné le grand nombre de formes que peuvent prendre les paramètres de la boucle for.
 
 	\section{Conclusion}
 	
-	//TODO
+	La parallélisation sur CPU est facilement abordable via des outils tel que openMp ou MPI, ce n'est pas la cas pour la parallélisation GPU.\\
+	L'utilisation de CUDA est finalement assez complexe et nécessite une grande rigueur, notamment dans la gestion de la mémoire.\\
+	Le projet CUDAisation tente de répondre à ce problème en proposant à l'utilisateur une manière transparente et simple d'effectuer des calculs parallèles sur sa carte graphique Nvidia.\\
+	L'application est capable de paralléliser des fonctions contenant des boucles simples, avec plus de temps il serait tout à fait possible de traiter un très grand panel de fonctions, même complexe.\\
+	Finalement, cette expérience nous a fait monter en compétence sur les analyseurs flex/bison, les langages c++/cuda et nous a donné une plus grande visibilité sur la difficulté à transformer un code itératif en code parallélisé.
 	
 	
 	\section*{Figures}
@@ -439,12 +443,12 @@ if (j < S + D) {
 
 
 
-\section*{Glossaire}
+\printglossaries
 \renewcommand{\glossarysection}[2][]{}
 
 \printglossary[title=List of Terms,toctitle=Terms and abbreviations]
 
-
+//CUDA (Compute Unified Device Architecture) de NVidia qui permet notamment de programmer des calculs sur le GPU en langage C est devenu un standard incontournable et une alternative très intéressante en terme de coût et d'efficacité pour le calcul parallèle par rapport aux clusters de machines.
 
 \section*{Bibliographie}
 \begin{itemize}
