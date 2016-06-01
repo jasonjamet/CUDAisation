@@ -165,7 +165,7 @@
 	\subsection{Objectifs}
 
 	\paragraph{}
-	Le but du projet était de pouvoir mettre en œuvre une étude de faisabilité, ou POC (Proof of Concept) afin de montrer comment transformer du code impératif vers CUDA.
+	Le but du projet était de réaliser une étude de faisabilité, ou POC (Proof of Concept) afin de montrer comment transformer du code impératif vers CUDA.
 	
 	\begin{lstlisting}[
     language=cpp,
@@ -214,7 +214,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\paragraph{boucle for}
 	~~\\
 	\indent
-	Il nous faut ensuite les informations liée à la boucle à paralléliser : sa taille, qu'on trouve dans la condition d'arrêt, ainsi que la variable sur la quelle elle itère, qu'on peut retrouver dans l'incrémentation. On pourra ainsi voir si la boucle est parallélisable simplement, et renvoyer un warning dans le cas où l'incrémentation n'est pas de type i++ ou ++i, ou la condition d'arrêt n'est pas de type i\textless size.	
+	Il nous faut ensuite les informations liées à la boucle à paralléliser : sa taille, qu'on trouve dans la condition d'arrêt, ainsi que la variable sur laquelle elle itère, qu'on peut retrouver dans l'incrémentation. On pourra ainsi voir si la boucle est parallélisable simplement, et renvoyer un warning dans le cas où l'incrémentation n'est pas de type i++ ou ++i, ou la condition d'arrêt n'est pas de type i\textless size.	
 	
 	\paragraph{déclaration de variables}
 	~~\\
@@ -243,7 +243,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
   		\item Variables globales
 	\end{itemize}
 	\paragraph{Fonction non void}
-	Une fonction CUDA ne peut pas retourner de valeurs, nous avons donc trouvé judicieux de ne pas traiter les fonction ayant un retour, la contrainte est de plus extrêmement minime pour l'utilisateur.
+	Une fonction CUDA ne peut pas retourner de valeur, nous avons donc trouvé judicieux de ne pas traiter les fonctions ayant un retour, la contrainte est de plus extrêmement minime pour l'utilisateur.
 	
 	\newpage	
 	
@@ -255,13 +255,13 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 
 
 
-	Afin de réaliser le projet, nous nous sommes penchés sur les différentes solutions possibles qu'il existait et avons cherché les pour et les contres :
+	Afin de réaliser le projet, nous nous sommes penchés sur les différentes solutions possibles qu'il existait et avons cherché les avantages et les inconvénients :
 	
 	\paragraph{Analyseur syntaxique/lexical}
 	~~\\
 	\indent
 	Une première solution consiste à créer un parseur grâce à des outils d'analyse tel que flex (analyseur lexical) et bison (analyseur syntaxique) dans le but de créer un arbre modifiable selon nos souhaits.\\
-	La transformation pourra ce faire lors de l'analyse (et création de l'arbre), lors d'un traitement annexe ou lors de l'affichage.\\
+	La transformation pourra se faire lors de l'analyse (et création de l'arbre), lors d'un traitement annexe ou lors de l'affichage.\\
 	\begin{itemize}
 		\item Simple à manipuler
 		\item Lourd à mettre en place
@@ -271,7 +271,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\paragraph{Compilateur gcc}
 		~~\\
 	\indent
-	Utiliser l'aptitude du compilateur gcc à accueillir des plugins, il existe un plugin baptisé "PLUGIN\_PRAGMAS" permettant l'intégration de pragma personnalisé, il serait alors possible d'effectuer des actions spécifique en fonction du pragma renseigné.\\ La transformation s'effectue lors de la compilation (principule utilisé par OpenMp). \\
+	Utiliser l'aptitude du compilateur gcc à accueillir des plugins, il existe un plugin baptisé "PLUGIN\_PRAGMAS" permettant l'intégration de pragma personnalisé, il serait alors possible d'effectuer des actions spécifiques en fonction du pragma renseigné.\\ La transformation s'effectue lors de la compilation (principalement utilisée par OpenMp). \\
 	\begin{itemize}
 		\item Directement intégré dans la compilation, ne nécessite pas d'autres outils
 		\item Fournit l'arbre syntaxique
@@ -292,7 +292,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\subsection{Solution retenue}
 	~~\\
 	\indent
-	La solution retenue est l'analyseur syntaxique avec Flex et Bison. \\Cette solution est simple à prendre en main et à pour avantage d'être connue et plus ou moins maîtrisée par les membres de l'équipe. \\Elle nous permet d'avoir un arbre syntaxique qu'on peut facilement adapter pour prendre en compte le pragma cuda. \\Il nous permet aussi de repérer rapidement les structures qui nous intéresse (boucles, initialisation,...).
+	La solution retenue est l'analyseur syntaxique avec Flex et Bison. \\Cette solution est simple à prendre en main et a pour avantage d'être connue et plus ou moins maîtrisée par les membres de l'équipe. \\Elle nous permet d'avoir un arbre syntaxique qu'on peut facilement adapter pour prendre en compte le pragma cuda. \\Il nous permet aussi de repérer rapidement les structures qui nous intéressent (boucles, initialisation,...).
 
 	
 	\newpage
@@ -305,7 +305,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\paragraph{Base de travail}
 	~~\\
 	\indent
-	Nous sommes partis d'un projet Bison/Flex existant permettant de parser une grande partie du code C et de créer son arbre syntaxique(COLLER UN LIEN?). Nous avons ensuite corrigé et modifié cette base pour répondre au besoin.
+	Nous sommes partis d'un projet Bison/Flex existant permettant de parser une grande partie du code C et de créer son arbre syntaxique. Nous avons ensuite corrigé et modifié cette base pour répondre au besoin.
 	
 	\paragraph{Correction de la base}
 	~~\\
@@ -326,7 +326,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	L'ordre des paramètres n'a pas d'importance.
 	Les différentes variables déclarées précédemment sont initialisées à l'intérieur de la fonction après transformation.
 	Si elles ne sont pas déclarées, les variables du \verb|bloc_size| sont initialisées à 1 tandis que si celles de \verb|grid_size| ne le sont pas, nous récupérons la variable de la boucle \verb|for| (du type : i<size).
-	\\Nous avons ensuite modifié l'arbre pour qu'il prenne en compte ce pragma, mais qu'il puisse évidemment aussi prendre en compte les fonctions sans pragma que nous retranscrivons comme telle.
+	\\Nous avons ensuite modifié l'arbre pour qu'il prenne en compte ce pragma, mais qu'il puisse évidemment aussi prendre en compte les fonctions sans pragma que nous retranscrivons comme telles.
 	
 	
 	\paragraph{Recherche de la boucle à paralléliser}
@@ -340,7 +340,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	~~\\
 	\indent
 
-	Etant donné que le kernel sera exécute sur la carte nVidia, certaines variables n'y seront pas accessible. Pour repérer toutes les variables initialisées et utilisées, nous utilisons le même principe que pour repérer les boucles. Lors de la lecture de la fonction, nous listons les variables déclarées dans un Set, et les variables utilisées dans un autre Set, et effectuons une simple soustraction entre ces deux listes. Si le résultat n'est pas vide, on émet un warning indiquant les variables qui ne seront peut-être pas accessibles.
+	Etant donné que le kernel sera exécuté sur la carte nVidia, certaines variables n'y seront pas accessibles. Pour repérer toutes les variables initialisées et utilisées, nous utilisons le même principe que pour repérer les boucles. Lors de la lecture de la fonction, nous listons les variables déclarées dans un Set, et les variables utilisées dans un autre Set, et effectuons une simple soustraction entre ces deux listes. Si le résultat n'est pas vide, on émet un warning indiquant les variables qui ne seront peut-être pas accessibles.
 	
 	\paragraph{Transformation de la fonction}
 	~~\\
@@ -348,7 +348,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	3 transformations sont nécessaires pour passer du code reçu au kernel CUDA :
 	\begin{itemize}
 		\item changer la déclaration de la fonction pour lui ajouter \_\_global\_\_
-		\item changer la valeur de la variable sur la quelle la boucle opère par une formule qui fournit un identifiant unique en fonction de la position dans la matrice CUDA
+		\item changer la valeur de la variable sur laquelle la boucle opère par une formule qui fournit un identifiant unique en fonction de la position dans la matrice CUDA
 		\item changer la boucle for en condition if
 	\end{itemize}
 	Le premier point s'effectue simplement en ajoutant une chaîne de caractères "\_\_global\_\_" lors de la lecture de l'arbre.
@@ -356,7 +356,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\begin{itemize}
 	\item soit la formule basique qui fonctionnera dans tous les cas : 
 	\\ ((((blockIdx.x * gridDim.y + blockIdx.y) * gridDim.z + blockIdx.z) * blockDim.x + threadIdx.x) * blockDim.y + threadIdx.y) * blockDim.z + threadIdx.z;
-	\item soit une formule qui utilise uniquement les indexes dont la dimension est plus grande que un, ce qui évite de faire toutes les multiplications par un inutiles. il nous faut donc les paramètres passés dans le bloc\_size et le grid\_size, pour utiliser uniquement les identifiants utiles (dont la dimension est plus grande que un).
+	\item soit une formule qui utilise uniquement les indexes dont la dimension est plus grande que 1, ce qui évite de faire toutes les multiplications par 1, ce qui est inutile. il nous faut donc les paramètres passés dans le bloc\_size et le grid\_size, pour utiliser uniquement les identifiants utiles (dont la dimension est plus grande que 1).
 	\end{itemize}
 	
 	\paragraph{Wrapper de la fonction transformée}
@@ -388,7 +388,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	
 	
 	\section{Améliorations}
-	Par manque de temps, certaines fonctionnalités n'ont pas put être mis en œuvre, elles ne sont pas indispensable au fonctionnement de l'application, mais permettraient une plus grande souplesse d'utilisation.
+	Par manque de temps, certaines fonctionnalités n'ont pas pu être mises en œuvre, elles ne sont pas indispensables au fonctionnement de l'application, mais permettraient une plus grande souplesse d'utilisation.
 	\begin{itemize}
 		\item Parse complet du langage c (structure, union, enum, sizeof...)
 		\item Gestion plus complète des paramètres de la boucle for
@@ -425,11 +425,11 @@ if (j < S + D) {
 }
 	\end{lstlisting}
 	
-	Il est cependant assez compliqué de trouver la valeur de D, S, et I étant donné le grand nombre de formes de que peuvent prendre les paramètres de la boucle for.
+	Il est cependant assez compliqué de trouver la valeur de D, S, et I étant donné le grand nombre de formes que peuvent prendre les paramètres de la boucle for.
 
 	\section{Conclusion}
 	
-	Parler de montée en compétence..
+	//TODO
 	
 	
 	\section*{Figures}
