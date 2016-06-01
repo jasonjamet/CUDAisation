@@ -1603,14 +1603,12 @@ void integrityTest() {
 						if(right_operand && binary_operator && left_operand) {
 							if(left_operand->value == identifier->value) {
 								if(binary_operator->value == "<") {
-									std::cout << "OKOKOKOK" << std::endl;
 									cuda_loop_relation->cuda_definition->size_identifier = right_operand->value;
 								} else {
 									std::cout << "[WARNING] Loop condition is not correctly formed, \"" << right_operand->value << " < " << left_operand->value << "\" instead of \"" << right_operand->value << " > " << left_operand->value + "\"." << std::endl;
 								}
 							} else if(right_operand->value == identifier->value) {
 									if(binary_operator->value == ">") {
-										std::cout << "OKOKOKOK" << std::endl;
 										cuda_loop_relation->cuda_definition->size_identifier = left_operand->value;
 									} else {
 										std::cout << "[WARNING] Loop condition is not correctly formed, \"" << right_operand->value << " > " << left_operand->value << "\" instead of \"" << right_operand->value << " < " << left_operand->value + "\"." << std::endl;
