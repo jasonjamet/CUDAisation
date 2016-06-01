@@ -164,7 +164,7 @@
 	\subsection{Objectifs}
 
 	\paragraph{}
-	Le but du projet était de réaliser une étude de faisabilité, ou POC (Proof of Concept) afin de montrer comment transformer du code impératif vers CUDA.
+	Le but du projet était de réaliser une étude de faisabilité, ou POC (Proof of Concept) afin de montrer comment transformer du code impératif vers CUDA, une technologie de nVidia pour faire du calcul parallèle.
 	
 	\begin{lstlisting}[
     language=cpp,
@@ -190,7 +190,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	
 	\subsection{Technologies et outils utilisés}
 	
-	Pour ce projet, comme nous le verrons plus tard, nous sommes partis d'un projet déjà existant implémenté en \verb|C++|, nous avons donc continué avec ce langage pour la structure de l'arbre réalisé.
+	Pour ce projet, comme nous le verrons plus tard, nous sommes partis d'un projet déjà existant implémenté en \verb|C++|, nous avons donc utilisé ce langage pour la structure de l'arbre réalisé.
 	Pour le parseur, nous avons utilisé les technologies \verb|bison| et \verb|flex|, que nous avions déjà utilisé lors d'un précédent projet.
 	Enfin, étant 3 personnes à travailler sur les mêmes fichiers, nous avons utilisé le système de gestion de version \verb|Git|, qui nous permet de garder les fichiers modifiés et de faciliter le travail.
 	
@@ -198,6 +198,62 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	
 	\section{Analyse du problème}
 	Nous avons commencé par identifier les différents cas que nous pourrions rencontrer lors de la transformation d'une fonction lambda vers CUDA, ainsi nous avons pu établir une liste des paramètres qui influent sur la transformation.
+	\\Prenons une fonction simple à traduire en kernel
+		\begin{lstlisting}[
+    language=cpp,
+]
+#pragma cuda thread_loop(i) 
+void sum(float *x, float *y, float *z, int size) { 
+	int i;
+	for (i=0; i<size; ++i) {
+			z[i] = x[i] + y[i];
+	}
+}
+
+_____________________________________
+
+
+__global__ void kernel(float *x, float *y, float *z, int size) { 
+	int i = ((((blockIdx.x * gridDim.y + blockIdx.y) * gridDim.z + blockIdx.z) * blockDim.x + threadIdx.x) * blockDim.y + threadIdx.y) * blockDim.z + threadIdx.z;
+	if (i < size) {
+		z[i] = x[i] + y[i];
+	}
+}
+	
+	\end{lstlisting}	
+	On peut voir les transformations minimales qui devront être effectuées:
+	\begin{itemize}
+	\item Initialisation de i avec un identifiant de thread unique, le nom de variable "i" doit être récupéré dans le paramètre "thread\_loop" du pragma.
+	\item remplacement de la boucle for par une condition if, en conservant la même condition d'arrêt
+	\item modification de l’entête de la fonction, avec l'ajout de "\_\_global\_\_"
+	\end{itemize}
+	
+On notera que les kernels CUDA renvoient obligatoirement void, il faudra donc soit passer en entrée une fonction void, soit ajouter un paramètre au kernel qui servira de valeur de retour lors de la traduction.	
+	
+	Prenons maintenant un exemple plus complexe:
+			\begin{lstlisting}[
+    language=cpp,
+]
+#pragma cuda thread_loop(i) bloc_size(16,16)
+void sum(float *x, float *y, float *z) { 
+	int i;
+	for (i=4; i<size-2; i=i+3) {
+		int j;
+		for(j=0, j<size, j++)
+			z[i] = x[i] + y[j];
+	}
+}
+	\end{lstlisting}	
+	Cet exemple nous montre plusieurs éléments qui peuvent poser problème:
+	\begin{itemize}
+	\item la variable "size" est soit non initialisé soit une variable globale. Cependant le kernel n'a pas accès aux variables globales, il faudra donc vérifier que toutes les variables utilisées sont accessibles.
+	\item la boucle for n'est pas une boucle classique allant de 0 a n, il est possible de transformer la boucle en kernel CUDA, mais cela implique de bien calculer l'indice de départ et de fin de la boucle, ce qui peut être complexe étant donné que les paramètres de la boucle for peuvent prendre un grand nombre de formes.
+	\item nous devons laisser la possibilité à l'utilisateur de choisir la taille des blocs
+	\item on peut noter que dans le cas où la boucle a paralléliser est à l’intérieur d'une autre boucle, la transformation est possible, mais ne sera pas la façon la plus optimale de la réaliser. l'utilisateur devra penser à une manière de combiner ses boucles si possible.
+	\end{itemize}
+	~~\\
+	\indent
+	Nous pouvons donc établir à partir de ces exemples les informations que nous devrons extraire du code donné pour générer le kernel.	
 	
 	\paragraph{pragma}
 	~~\\
@@ -220,27 +276,6 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	\indent
 	Un dernier point à vérifier est que les variables soient accessibles dans la fonction étant donné que le kernel sera exécuté à part sur la carte nVidia. Les variables globales par exemple ne seront pas accessibles. Il faut donc émettre un warning si une variable est utilisée et n'est pas déclarée dans le corps de la fonction ou dans ses paramètres.
 	
-	En effet, tout les cas ne peuvent fonctionner, et il faut bien évidemment prendre en compte tous les paramètres qui peuvent intervenir :
-
-	Liste des fonctionnalités à implémenter
-	Liste des cas à exclure
-	\paragraph{Problèmes exclus}
-	\begin{itemize}
-  		\item Boucle while
-  		\item Fonction non void
-  		\item Plusieurs boucles for imbriquées	
-	\end{itemize}
-	
-	\paragraph{Problèmes potentiel}
-		\begin{itemize}
-  		\item Conditions if else
-  		\item Passage de variables vers CUDA et inverse
-  		\item Création de la grille/blocs/threads (tailles)
-  		\item Incrémentation dans la boucle for
-  		\item Taille de la boucle plus grande que la grille
-  		\item Boucles imbriquées
-  		\item Variables globales
-	\end{itemize}
 	\paragraph{Fonction non void}
 	Une fonction CUDA ne peut pas retourner de valeur, nous avons donc trouvé judicieux de ne pas traiter les fonctions ayant un retour, la contrainte est de plus extrêmement minime pour l'utilisateur.
 	
