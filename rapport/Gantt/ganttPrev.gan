@@ -1,9 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="GanttPrvisionnel" company="" webLink="http://" view-date="2016-05-07" view-index="0" gantt-divider-location="428" resource-divider-location="300" version="2.7.2" locale="en_GB">
+<?xml version="1.0" encoding="UTF-8"?><project name="GanttPrvisionnel" company="" webLink="http://" view-date="2016-05-08" view-index="0" gantt-divider-location="521" resource-divider-location="300" version="2.7.2" locale="en_GB">
     <description/>
     <view zooming-state="default:0" id="gantt-chart">
-        <field id="tpd3" name="Name" width="65" order="0"/>
-        <field id="tpd4" name="Begin date" width="18" order="1"/>
-        <field id="tpd5" name="End date" width="15" order="2"/>
+        <field id="tpd3" name="Name" width="47" order="0"/>
+        <field id="tpd4" name="Begin date" width="12" order="1"/>
+        <field id="tpd5" name="End date" width="12" order="2"/>
+        <field id="tpd13" name="Resources" width="28" order="3"/>
         <option id="color.recent"><![CDATA[#999999 #999999 #999999 #ffff00 #ffff00 #ffff00 #ff00cc #ff33cc #ff0099 #0033ff]]></option>
     </view>
     <view id="resource-table">
@@ -35,29 +36,63 @@
             <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
         </taskproperties>
         <task id="0" name="Analyse du problème" color="#00ffff" meeting="false" start="2016-05-09" duration="5" complete="0" expand="true"/>
-        <task id="2" name="Implémentation" color="#ff00cc" meeting="false" start="2016-05-12" duration="14" complete="0" expand="true">
+        <task id="2" name="Implémentation" color="#ff00cc" meeting="false" start="2016-05-12" duration="15" complete="0" expand="true">
             <task id="13" name="1ere implémentation (échec)" color="#ff00cc" meeting="false" start="2016-05-12" duration="5" complete="0" expand="true"/>
-            <task id="12" name="Implémentation anci-c" color="#ff33cc" meeting="false" start="2016-05-19" duration="9" complete="0" expand="true"/>
+            <task id="12" name="Implémentation anci-c" color="#8cb6ce" meeting="false" start="2016-05-18" duration="11" complete="0" expand="true">
+                <task id="31" name="Correction de la base" color="#8cb6ce" meeting="false" start="2016-05-18" duration="2" complete="0" expand="true"/>
+                <task id="16" name="Analyse du pragma" color="#8cb6ce" meeting="false" start="2016-05-19" duration="2" complete="0" expand="true"/>
+                <task id="17" name="Recherche de la boucle" color="#8cb6ce" meeting="false" start="2016-05-20" duration="2" complete="0" expand="true"/>
+                <task id="18" name="Vérification de la portée" color="#8cb6ce" meeting="false" start="2016-05-23" duration="2" complete="0" expand="true"/>
+                <task id="19" name="Transformation" color="#8cb6ce" meeting="false" start="2016-05-24" duration="3" complete="0" expand="true"/>
+                <task id="20" name="Wrapper" color="#8cb6ce" meeting="false" start="2016-05-26" duration="2" complete="0" expand="true"/>
+                <task id="40" name="Correction de bugs" color="#8cb6ce" meeting="false" start="2016-05-20" duration="9" complete="0" expand="true"/>
+            </task>
         </task>
         <task id="15" name="Rédaction des documents" color="#00ff33" meeting="false" start="2016-05-30" duration="4" complete="0" expand="true"/>
     </tasks>
-    <resources/>
-    <allocations/>
+    <resources>
+        <resource id="0" name="Guillaume" function="Default:0" contacts="" phone=""/>
+        <resource id="1" name="Alexis" function="Default:0" contacts="" phone=""/>
+        <resource id="2" name="Jason" function="Default:0" contacts="" phone=""/>
+    </resources>
+    <allocations>
+        <allocation task-id="0" resource-id="0" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="31" resource-id="0" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="17" resource-id="0" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="2" resource-id="0" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="13" resource-id="0" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="40" resource-id="0" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="20" resource-id="0" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="19" resource-id="0" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="0" resource-id="1" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="31" resource-id="1" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="18" resource-id="1" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="2" resource-id="1" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="13" resource-id="1" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="40" resource-id="1" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="0" resource-id="2" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="16" resource-id="2" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="17" resource-id="2" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="2" resource-id="2" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="13" resource-id="2" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="40" resource-id="2" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="19" resource-id="2" function="Default:0" responsible="true" load="100.0"/>
+    </allocations>
     <vacations/>
     <taskdisplaycolumns>
         <displaycolumn property-id="tpd2" order="-1" width="75" visible="false"/>
         <displaycolumn property-id="tpd6" order="-1" width="75" visible="false"/>
-        <displaycolumn property-id="tpd3" order="0" width="279" visible="true"/>
-        <displaycolumn property-id="tpd4" order="1" width="79" visible="true"/>
+        <displaycolumn property-id="tpd3" order="0" width="245" visible="true"/>
+        <displaycolumn property-id="tpd4" order="1" width="64" visible="true"/>
         <displaycolumn property-id="tpd7" order="-1" width="75" visible="false"/>
         <displaycolumn property-id="tpd8" order="-1" width="75" visible="false"/>
         <displaycolumn property-id="tpd12" order="-1" width="75" visible="false"/>
-        <displaycolumn property-id="tpd5" order="2" width="66" visible="true"/>
+        <displaycolumn property-id="tpd5" order="2" width="63" visible="true"/>
         <displaycolumn property-id="tpd10" order="-1" width="75" visible="false"/>
         <displaycolumn property-id="tpd11" order="-1" width="75" visible="false"/>
         <displaycolumn property-id="tpd9" order="-1" width="75" visible="false"/>
         <displaycolumn property-id="tpd1" order="-1" width="75" visible="false"/>
-        <displaycolumn property-id="tpd13" order="-1" width="75" visible="false"/>
+        <displaycolumn property-id="tpd13" order="3" width="145" visible="true"/>
         <displaycolumn property-id="tpd0" order="-1" width="75" visible="false"/>
     </taskdisplaycolumns>
     <previous/>
