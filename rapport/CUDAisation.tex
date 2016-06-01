@@ -13,7 +13,8 @@
 \makeglossaries
 
 \usepackage{listings}
-
+\renewcommand{\lstlistingname}{Code}
+\renewcommand{\lstlistlistingname}{\lstlistingname s}%
 \lstdefinelanguage{XML}
 {
   basicstyle=\normalfont\ttfamily,
@@ -163,7 +164,8 @@
 	\paragraph{}
 	Le but du projet était de réaliser une étude de faisabilité, ou POC (Proof of Concept) afin de montrer comment transformer du code impératif vers CUDA, une technologie de nVidia pour faire du calcul parallèle.
 	
-	\begin{lstlisting}[
+\begin{lstlisting}[
+	caption=Exemple de code à CUDAiser simple (Cahier des charges),
     language=cpp,
 ]
 #pragma cuda thread_loop(i) params(x,y,z,size) 
@@ -172,9 +174,11 @@ void sum(float *x, float *y, float *z, int size) {
 		z[i] = x[i] + y[i];
 	}
 }
-
-_____________________________________
-
+\end{lstlisting}	
+\begin{lstlisting}[
+	caption=Résultat de la CUDAisation (Cahier des charges),
+    language=cpp,
+]	
 
 __global__ void kernel(float *x, float *y, float *z, int size) { 
 	int gtid = ...
@@ -200,6 +204,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	Nous avons commencé par identifier les différents cas que nous pourrions rencontrer lors de la transformation d'une fonction lambda vers CUDA, ainsi nous avons pu établir une liste des paramètres qui influent sur la transformation.
 	\\Prenons une fonction simple à traduire en kernel
 		\begin{lstlisting}[
+	caption=Exemple de code à CUDAiser simple,
     language=cpp,
 ]
 #pragma cuda thread_loop(i) 
@@ -209,8 +214,12 @@ void sum(float *x, float *y, float *z, int size) {
 			z[i] = x[i] + y[i];
 	}
 }
+\end{lstlisting}	
 
-_____________________________________
+\begin{lstlisting}[
+	caption=Résultat de la CUDAisation simple,
+    language=cpp,
+]
 
 
 __global__ void kernel(float *x, float *y, float *z, int size) { 
@@ -220,7 +229,7 @@ __global__ void kernel(float *x, float *y, float *z, int size) {
 	}
 }
 	
-	\end{lstlisting}	
+\end{lstlisting}	
 	On peut voir les transformations minimales qui devront être effectuées:
 	\begin{itemize}
 	\item Initialisation de i avec un identifiant de thread unique, le nom de variable "i" doit être récupéré dans le paramètre "thread\_loop" du pragma.
@@ -232,6 +241,7 @@ On notera que les kernels CUDA renvoient obligatoirement void, il faudra donc so
 	
 	Prenons maintenant un exemple plus complexe:
 			\begin{lstlisting}[
+	caption=Exemple de code à CUDAiser complexe,
     language=cpp,
 ]
 #pragma cuda thread_loop(i) bloc_size(16,16)
@@ -396,15 +406,17 @@ void sum(float *x, float *y, float *z) {
 	Le corps de cette fonction contient au départ l'initialisation des différentes variables contenues dans les paramètres du \verb|pragma| (\verb|block_size| et \verb|grid_size|).
 	En ce qui concerne les variables du \verb|block_size| nous les affectons directement par leurs valeurs si elles existent, sinon elles valent 1.
 	Pour celles du \verb|grid_size|, nous les affectons grâce au calcul suivant : 
-	\begin{lstlisting}[
+\begin{lstlisting}[
+	caption=Calcul du grid\_size,
     language=cpp,
 ]
 	nbr_block_x = (size - nbr_threads - 1) / nbr_threads
 \end{lstlisting}	
 	 avec \verb|nbr_thread| la multiplication de chacune des variables de \verb|block_size|.
 	
-	S'ensuit une allocation mémoire des variables, puis l'appel au kernel (c'est-à-dire l'appel de la fonction transformée)
+	S'ensuit une allocation mémoire des variables (non implémentée), puis l'appel au kernel (c'est-à-dire l'appel de la fonction transformée)
 	\begin{lstlisting}[
+	caption=Exemple d'appel kernel,
     language=cpp,
 ]
 	 kernel_sum <<< dim3(nbr_block_x, nbr_block_y, nbr_block_z) , dim3(nbr_thread_x, nbr_thread_y, nbr_thread_z) >>> (x, y, z, size);
@@ -429,7 +441,8 @@ void sum(float *x, float *y, float *z) {
 	
 	Actuellement, notre boucle for reste très limitée (voir "Recherche de la boucle à paralléliser" du chapitre 4), mais il est facilement envisageable d'en étendre l'utilisation.
 	Exemple d'utilisation simple (celle implémentée):
-			\begin{lstlisting}[
+		\begin{lstlisting}[
+	caption=Exemple d'utilisation simple,
     language=cpp,
 ]
 int j;
@@ -447,7 +460,7 @@ if (j < size) {
 	Il est cependant possible de prendre en compte les cas plus particuliers, où j est initialisé à une autre valeur que 0, ou où la condition d'arrêt est de type j\textless size+2, ou où l'incrémentation n'est pas faite de 1 en 1.
 	\\Soit D la valeur à la quelle commence la boucle, S la taille de la boucle, et I l'incrémentation par itération de la boucle et GTID l'indice du thread CUDA. on peut établir le cas général suivant:
 	\begin{lstlisting}[
-	caption=,
+	caption=Cas général du GTID,
     language=cpp,
     ]
 int j = GTID * I + D;
@@ -458,14 +471,21 @@ if (j < S + D) {
 	
 	Il est cependant assez compliqué de trouver la valeur de D, S, et I étant donné le grand nombre de formes que peuvent prendre les paramètres de la boucle for.
 
+	\paragraph{Automatisation des allocations}
+	~~\\
+	\indent
+	
+	Pour que le kernel puisse utiliser des variables provenant de l'hôte, il est nécessaire de connaître leurs tailles, pour les copier vers le GPU. Ces tailles pourraient être renseignées comme paramètre au pragma.\\
+	 Cette amélioration est nécessaire pour générer un code fonctionnel (copie des données vers la carte et appel du kernel compris) sans intervention manuelle de l'utilisateur après la transformation.
 \newpage
 	\section{Conclusion}
 	
-La parallélisation sur CPU est facilement abordable via des outils tel que openMp ou MPI, ce n'est pas la cas pour la parallélisation GPU.\\
-	L'utilisation de CUDA est finalement assez complexe et nécessite une grande rigueure, notamment dans la gestion de la mémoire.\\
-	Le projet CUDAisation tente de répondre à ce problème en proposant à l'utilisateur une manière transparente et simple d'effectuer des calculs parallèle sur ca carte graphique Nvidia.\\
-	L'application est capable de paralleliser des fonctions contenant des boucles simple, avec plus de temps il serait tout à fait possible de traiter un très grand panel de fonctions, même complexe.\\
-	Finalement, cette experience nous à fait monter en compétence sur les analyseurs flex/bison, les langage c++/cuda et nous a donné une plus grande visibilité sur la difficultée à transformer un code itératif en code parallelisé. 
+La parallélisation sur CPU est facilement abordable via des outils tel que OpenMP ou MPI, ce n'est pas la cas pour la parallélisation GPU.\\
+	L'utilisation de CUDA est finalement assez complexe et nécessite une grande rigueur, notamment dans la gestion de la mémoire.\\
+	Le projet CUDAisation tente de répondre à ce problème en proposant à l'utilisateur une manière transparente et simple d'effectuer des calculs parallèles sur sa carte graphique Nvidia.\\
+	L'application est capable de paralleliser des fonctions contenant des boucles simples, avec plus de temps il serait tout à fait possible de traiter un très grand panel de fonctions, même complexes.\\
+	Il ne sera cependant pas possible d'automatiser complètement le processus de parallelisation avec CUDA sans demander un nombre conséquent d'informations à l'utilisateur (taille des tableaux pour les allocations CUDA...), dans notre cas l'utilsateur devra au minimum gerer les allocations lui-même.\\	
+	Finalement, cette experience nous a fait monter en compétence sur les analyseurs flex/bison, le langage c++ avec cuda et nous a donné une plus grande visibilité sur la difficulté à transformer un code itératif en code parallèle. 
 		
 	\paragraph{Repartition des tâches}	
 	~~\\
@@ -496,6 +516,7 @@ La parallélisation sur CPU est facilement abordable via des outils tel que open
 \item https://github.com/dnoliver/tc-parser/tree/e3c06751c2bca8a9aaea8afe601a7ad05b3384a4
 \item http://www.quut.com/c/ANSI-C-grammar-y.html
 \item https://gcc.gnu.org/onlinedocs/gccint/Plugins-attr.html\#Plugins-attr
+\item http://www.info.univ-angers.fr/~richer/cuda.php
 
 \end{itemize}
 	
@@ -569,8 +590,24 @@ void sum(float *x, float *y, float *z, int size)
 	 int nbr_thread_x = x1;
 	 int nbr_thread_y = y2;
 	 int nbr_block_x = (16 + x1*y2 - 1 ) / x1*y2;
-
-	 kernel_sum <<< dim3(nbr_block_x) , dim3(nbr_thread_x, nbr_thread_y) >>> (x, y, z, size);
+	
+	 float *x_gpu;
+	 float *y_gpu;
+	 float *z_gpu;
+	 int size_gpu;
+	 
+  	 cudaMalloc( (void**) &x_gpu, /*replace with size*/ );
+  	 cudaMalloc( (void**) &y_gpu, /*replace with size*/ );
+  	 cudaMalloc( (void**) &z_gpu, /*replace with size*/ );
+  	 cudaMalloc( (void**) &size_gpu, /*replace with size*/ );
+  
+     /* Insert cuda memcpy here */
+	
+	 kernel_sum <<< dim3(nbr_block_x) , dim3(nbr_thread_x, nbr_thread_y) >>> (x_gpu, y_gpu, z_gpu, size_gpu);
+	 
+	 cudaFree( x_gpu );
+  	 cudaFree( y_gpu );
+  	 cudaFree( z_gpu );	 
 }
 int main(int argc, char *argv[])
 {
