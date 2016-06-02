@@ -57,7 +57,7 @@ int check_type();
 "cuda"			{ count(); return(CUDA); }
 "thread_loop"	{ count(); return(THREAD_LOOP); }
 "block_size"	{ count(); return(BLOCK_SIZE); }
-"grid_size"	{ count(); return(GRID_SIZE); }
+"nbr_threads"	{ count(); return(GRID_SIZE); }
 
 
 {C}					{}
