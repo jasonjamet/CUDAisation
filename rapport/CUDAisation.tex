@@ -359,11 +359,11 @@ void sum(float *x, float *y, float *z) {
 	\begin{itemize}
 		\item thread\_loop(i) : indique que la boucle à paralléliser est celle qui utilise la variable i
 		\item block\_size(x[,y[,z]]) : indique la taille du bloc
-		\item nbr\_threads(x) : indique le nombre de threads total à créer
+		\item nbr\_threads(x) : indique le nombre de threads total à créer (optionnel).
 	\end{itemize}
 	L'ordre des paramètres n'a pas d'importance.
 	Les différentes variables déclarées précédemment sont initialisées à l'intérieur de la fonction après transformation.
-	Si elles ne sont pas déclarées, les variables du \verb|block_size| sont initialisées à 1 tandis que si celles de \verb|grid_size| ne le sont pas, nous récupérons la variable de la boucle \verb|for| (du type : i\textless size).
+	Si elles ne sont pas déclarées, les variables du \verb|block_size| sont initialisées à 1 tandis que si celles de \verb|grid_size| ne le sont pas, nous récupérons la variable size de la boucle \verb|for| (du type : i\textless size).
 	\\Nous avons ensuite modifié l'arbre pour qu'il prenne en compte ce pragma, mais qu'il puisse évidemment aussi prendre en compte les fonctions sans pragma que nous retranscrivons comme telles.
 		
 	
@@ -394,7 +394,7 @@ void sum(float *x, float *y, float *z) {
 	\begin{itemize}
 	\item soit la formule basique qui fonctionnera dans tous les cas : 
 	\\ ((((blockIdx.x * gridDim.y + blockIdx.y) * gridDim.z + blockIdx.z) * blockDim.x + threadIdx.x) * blockDim.y + threadIdx.y) * blockDim.z + threadIdx.z;
-	\item soit une formule qui utilise uniquement les indexes dont la dimension est plus grande que 1, ce qui évite de faire toutes les multiplications par 1, ce qui est inutile. il nous faut donc les paramètres passés dans le bloc\_size et le grid\_size, pour utiliser uniquement les identifiants utiles (dont la dimension est plus grande que 1).
+	\item soit une formule qui utilise uniquement les indexes dont la dimension est plus grande que 1, ce qui évite de faire toutes les multiplications par 1, ce qui est inutile. il nous faut donc les paramètres passés dans le block\_size et le nbr\_threads, pour utiliser uniquement les identifiants utiles (dont la dimension est plus grande que 1).
 	\end{itemize}
 	
 	\paragraph{Wrapper de la fonction transformée}
@@ -403,7 +403,7 @@ void sum(float *x, float *y, float *z) {
 	
 	Afin de rendre une fonction pouvant être directement compilée ( et exécutée si la fonction C donnée l'est), et étant donné qu'il nous restait du temps, nous avons décidé de générer une deuxième fonction qui appelle la fonction kernel générée. Cette dernière est identique à celle que l'on transforme au niveau de la déclaration (nom de la fonction ainsi que ses paramètres).
 	
-	Le corps de cette fonction contient au départ l'initialisation des différentes variables contenues dans les paramètres du \verb|pragma| (\verb|block_size| et \verb|grid_size|).
+	Le corps de cette fonction contient au départ l'initialisation des différentes variables contenues dans les paramètres du \verb|pragma| (\verb|block_size| et \verb|nbr\_threads|).
 	En ce qui concerne les variables du \verb|block_size| nous les affectons directement par leurs valeurs si elles existent, sinon elles valent 1.
 	Pour celles du \verb|grid_size|, nous les affectons grâce au calcul suivant : 
 \begin{lstlisting}[

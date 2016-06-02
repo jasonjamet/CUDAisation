@@ -23,7 +23,7 @@
   \setlength{\TPHorizModule}{1mm}
   \setlength{\TPVertModule}{1mm}
 \newcommand{\logoUniv}{
-	\begin{textblock}{0}(115,20)
+	\begin{textblock}{0}(115,22,5)
       \includegraphics[scale=0.12,viewport=0 0 0 0]{angers.png}
     \end{textblock}	
 }
@@ -32,7 +32,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%PRESENTATION PAGE%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\title[Stage KaliConseil\hspace{2em}\insertframenumber/\inserttotalframenumber]{CUDAisation du code impératif}
+\title[CUDAisation\hspace{12,5em}\insertframenumber/\inserttotalframenumber]{CUDAisation du code impératif}
 \date{Vendredi 03 juin 2016} %leave out for today's date to be insterted
 
 \institute[UFR Sciences]{Université d'Angers}
@@ -66,24 +66,19 @@
 	\logoUniv \footnotesize
 	\tableofcontents 
 }
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%SLIDES%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% codaCudaTransforme.png SLIDES%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Présentation} 
-\subsection{Objectifs}
-\frame{\frametitle{Objectifs} \logoUniv
+\subsection{Objectif}
+\frame{\frametitle{Objectif} \logoUniv
 \begin{itemize}
-\item Esn créée en 2010
-\item Basée sur Angers 
-\item Conduite de projets
-\item Infogérance (tpe et pme)
-\end{itemize} 
+\item Transformer un code impératif en CUDA
+\end{itemize}
+~~\\~~\\~~\\~~\\~~\\
 
-}
-
-
-\subsection{Technologies et outils utilisés}
-\frame{\frametitle{La solution KS2} \logoUniv
-
+	\begin{textblock}{0}(2,70)
+      \includegraphics[scale=0.38,viewport=0 0 0 0]{codaCudaObjectif.png}
+    \end{textblock}	
 }
 
 
@@ -119,7 +114,6 @@
 \item Fonction non void
 \end{itemize} 
 \end{block}
-
 }
 
 
@@ -135,25 +129,29 @@
 \item Analyseur syntaxique / lexical
 \item Compilateur gcc
 \item Regex
-\end{itemize} 
+\end{itemize}
 \end{block}
 
 }
 
 \section{Conception}
 \subsection{Solution retenue}
-\frame{\frametitle{Solutions envisagées}  \logoUniv
-\begin{block}{Analyseur syntaxique}
- 
+\frame{\frametitle{Solution retenue}  \logoUniv
+\begin{block}{Analyseur syntaxique / lexical}
+ Simple d'utilisation, maitrisé par les membres de l'équipe.
 \end{block}
+~~\\~~\\
+\begin{center}
+      \includegraphics[scale=0.38]{flexBison.png}
+\end{center}	
+
+
 }
 \subsection{Réalisation}
 \frame{\frametitle{Base de travail et correction}  \logoUniv
-
-
+	
 }
 \frame{\frametitle{Analyse du pragma}  \logoUniv
-
 
 }
 
