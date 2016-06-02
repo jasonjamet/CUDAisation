@@ -31,10 +31,9 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%PRESENTATION PAGE%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\author[Jason JAMET]{Jason JAMET}
 
-\title[Stage KaliConseil\hspace{2em}\insertframenumber/\inserttotalframenumber]{Développement de modules alfresco}
-\date{Jeudi 25 juin 2015} %leave out for today's date to be insterted
+\title[Stage KaliConseil\hspace{2em}\insertframenumber/\inserttotalframenumber]{CUDAisation du code impératif}
+\date{Vendredi 03 juin 2016} %leave out for today's date to be insterted
 
 \institute[UFR Sciences]{Université d'Angers}
 
@@ -47,13 +46,15 @@
 
 	\begin{minipage}{0.49\textwidth} 
 		\begin{flushleft}
-			\textbf{Tuteur pédagogique}: Benoit DAMOTA
+			\textbf{Tuteur pédagogique}:Jean Michel RICHER
     	\end{flushleft}
     \end{minipage}
     \begin{minipage}{0.49\textwidth} 
 		\begin{flushright}
-			\textbf{Maitre de stage}: Vincent DEREC
-    	\end{flushright}
+		Alexis BRIARD\\
+		Jason JAMET\\
+		Guillaume GRANDJEAN	
+    		\end{flushright}
     \end{minipage}
 
 \end{frame}
@@ -67,130 +68,131 @@
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%SLIDES%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{KaliConseil} 
-\subsection{Présentation}
-\frame{\frametitle{KaliConseil} \logoUniv
+\section{Présentation} 
+\subsection{Objectifs}
+\frame{\frametitle{Objectifs} \logoUniv
 \begin{itemize}
 \item Esn créée en 2010
 \item Basée sur Angers 
 \item Conduite de projets
 \item Infogérance (tpe et pme)
 \end{itemize} 
-\hfill \includegraphics[scale=0.5,viewport=-30 50 320 170]{KaliConseil.jpg}
+
 }
 
 
-\subsection{KS2}
+\subsection{Technologies et outils utilisés}
 \frame{\frametitle{La solution KS2} \logoUniv
-\begin{center}
-	\includegraphics[scale=0.25]{KS2Product.png}
-\end{center}
-}
-
-
-\section{Afresco}
-\subsection{Présentation}
-\frame{\frametitle{L'ECM Alfresco} \logoUniv
-\begin{center}
-	\includegraphics[scale=0.20]{alfrescoSchema.png}
-\end{center}
 
 }
-%\subsection{Architecture}
-%\frame{\frametitle{blocs}  \logoUniv
 
-%\begin{block}{title of the bloc}
-%bloc text
-%\end{block}
 
-%}
-\subsection{Workflow}
-\frame{\frametitle{Workflow}  \logoUniv
-\begin{block}{Objectif: }
-Automatisation des processus métier
+\section{Analyse du problème}
+\subsection{Analyse générale}
+\frame{\frametitle{Analyse générale} \logoUniv
+
+\begin{block}{Les transformations à réaliser :}
+\begin{itemize}
+\item Initialisation de la variable récupérée dans le thread\_loop
+\item Remplacement de la boucle for en condition if
+\item Modification de l'entête de la fonction
+\end{itemize} 
 \end{block}
-\begin{center}
-\includegraphics[scale=0.70]{BPMNExemple.png}
-\end{center}
-
 
 }
-\subsection{Customisation de share}
-\frame{\frametitle{Nouvelles pages personnalisés}  \logoUniv
+
+\frame{\frametitle{Analyse générale} \logoUniv
+
+\begin{block}{Eléments qui peuvent poser problème :}
+\begin{itemize}
+\item La variable size
+\item La taille des blocs
+\item Recherche de la boucle à paralléliser
+\end{itemize} 
+\end{block}
+
+\begin{block}{Informations à extraire du code :}
+\begin{itemize}
+\item Pragma
+\item Boucle for
+\item Déclaration de variables
+\item Fonction non void
+\end{itemize} 
+\end{block}
+
+}
+
+
+
+
+
+
+\subsection{Solutions envisagées}
+\frame{\frametitle{Solutions envisagées}  \logoUniv
  
-\begin{block}{Les technologies:}
+\begin{block}{Les solutions:}
 \begin{itemize}
-\item Spring Surf
-\item AIKAU (Dojo)
-\item YUI
+\item Analyseur syntaxique / lexical
+\item Compilateur gcc
+\item Regex
 \end{itemize} 
 \end{block}
 
 }
 
-\section{Mes Projets}
-\subsection{Nature des projets}
-\frame{\frametitle{Nature des projets}  \logoUniv
-\begin{block}{De nouveaux Workflows:}
-\begin{itemize}
-\item Workflow Facture
-\item Workflow demande de vacances
-\end{itemize} 
-\end{block}
-\begin{block}{De nouvelles pages WEB:}
-\begin{itemize}
-\item Page management d'aspects et propriétés
-\item Page management de Workflows
-\end{itemize}
+\section{Conception}
+\subsection{Solution retenue}
+\frame{\frametitle{Solutions envisagées}  \logoUniv
+\begin{block}{Analyseur syntaxique}
+ 
 \end{block}
 }
-\subsection{Workflow Facture}
-\frame{\frametitle{Workflow  "Facture"}  \logoUniv
-\begin{block}{Objectif: }
-Qualifier une facture semi-automatiquement, ou manuellement.
-\end{block}
-\begin{center}
-\includegraphics[scale=0.35]{diagramFacture.png}
-\end{center}
-}
-\frame{\frametitle{Workflow "Facture"}  \logoUniv
+\subsection{Réalisation}
+\frame{\frametitle{Base de travail et correction}  \logoUniv
 
-\begin{center}
-\includegraphics[scale=0.35]{TacheFacture.png}
-\end{center}
+
 }
-\subsection{Page management de Workflows}
-\frame{\frametitle{Page management de Workflows}  \logoUniv
-\begin{block}{Objectif: }
-Accès simple aux Workflows et tâches liées à l'utilisateur courant
-\end{block}
-\begin{center}
-\includegraphics[scale=0.25]{PageWF.png}
-\end{center}
+\frame{\frametitle{Analyse du pragma}  \logoUniv
+
+
 }
-\section{Bilan}
-\subsection{Difficultés rencontrées}
-\frame{\frametitle{Problèmes rencontrés}  \logoUniv
+
+\frame{\frametitle{Recherche de la boucle à paralléliser} \logoUniv
+
+
+}
+
+\frame{\frametitle{Vérification de la portée des variables}\logoUniv
+
+
+}
+
+\frame{\frametitle{Transformation de la fonction}  \logoUniv
+
+
+}
+
+\frame{\frametitle{Wrapper de la fonction transformée}  \logoUniv
+
+
+}
+
+\section{Améliorations}
+\subsection{Améliorations}
+\frame{\frametitle{Améliorations}  \logoUniv
 \begin{itemize}
-\item Documentation faible
-\item Frameworks jeunes
-\item Difficultés techniques
+\item Parse complet du langage c
+\item Gestion plus complète de la boucle for
+\item Automatisation des allocations
 \end{itemize} 
 }
-\subsection{A venir}
-\frame{\frametitle{Ce qu'il reste à faire}  \logoUniv
-\begin{itemize}
-\item De nombreux nouveaux Workflows
-\item Lier une solution d'océrisation et  le Workflow "Facture"
-\item Terminer la page "management de Workflows"
-\end{itemize} 
-}
+ 
+
+
+\section{Conclusion}
 \subsection{Conclusion}
 \frame{\frametitle{Conclusion}  \logoUniv
-\begin{itemize}
-\item Très bonne expérience professionnelle
-\item Confirmation de mon projet professionnel
-\end{itemize} 
+
 }
 \end{document}
 
