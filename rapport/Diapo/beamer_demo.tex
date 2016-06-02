@@ -2,8 +2,9 @@
 \usepackage{graphicx}
 \usepackage[utf8]{inputenc}
 \usepackage[frenchb]{babel}
-
+\usepackage{color}
 \usepackage{beamerthemesplit}
+
 \definecolor{Silver1}{RGB}{0,93,117}
 \definecolor{Silver2}{RGB}{50,50,50}
 \definecolor{Silver3}{RGB}{0,142,178}
@@ -149,19 +150,36 @@
 }
 \subsection{Réalisation}
 \frame{\frametitle{Base de travail et correction}  \logoUniv
-	
+	\begin{itemize}
+		\item 1ère version from scratch
+		\item 2nd version basée sur l'implémentation yacc/lex de Jeff Lee
+		\item 3ème version basée sur le projet "tc-parser" (github)
+	\end{itemize}
 }
 \frame{\frametitle{Analyse du pragma}  \logoUniv
-
+	\begin{itemize}
+		\item Définition du format
+		\item Modification de l'arbre
+	\end{itemize}
+	
+	{\color{red}\#pragma cuda} {\color{blue}thread\_loop(j)} {\color{orange}block\_size(2,2)} {\color{purple}nbr\_threads(16)}
 }
 
 \frame{\frametitle{Recherche de la boucle à paralléliser} \logoUniv
-
-
+	\begin{itemize}
+		\item Parcours de la fonction à CUDAiser
+		\item Recherche du thread\_loop dans les paramètre des boucles for
+	\end{itemize}
+	\begin{center}
+      \includegraphics[scale=0.45]{for.png}
+	\end{center}	
 }
 
 \frame{\frametitle{Vérification de la portée des variables}\logoUniv
-
+	\begin{itemize}
+		\item Accessibilité des variables
+	\end{itemize}
+	
 
 }
 
