@@ -10,5 +10,3 @@
 \beamer@subsectionintoc {3}{2}{R\IeC {\'e}alisation}{8}{0}{3}
 \beamer@sectionintoc {4}{Am\IeC {\'e}liorations}{14}{0}{4}
 \beamer@subsectionintoc {4}{1}{Am\IeC {\'e}liorations}{14}{0}{4}
-\beamer@sectionintoc {5}{Conclusion}{15}{0}{5}
-\beamer@subsectionintoc {5}{1}{Conclusion}{15}{0}{5}
