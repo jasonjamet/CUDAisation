@@ -17,36 +17,40 @@
 \headcommand {\beamer@framepages {4}{4}}
 \headcommand {\slideentry {2}{1}{2}{5/5}{Analyse g\IeC {\'e}n\IeC {\'e}rale}{0}}
 \headcommand {\beamer@framepages {5}{5}}
-\headcommand {\beamer@subsectionentry {0}{2}{2}{6}{Solutions envisag\IeC {\'e}es}}\headcommand {\beamer@subsectionpages {4}{5}}
-\headcommand {\slideentry {2}{2}{1}{6/6}{Solutions envisag\IeC {\'e}es}{0}}
+\headcommand {\slideentry {2}{1}{3}{6/6}{Analyse g\IeC {\'e}n\IeC {\'e}rale}{0}}
 \headcommand {\beamer@framepages {6}{6}}
-\headcommand {\sectionentry {3}{Conception}{7}{Conception}{0}}
-\headcommand {\beamer@sectionpages {4}{6}}
-\headcommand {\beamer@subsectionpages {6}{6}}
-\headcommand {\beamer@subsectionentry {0}{3}{1}{7}{Solution retenue}}\headcommand {\beamer@subsectionpages {7}{6}}
-\headcommand {\slideentry {3}{1}{1}{7/7}{Solution retenue}{0}}
+\headcommand {\slideentry {2}{1}{4}{7/7}{Analyse g\IeC {\'e}n\IeC {\'e}rale}{0}}
 \headcommand {\beamer@framepages {7}{7}}
-\headcommand {\beamer@subsectionentry {0}{3}{2}{8}{R\IeC {\'e}alisation}}\headcommand {\beamer@subsectionpages {7}{7}}
-\headcommand {\slideentry {3}{2}{1}{8/8}{R\IeC {\'e}alisation}{0}}
+\headcommand {\beamer@subsectionentry {0}{2}{2}{8}{Solutions envisag\IeC {\'e}es}}\headcommand {\beamer@subsectionpages {4}{7}}
+\headcommand {\slideentry {2}{2}{1}{8/8}{Solutions envisag\IeC {\'e}es}{0}}
 \headcommand {\beamer@framepages {8}{8}}
-\headcommand {\slideentry {3}{2}{2}{9/9}{R\IeC {\'e}alisation}{0}}
+\headcommand {\sectionentry {3}{Conception}{9}{Conception}{0}}
+\headcommand {\beamer@sectionpages {4}{8}}
+\headcommand {\beamer@subsectionpages {8}{8}}
+\headcommand {\beamer@subsectionentry {0}{3}{1}{9}{Solution retenue}}\headcommand {\beamer@subsectionpages {9}{8}}
+\headcommand {\slideentry {3}{1}{1}{9/9}{Solution retenue}{0}}
 \headcommand {\beamer@framepages {9}{9}}
-\headcommand {\slideentry {3}{2}{3}{10/10}{R\IeC {\'e}alisation}{0}}
+\headcommand {\beamer@subsectionentry {0}{3}{2}{10}{R\IeC {\'e}alisation}}\headcommand {\beamer@subsectionpages {9}{9}}
+\headcommand {\slideentry {3}{2}{1}{10/10}{R\IeC {\'e}alisation}{0}}
 \headcommand {\beamer@framepages {10}{10}}
-\headcommand {\slideentry {3}{2}{4}{11/11}{R\IeC {\'e}alisation}{0}}
+\headcommand {\slideentry {3}{2}{2}{11/11}{R\IeC {\'e}alisation}{0}}
 \headcommand {\beamer@framepages {11}{11}}
-\headcommand {\slideentry {3}{2}{5}{12/12}{R\IeC {\'e}alisation}{0}}
+\headcommand {\slideentry {3}{2}{3}{12/12}{R\IeC {\'e}alisation}{0}}
 \headcommand {\beamer@framepages {12}{12}}
-\headcommand {\slideentry {3}{2}{6}{13/13}{R\IeC {\'e}alisation}{0}}
+\headcommand {\slideentry {3}{2}{4}{13/13}{R\IeC {\'e}alisation}{0}}
 \headcommand {\beamer@framepages {13}{13}}
-\headcommand {\sectionentry {4}{Am\IeC {\'e}liorations}{14}{Am\IeC {\'e}liorations}{0}}
-\headcommand {\beamer@sectionpages {7}{13}}
-\headcommand {\beamer@subsectionpages {8}{13}}
-\headcommand {\beamer@subsectionentry {0}{4}{1}{14}{Am\IeC {\'e}liorations}}\headcommand {\beamer@subsectionpages {14}{13}}
-\headcommand {\slideentry {4}{1}{1}{14/14}{Am\IeC {\'e}liorations}{0}}
+\headcommand {\slideentry {3}{2}{5}{14/14}{R\IeC {\'e}alisation}{0}}
 \headcommand {\beamer@framepages {14}{14}}
-\headcommand {\beamer@partpages {1}{14}}
-\headcommand {\beamer@subsectionpages {14}{14}}
-\headcommand {\beamer@sectionpages {14}{14}}
-\headcommand {\beamer@documentpages {14}}
-\headcommand {\def \inserttotalframenumber {14}}
+\headcommand {\slideentry {3}{2}{6}{15/15}{R\IeC {\'e}alisation}{0}}
+\headcommand {\beamer@framepages {15}{15}}
+\headcommand {\sectionentry {4}{Am\IeC {\'e}liorations}{16}{Am\IeC {\'e}liorations}{0}}
+\headcommand {\beamer@sectionpages {9}{15}}
+\headcommand {\beamer@subsectionpages {10}{15}}
+\headcommand {\beamer@subsectionentry {0}{4}{1}{16}{Am\IeC {\'e}liorations}}\headcommand {\beamer@subsectionpages {16}{15}}
+\headcommand {\slideentry {4}{1}{1}{16/16}{Am\IeC {\'e}liorations}{0}}
+\headcommand {\beamer@framepages {16}{16}}
+\headcommand {\beamer@partpages {1}{16}}
+\headcommand {\beamer@subsectionpages {16}{16}}
+\headcommand {\beamer@sectionpages {16}{16}}
+\headcommand {\beamer@documentpages {16}}
+\headcommand {\def \inserttotalframenumber {16}}

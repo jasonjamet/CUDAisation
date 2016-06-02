@@ -4,7 +4,7 @@ int y2 = 2;
 
 
 
-#pragma cuda thread_loop(j) block_size(x1,y2) nbr_threads(16)
+#pragma cuda thread_loop(j) block_size(2,2) nbr_threads(16)
 void sum(float *x, float *y, float *z, int size) {
  int i;
  for(i=0; i<size; ++i) {

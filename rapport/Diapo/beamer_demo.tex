@@ -24,7 +24,7 @@
   \setlength{\TPHorizModule}{1mm}
   \setlength{\TPVertModule}{1mm}
 \newcommand{\logoUniv}{
-	\begin{textblock}{0}(115,22,5)
+	\begin{textblock}{0}(115,20)
       \includegraphics[scale=0.12,viewport=0 0 0 0]{angers.png}
     \end{textblock}	
 }
@@ -86,7 +86,7 @@
 \section{Analyse du problème}
 \subsection{Analyse générale}
 \frame{\frametitle{Analyse générale} \logoUniv
-
+Analyse de fonctions transformées en kernel
 \begin{block}{Les transformations à réaliser :}
 \begin{itemize}
 \item Initialisation de la variable récupérée dans le thread\_loop
@@ -98,12 +98,37 @@
 }
 
 \frame{\frametitle{Analyse générale} \logoUniv
+\begin{block}{Exemple simple:}
+
+\begin{center}
+	\includegraphics[scale=0.38]{cudasimpleanalyse.png}
+\end{center}
+\begin{textblock}{0}(2,70)
+	\includegraphics[scale=0.38]{cudasimpleanalyseres.png}
+\end{textblock}
+\end{block}
+
+}
+
+\frame{\frametitle{Analyse générale} \logoUniv
+\begin{block}{Exemple complexe:}
+
+\begin{center}
+	\includegraphics[scale=0.38]{cudacomplexeanalyse.png}
+\end{center}
+\end{block}
+
+}
+
+
+\frame{\frametitle{Analyse générale} \logoUniv
 
 \begin{block}{Eléments qui peuvent poser problème :}
 \begin{itemize}
-\item La variable size
-\item La taille des blocs
+\item Variable globale
+\item Parcours d'une boucle atypique
 \item Recherche de la boucle à paralléliser
+\item Fonction non void
 \end{itemize} 
 \end{block}
 
@@ -112,7 +137,6 @@
 \item Pragma
 \item Boucle for
 \item Déclaration de variables
-\item Fonction non void
 \end{itemize} 
 \end{block}
 }
@@ -180,6 +204,8 @@
 		\item Accessibilité des variables
 	\end{itemize}
 	
+~~\\~~\\~~\\
+{\color{orange}[WARNING] Variable(s) "x" may not be reachable}	
 
 }
 
@@ -190,7 +216,9 @@
 \item Modification de la boucle for vers une condition if
 \end{itemize} 
 
-
+\begin{center}
+	\includegraphics[scale=0.45]{gtid.png}
+\end{center}
 }
 
 \frame{\frametitle{Wrapper de la fonction transformée}  \logoUniv
@@ -200,6 +228,7 @@
 \item Affectation selon les paramètres s'ils existent
 \end{itemize} 
 
+\includegraphics[scale=0.35]{wrapper.png}
 }
 
 \section{Améliorations}

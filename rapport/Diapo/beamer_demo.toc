@@ -4,9 +4,9 @@
 \beamer@subsectionintoc {1}{1}{Objectif}{3}{0}{1}
 \beamer@sectionintoc {2}{Analyse du probl\IeC {\`e}me}{4}{0}{2}
 \beamer@subsectionintoc {2}{1}{Analyse g\IeC {\'e}n\IeC {\'e}rale}{4}{0}{2}
-\beamer@subsectionintoc {2}{2}{Solutions envisag\IeC {\'e}es}{6}{0}{2}
-\beamer@sectionintoc {3}{Conception}{7}{0}{3}
-\beamer@subsectionintoc {3}{1}{Solution retenue}{7}{0}{3}
-\beamer@subsectionintoc {3}{2}{R\IeC {\'e}alisation}{8}{0}{3}
-\beamer@sectionintoc {4}{Am\IeC {\'e}liorations}{14}{0}{4}
-\beamer@subsectionintoc {4}{1}{Am\IeC {\'e}liorations}{14}{0}{4}
+\beamer@subsectionintoc {2}{2}{Solutions envisag\IeC {\'e}es}{8}{0}{2}
+\beamer@sectionintoc {3}{Conception}{9}{0}{3}
+\beamer@subsectionintoc {3}{1}{Solution retenue}{9}{0}{3}
+\beamer@subsectionintoc {3}{2}{R\IeC {\'e}alisation}{10}{0}{3}
+\beamer@sectionintoc {4}{Am\IeC {\'e}liorations}{16}{0}{4}
+\beamer@subsectionintoc {4}{1}{Am\IeC {\'e}liorations}{16}{0}{4}
