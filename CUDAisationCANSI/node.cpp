@@ -1326,18 +1326,22 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 
 		FunctionDeclarator * function_declarator = dynamic_cast<FunctionDeclarator *>(declarator);
 		std::string parameters = "";
+		CodeLine *instanciate = new CodeLine();
 		if(function_declarator) {
 			for(ParameterDeclaration *parameter_declaration : function_declarator->parameter_type_list) {
+				instanciate->add("\t");
+				parameter_declaration->toPrettyCode(instanciate);
+				instanciate->add("_gpu;\n");
 				PointerDeclarator * pointer_declarator = dynamic_cast<PointerDeclarator *>(parameter_declaration->declarator);
 				if(pointer_declarator) {
 					IdentifierDeclarator *identifer_declarator = dynamic_cast<IdentifierDeclarator *>(pointer_declarator->direct_declarator);
 					if(identifer_declarator) {
-						parameters += identifer_declarator->identifier + ", ";
+						parameters += identifer_declarator->identifier + "_gpu, ";
 					}
 				} else {
 					IdentifierDeclarator *identifer_declarator = dynamic_cast<IdentifierDeclarator *>(parameter_declaration->declarator);
 					if(identifer_declarator) {
-						parameters += identifer_declarator->identifier + ", ";
+						parameters += identifer_declarator->identifier + "_gpu, ";
 					}
 				}
 				//parameter_declaration->declarator->toPrettyCode(line);
@@ -1348,6 +1352,9 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 			}
 		}
 
+		line->add(instanciate);
+		line->add("\n\t/*insérer ici les cuda_malloc et cuda_memcopy*/\n\n");
+
 		string block_str = "dim3(";
 		string thread_str = "dim3(";
 
@@ -1356,15 +1363,15 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 
 		if(vector_block_grid.size() > 0) {
 			if (vector_block_grid[0].size() > 0) {
-			line->add("\t int nbr_thread_x = " + vector_block_grid[0][0] + ";\n");
+			line->add("\tint nbr_thread_x = " + vector_block_grid[0][0] + ";\n");
 			thread_str += "nbr_thread_x";
 
 				if (vector_block_grid[0].size() > 1) {
-					line->add("\t int nbr_thread_y = " + vector_block_grid[0][1] + ";\n");
+					line->add("\tint nbr_thread_y = " + vector_block_grid[0][1] + ";\n");
 					thread_str += ", nbr_thread_y";
 
 					if (vector_block_grid[0].size() > 2) {
-						line->add("\t int nbr_thread_z = " + vector_block_grid[0][2] + ";\n");
+						line->add("\tint nbr_thread_z = " + vector_block_grid[0][2] + ";\n");
 						thread_str += ", nbr_thread_z";
 					}
 				}
@@ -1378,15 +1385,15 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 
 		if(vector_block_grid.size() > 1) {
 			if (vector_block_grid[1].size() > 0) {
-				line->add("\t int nbr_block_x = " + vector_block_grid[1][0] + ";\n");
+				line->add("\tint nbr_block_x = " + vector_block_grid[1][0] + ";\n");
 				block_str += "nbr_block_x" ;
 
 				if (vector_block_grid[1].size() > 1) {
-					line->add("\t int nbr_block_y = " + vector_block_grid[1][1] + ";\n");
+					line->add("\tint nbr_block_y = " + vector_block_grid[1][1] + ";\n");
 					block_str += ", nbr_block_y" ;
 
 					if (vector_block_grid[1].size() > 2) {
-						line->add("\t int nbr_block_z = " + vector_block_grid[1][2] + ";\n");
+						line->add("\tint nbr_block_z = " + vector_block_grid[1][2] + ";\n");
 						block_str += ", nbr_block_z";
 					}
 				}
@@ -1398,8 +1405,8 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 		block_str += ")";
 
 
-		line->add("\n\t kernel_" + cuda_definition->functionDefinition->function_name + " <<< " + block_str + " , " + thread_str + " >>> (" + parameters + ");");
-
+		line->add("\n\tkernel_" + cuda_definition->functionDefinition->function_name + " <<< " + block_str + " , " + thread_str + " >>> (" + parameters + ");");
+		line->add("\n\n\t/*insérer ici les cuda_memcopy et cuda_free*/\n");
 
 		line->add("\n}");
 
