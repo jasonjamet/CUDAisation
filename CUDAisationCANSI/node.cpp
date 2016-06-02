@@ -1327,6 +1327,8 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 		FunctionDeclarator * function_declarator = dynamic_cast<FunctionDeclarator *>(declarator);
 		std::string parameters = "";
 		CodeLine *instanciate = new CodeLine();
+		CodeLine *cuda_malloc = new CodeLine();
+		CodeLine *cuda_free = new CodeLine();
 		if(function_declarator) {
 			for(ParameterDeclaration *parameter_declaration : function_declarator->parameter_type_list) {
 				instanciate->add("\t");
@@ -1337,6 +1339,8 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 					IdentifierDeclarator *identifer_declarator = dynamic_cast<IdentifierDeclarator *>(pointer_declarator->direct_declarator);
 					if(identifer_declarator) {
 						parameters += identifer_declarator->identifier + "_gpu, ";
+						cuda_malloc->add("\tcudaMalloc( (void**) &" + identifer_declarator->identifier + "_gpu, /*replace with size*/ );\n");
+						cuda_free->add("\tcudaFree( " + identifer_declarator->identifier + "_gpu );\n");
 					}
 				} else {
 					IdentifierDeclarator *identifer_declarator = dynamic_cast<IdentifierDeclarator *>(parameter_declaration->declarator);
@@ -1353,7 +1357,9 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 		}
 
 		line->add(instanciate);
-		line->add("\n\t/*insérer ici les cuda_malloc et cuda_memcopy*/\n\n");
+		line->add("\n");
+		line->add(cuda_malloc);
+		line->add("\n\t/*insérer ici les cuda_memcopy*/\n\n");
 
 		string block_str = "dim3(";
 		string thread_str = "dim3(";
@@ -1405,8 +1411,9 @@ void FunctionDefinition::toPrettyCode(CodeString* context){
 		block_str += ")";
 
 
-		line->add("\n\tkernel_" + cuda_definition->functionDefinition->function_name + " <<< " + block_str + " , " + thread_str + " >>> (" + parameters + ");");
-		line->add("\n\n\t/*insérer ici les cuda_memcopy et cuda_free*/\n");
+		line->add("\n\tkernel_" + cuda_definition->functionDefinition->function_name + " <<< " + block_str + " , " + thread_str + " >>> (" + parameters + ");\n\n");
+		line->add(cuda_free);
+
 
 		line->add("\n}");
 
