@@ -1257,7 +1257,7 @@ std::vector<std::vector<std::string>> getDimBlockGridString(CudaDefinition *cuda
 			vector_block_grid.push_back(vector_grid);
 			return  vector_block_grid;
 		} else {
-			std::cout << "[WARNING] Neither grid size or block size defined" << std::endl;
+			std::cout << "[WARNING] Neither nbr_threads or block_size defined" << std::endl;
 			vector_block = {"1","1","1"};
 			vector_grid.push_back(cuda_definition->size_identifier);
 			vector_block_grid.push_back(vector_block);
@@ -1591,6 +1591,7 @@ void integrityTest() {
 				std::string inc_operator;
 				PostfixOperation * postfix_operation = dynamic_cast<PostfixOperation *>(for_compound->expression.back());
 				UnaryOperation * unary_operation = dynamic_cast<UnaryOperation *>(for_compound->expression.back());
+				AssignmentExpression * assignment_expression = dynamic_cast<AssignmentExpression *>(for_compound->expression.back());
 
 				if(postfix_operation) {
 					identifier = dynamic_cast<Identifier *>(postfix_operation->operand);
@@ -1598,10 +1599,15 @@ void integrityTest() {
 				} else if(unary_operation){
 					identifier = dynamic_cast<Identifier *>(unary_operation->operand);
 					inc_operator = unary_operation->unary_operator->value;
+				} else if(assignment_expression) {
+					identifier = dynamic_cast<Identifier *>(assignment_expression->unary_expression);
+					if(identifier && identifier->value == cuda_loop_relation->thread_loop_identifier) {
+						std::cout << "[WARNING] Loop condition is not correctly formed." << std::endl;
+						return ;
+					}
 				}
 
 				if(identifier && cuda_loop_relation->thread_loop_identifier == identifier->value) {
-
 					checkVariables(cuda_loop_relation->cuda_variable_used_list, cuda_loop_relation->cuda_variable_declared_list);
 					if(inc_operator != "++") {
 						std::cout << "[WARNING] Operator \"" << inc_operator << "\" instead of \"++\"" << std::endl;
@@ -1634,6 +1640,8 @@ void integrityTest() {
 							std::cout << "[WARNING] Loop condition is not correctly formed." << std::endl;
 						}
 					}
+				} else {
+
 				}
 			}
 
